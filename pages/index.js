@@ -46,7 +46,17 @@ class IndexPage extends Component {
   }
 
   async componentDidMount() {
-    let info = await getOptionsInfo();
+    await this.updatePage();
+  }
+
+  updatePage = async () => {
+    this.setState({pageLoading: true});
+    let address = null;
+    if (this.props.selectedAccount) {
+      address = this.props.selectedAccount.get('address');
+    }
+    console.log('address:', address);
+    let info = await getOptionsInfo(address);
     console.log(info);
     let optionTokenInfo = info.optionTokenInfo;
     let hedgeInfo = Object.assign({}, this.state.hedgeInfo);
@@ -58,7 +68,6 @@ class IndexPage extends Component {
     leverageInfo.currency = this.getCollateralTokenType(optionTokenInfo);
 
     console.log('leverageInfo', leverageInfo);
-
 
     this.setState({
       optionsInfo: info,
@@ -165,8 +174,8 @@ class IndexPage extends Component {
     },
     {
       title: 'Price now',
-      dataIndex: 'priceNow',
-      key: 'priceNow',
+      dataIndex: 'price',
+      key: 'price',
     },
     {
       title: 'Percentage of collateral',
@@ -188,31 +197,6 @@ class IndexPage extends Component {
     },
   ]
 
-  myAssetDemo = [
-    {
-      tokenName: 'BTC call, 9th 5, $7000',
-      underlyingAssetsPrice: '$7200',
-      strikePrice: '$7000',
-      amount: '20',
-      pricePaid: '$60',
-      priceNow: '$180',
-      percentageOfCollateral: '130%',
-      expectedReturn: '$200',
-      key: 0,
-    },
-    {
-      tokenName: 'BTC put, 9th 5, $7000',
-      underlyingAssetsPrice: '$7200',
-      strikePrice: '$7000',
-      amount: '30',
-      pricePaid: '$60',
-      priceNow: '$80',
-      percentageOfCollateral: '120%',
-      expectedReturn: '$0',
-      key: 1,
-    }
-
-  ]
 
   updateHedgeInput = (value) => {
     const { hedgeData, leverageData } = this.getTableData();
@@ -453,14 +437,14 @@ class IndexPage extends Component {
           <div className={styles.box}>
             <h1>Hedge risk of your BTC value down</h1>
             <Row gutter={[16, 16]} className={styles.center}>
-              <Col span={4}>How many BTC are you holding</Col>
+              <Col span={6}>How many BTC are you holding</Col>
               <Col span={4}>Expiration</Col>
               <Col span={3}>Currency to pay</Col>
               <Col span={6}>Hedge Price in $ / chose currency</Col>
-              <Col span={6}>Return due to the price go down in percentage</Col>
+              <Col span={4}>Return due to the price go down in percentage</Col>
             </Row>
             <Row gutter={[16, 16]} className={styles.center}>
-              <Col span={4}>
+              <Col span={6}>
                 <Row gutter={[16, 16]}>
                   <Col span={12}>
                     <Input suffix={"BTC"} value={this.state.hedgeInfo.amount}
@@ -501,7 +485,7 @@ class IndexPage extends Component {
                 </Radio.Group>
               </Col>
               <Col span={6}>${this.state.hedgeInfo.price} / {this.state.hedgeInfo.currency[this.state.hedgeInfo.currencySelect]} {this.state.hedgeInfo.choseCurrency}</Col>
-              <Col span={6}>
+              <Col span={4}>
                 <Row gutter={[16, 16]}>
                   <Col span={8}>${this.state.hedgeInfo.return}</Col>
                   <Col span={16}>
@@ -527,14 +511,14 @@ class IndexPage extends Component {
           <div className={styles.box}>
             <h1>Leverage your BTC</h1>
             <Row gutter={[16, 16]} className={styles.center}>
-              <Col span={4}>How many BTC are you plan to leverage</Col>
+              <Col span={6}>How many BTC are you plan to leverage</Col>
               <Col span={4}>Expiration</Col>
               <Col span={3}>Currency to pay</Col>
               <Col span={6}>Leverage Price in $ / chose currency</Col>
-              <Col span={6}>Return due to the price go up in percentage</Col>
+              <Col span={4}>Return due to the price go up in percentage</Col>
             </Row>
             <Row gutter={[16, 16]} className={styles.center}>
-              <Col span={4}>
+              <Col span={6}>
                 <Row gutter={[16, 16]}>
                   <Col span={12}>
                     <Input suffix={"BTC"} value={this.state.leverageInfo.amount}
@@ -574,7 +558,7 @@ class IndexPage extends Component {
                 </Radio.Group>
               </Col>
               <Col span={6}>${this.state.leverageInfo.price} / {this.state.leverageInfo.currency[this.state.leverageInfo.currencySelect]} {this.state.leverageInfo.choseCurrency}</Col>
-              <Col span={6}>
+              <Col span={4}>
                 <Row gutter={[16, 16]}>
                   <Col span={8}>${this.state.leverageInfo.return}</Col>
                   <Col span={16}>
@@ -599,7 +583,7 @@ class IndexPage extends Component {
           <Divider />
           <div className={styles.box}>
             <h1>My assets</h1>
-            <Table dataSource={this.myAssetDemo} columns={this.myAssetsColumn} />
+            <Table dataSource={this.state.optionsInfo.assets} columns={this.myAssetsColumn} />
           </div>
           <Divider />
           <div className={styles.box}>

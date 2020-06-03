@@ -21,7 +21,7 @@ if (nodeUrl.indexOf('ws') === 0) {
 
 let mmtSC = new web3.eth.Contract(abiMatchMakingTrading, matchMakingTradingSCAddress);
 
-export const getOptionsInfo = async () => {
+export const getOptionsInfo = async (address) => {
   let info = {};
   info.blockNumber = await web3.eth.getBlockNumber();
   info.optionsManagerAddress = await mmtSC.methods.getOptionsManagerAddress().call();
@@ -32,6 +32,8 @@ export const getOptionsInfo = async () => {
   let oracleSC = new web3.eth.Contract(abiCompoundOracle, info.oracleAddress);
   info.optionTokenList = await optionMangerSC.methods.getOptionsTokenList().call();
   info.optionTokenInfo = [];
+  info.assets = [];
+  info.history = [];
 
   for (let i = 0; i < info.optionTokenList.length; i++) {
     let token = info.optionTokenList[i];
@@ -92,6 +94,29 @@ export const getOptionsInfo = async () => {
       subInfo.totalCollateral = totalCollateral;
       subInfo.collateralTokenPrice = collateralTokenPrice;
 
+      if (address && address != null) {
+        let tokenBalance = await getBalance(token, address);
+        if (tokenBalance > 0) {
+          info.assets.push({
+            tokenName: subInfo.tokenName,
+            underlyingAssetsPrice: subInfo.underlyingAssetsPrice,
+            strikePrice: subInfo.strikePrice,
+            amount: tokenBalance,
+            pricePaid: '$--',
+            price: subInfo.price,
+            percentageOfCollateral: subInfo.percentageOfCollateral,
+            expectedReturn: '$--'
+          })
+        }
+
+        let events = await mmtSC.getPastEvents('BuyOptionsToken', {
+          filter: {from: address, optionsToken: token},
+          fromBlock: 0,
+          toBlock: info.blockNumber
+        });
+        console.log('events:', events);
+      }
+
       info.optionTokenInfo.push(subInfo);
     }
   }
@@ -107,20 +132,20 @@ function priceConvert(price) {
   return Number((Number(price) / decimals).toFixed(4));
 }
 
-export const getBalance = async (token, address) => {
+export const getBalance = async (tokenAddress, address) => {
   let balance = 0;
   try {
-    if (token === '0x0000000000000000000000000000000000000000') {
+    if (tokenAddress === '0x0000000000000000000000000000000000000000') {
       balance = await web3.eth.getBalance(address);
     } else {
-      let token = new web3.eth.Contract(abiErc20, token);
+      let token = new web3.eth.Contract(abiErc20, tokenAddress);
       balance = await token.methods.balanceOf(address).call();
     }
   } catch (err) {
     console.log(err);
   }
 
-  return Number(web3.utils.fromWei(balance));
+  return Number(web3.utils.fromWei(balance.toString()));
 }
 
 export const approve = async (token, owner, amount, selectedWallet) => {
@@ -157,7 +182,7 @@ export const generateBuyOptionsTokenData = async (info) => {
   return encodedData;
 }
 
-export async function generateTx (data, currencyAmount, address, selectedWallet, info) {
+export const generateTx = async (data, currencyAmount, address, selectedWallet, info) => {
   const txParam = {
     to: matchMakingTradingSCAddress,
     data,
@@ -203,8 +228,7 @@ export const estimateGas = async (info, value, address) => {
   }
 }
 
-
-export async function sendTransaction(selectedWallet, params) {
+export const sendTransaction = async (selectedWallet, params) => {
   try {
     console.log('sendTransaction:', params);
     let transactionID = await selectedWallet.sendTransaction(params);
@@ -250,3 +274,7 @@ export const watchTransactionStatus = (txID, callback) => {
 };
 
 export const getWeb3 = () => { return web3; }
+
+export const getAssets = async (address) => {
+
+}
