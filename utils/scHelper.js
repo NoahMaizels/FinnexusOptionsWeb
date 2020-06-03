@@ -46,7 +46,7 @@ export const getOptionsInfo = async () => {
         collateralToken: ret[1],//settlementsCurrency
         collateralTokenType: ret[1] === "0x0000000000000000000000000000000000000000" ? 'WAN' : 'FNX',
         underlyingAssets: ret[2] === '1' ? 'BTC' : 'ETH', // 1: BTC, 2: ETH
-        strikePrice: '$' + (Number(ret[3]) / decimals).toFixed(4),
+        strikePrice: '$' + priceConvert(ret[3]),
         expiration: (new Date(ret[4] * 1000)).toDateString().split(' ').slice(1, 3).join(' '),
         key: i,
       };
@@ -56,26 +56,39 @@ export const getOptionsInfo = async () => {
 
       subInfo.sellOrderList = await mmtSC.methods.getSellOrderList(token, subInfo.collateralToken).call();
       subInfo.payOrderList = await mmtSC.methods.getPayOrderList(token, subInfo.collateralToken).call();
-      subInfo.liquidity = subInfo.sellOrderList[2].length > 0 ? eval(subInfo.sellOrderList[2].join('+')) : 0;
+      let liquidity = subInfo.sellOrderList[2].length > 0 ? eval(subInfo.sellOrderList[2].join('+')) : 0;
+      subInfo.liquidity = web3.utils.fromWei(liquidity.toString());
+
       let price = await oracleSC.methods.getBuyOptionsPrice(token).call();
-      subInfo.price = '$' + (Number(price) / decimals).toFixed(4);
-      let underlyingPrice = await oracleSC.methods.getUnderlyingPrice(token).call();
-      subInfo.underlyingAssetsPrice = '$' + (Number(underlyingPrice) / decimals).toFixed(4);
+      subInfo.price = '$' + priceConvert(price);
+
+      let underlyingPrice = await oracleSC.methods.getUnderlyingPrice(ret[2]).call();
+      subInfo.underlyingAssetsPrice = '$' + priceConvert(underlyingPrice);
+
       let writers = await optionMangerSC.methods.getOptionsTokenWriterList(token).call();
       subInfo.writers = writers;
-      let collateralTokenPrice = await oracleSC.methods.getPrice(subInfo.collateralToken).call();
+      console.log('writers:', writers);
+
+      let collateralTokenPrice = priceConvert(await oracleSC.methods.getPrice(subInfo.collateralToken).call());
       let minColPrice;
       if (subInfo.type === 'call') {
         minColPrice = await formulasSC.methods.callCollateralPrice(ret[3], underlyingPrice).call();
       } else {
         minColPrice = await formulasSC.methods.putCollateralPrice(ret[3], underlyingPrice).call();
       }
-      let totalCollateral = writers[1].length > 0 ? eval(writers[1].join('+')) : 0;
+      minColPrice = priceConvert(minColPrice);
+
+      let totalCollateral = 0;
+      for (let m=0; m<writers[1].length; m++) {
+        totalCollateral += Number(web3.utils.fromWei(writers[1][m]));
+      }
+
+      totalCollateral = web3.utils.fromWei(totalCollateral.toString());
       let collateralPercent = (Number(totalCollateral) * (collateralTokenPrice)) / (Number(minColPrice) * subInfo.liquidity);
       subInfo.percentageOfCollateral = (collateralPercent * 100).toFixed(1) + '%';
-      subInfo.minColPrice = minColPrice;
+      subInfo.minColPrice = Number((minColPrice/decimals).toFixed(4));
       subInfo.totalCollateral = totalCollateral;
-      subInfo.collateralTokenPrice = collateralTokenPrice/10000;
+      subInfo.collateralTokenPrice = collateralTokenPrice;
 
       info.optionTokenInfo.push(subInfo);
     }
@@ -86,6 +99,10 @@ export const getOptionsInfo = async () => {
   info.tradingEnd = await mmtSC.methods.getTradingEnd().call();
 
   return info;
+}
+
+function priceConvert(price) {
+  return Number((Number(price) / decimals).toFixed(4));
 }
 
 export const getBalance = async (token, address) => {

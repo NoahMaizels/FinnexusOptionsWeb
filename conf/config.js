@@ -1,5 +1,5 @@
 const mainnetSCAddr = '';//mainnet
-const testnetSCAddr = '0x0d146A64D447c3e0d5e0F2079E974F95368c50fb';//testnet 
+const testnetSCAddr = '0x5Dc09503D2a6FA372485AB4f357f076A2CA0A788';//testnet 
 
 // change networkId to switch network
 export const networkId = 3; //1:mainnet, 3:testnet;
@@ -11,4 +11,4 @@ export const nodeUrl = networkId == 1 ? "wss://api2.wanchain.org:8443/ws/v3/30e9
 
 export const smartContractAddress = networkId == 1 ? mainnetSCAddr : testnetSCAddr;
 
-export const decimals = 10000;
+export const decimals = 10000; // Price from oracle div decimals
