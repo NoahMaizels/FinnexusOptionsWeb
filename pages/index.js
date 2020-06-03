@@ -2,11 +2,13 @@ import { connect } from "react-redux";
 import { Component } from "react";
 import { Row, Col, Input, Slider, Radio, Table, Button, Divider, Spin, Modal, message } from "antd";
 import BigNumber from 'bignumber.js';
-import { Wallet, getSelectedAccount, WalletButton, WalletButtonLong, getSelectedAccountWallet, getTransactionReceipt } from "wan-dex-sdk-wallet";
+import { Wallet, getSelectedAccount, WalletButton, WalletButtonLong, getSelectedAccountWallet } from "wan-dex-sdk-wallet";
 import "wan-dex-sdk-wallet/index.css";
 import styles from './style.less';
-import { getOptionsInfo, getBalance } from '../utils/scHelper';
+import { getOptionsInfo, getBalance, generateBuyOptionsTokenData, generateTx, watchTransactionStatus, sendTransaction, approve, getWeb3 } from '../utils/scHelper';
 const { confirm } = Modal;
+
+let web3 = getWeb3();
 
 class IndexPage extends Component {
   constructor(props) {
@@ -64,6 +66,8 @@ class IndexPage extends Component {
       pageLoading: false,
       hedgeInfo,
       leverageInfo,
+      hedgeNowLoading: false,
+      leverageNowLoading: false,
     });
   }
 
@@ -249,7 +253,7 @@ class IndexPage extends Component {
   }
 
   getBuyInfo = (info) => {
-    info.payAmount = Number((info.buyAmount * Number(info.price.replace('$', '')) / info.collateralTokenPrice).toFixed(8));
+    
 
     return (<div style={{marginTop:'40px'}}>
       <Row gutter={[16, 8]}>
@@ -262,7 +266,7 @@ class IndexPage extends Component {
       </Row>
       <Row gutter={[16, 8]}>
         <Col span={8}><h4>Trade Fee:</h4></Col>
-        <Col span={16}><h4>{info.tradeFee}</h4></Col>
+        <Col span={16}><h4>{info.tradeFee*100 + '%'}</h4></Col>
       </Row>
       <Row gutter={[16, 8]}>
         <Col span={8}><h4>Buy Amount:</h4></Col>
@@ -289,15 +293,34 @@ class IndexPage extends Component {
       return;
     }
 
+    if (info.buyAmount === 0) {
+      message.warn("Please input buy amount");
+      return;
+    }
+
+
     let address = this.props.selectedAccount.get('address');
     console.log('address', address);
+    this.setState({hedgeNowLoading: true});
     info.balance = await getBalance(info.collateralToken, address);
+    this.setState({hedgeNowLoading: false});
+    info.payAmount = Number((info.buyAmount * Number(info.price.replace('$', '')) / info.collateralTokenPrice + 0.1).toFixed(8));
     console.log('dlg info:', info);
     confirm({
       title: 'Buy Options Token',
       content: this.getBuyInfo(info),
-      onOk() {
+      onOk: () => {
         console.log('OK');
+        this.buyOptionToken(
+          address, 
+          info.balance, 
+          info.payAmount, 
+          info.buyAmount, 
+          info.collateralToken, 
+          info.optionsToken,
+          "hedge").then((value) => {
+            console.log(value);
+          }).catch(console.log);
       },
       onCancel() {
         console.log('Cancel');
@@ -315,21 +338,101 @@ class IndexPage extends Component {
       return;
     }
 
+    if (info.buyAmount === 0) {
+      message.warn("Please input buy amount");
+      return;
+    }
+
+
     let address = this.props.selectedAccount.get('address');
     console.log('address', address);
+    this.setState({leverageNowLoading: true});
     info.balance = await getBalance(info.collateralToken, address);
+    this.setState({leverageNowLoading: true});
+    info.payAmount = Number((info.buyAmount * Number(info.price.replace('$', '')) / info.collateralTokenPrice + 0.1).toFixed(8));
+
     console.log('dlg info:', info);
     confirm({
       title: 'Buy Options Token',
       content: this.getBuyInfo(info),
-      onOk() {
+      onOk: () => {
         console.log('OK');
+        this.buyOptionToken(
+          address, 
+          info.balance, 
+          info.payAmount, 
+          info.buyAmount, 
+          info.collateralToken, 
+          info.optionsToken, 
+          "leverage").then((value) => {
+            console.log(value);
+          }).catch(console.log);
       },
       onCancel() {
         console.log('Cancel');
       },
     });
   }
+
+
+  buyOptionToken = async (walletAddress, balance, payAmount, buyAmount, collateralToken, optionsToken, type) => {
+    if (balance < payAmount) {
+      message.error("Balance not enough");
+      return false;
+    }
+    let info = {
+      optionsToken,
+      amount: buyAmount,
+      collateralToken,
+      currencyAmount: payAmount,
+    };
+
+    let data = await generateBuyOptionsTokenData(info);
+
+    console.log('data:', data);
+
+    if (collateralToken === '0x0000000000000000000000000000000000000000') {
+    } else {
+      await approve(collateralToken, walletAddress, payAmount, this.props.selectedWallet);
+      payAmount = 0;
+    }
+
+    let currencyAmount = web3.utils.toHex(web3.utils.toWei(payAmount.toString())).toString();
+    console.log('currencyAmount', currencyAmount);
+
+    let txParam = await generateTx(data, currencyAmount, walletAddress, this.props.selectedWallet, info);
+    console.log('txParam:', txParam);
+    if (!txParam) {
+      message.error("Estimate Gas Failed");
+      return;
+    }
+
+    let txID = await sendTransaction(this.props.selectedWallet, txParam);
+    if (!txID) {
+      return;
+    }
+
+    if (type==='hedge') {
+      this.setState({hedgeNowLoading: true});
+    } else {
+      this.setState({leverageNowLoading: true});
+    }
+
+    message.info("Transaction sent, txHash:" + txID);
+    watchTransactionStatus(txID, (status) => {
+      if(status) {
+        message.info("Buy Options Success");
+      } else {
+        message.error("Buy Options Failed");
+      }
+      if (type==='hedge') {
+        this.setState({hedgeNowLoading: false});
+      } else {
+        this.setState({leverageNowLoading: false});
+      }
+    })
+  }
+
 
   render() {
     const { hedgeData, leverageData } = this.getTableData();
@@ -417,7 +520,7 @@ class IndexPage extends Component {
             </Row>
             <Table dataSource={hedgeData} columns={this.hedgeColumn} />
             <div className={styles.center}>
-              <Button type="primary" style={{ margin: "20px" }} onClick={this.hedgeNow}>Hedge Now</Button>
+              <Button loading={this.state.hedgeNowLoading} type="primary" style={{ margin: "20px" }} onClick={this.hedgeNow}>Hedge Now</Button>
             </div>
           </div>
           <Divider />
@@ -490,7 +593,7 @@ class IndexPage extends Component {
             </Row>
             <Table dataSource={leverageData} columns={this.hedgeColumn} />
             <div className={styles.center}>
-              <Button type="primary" style={{ margin: "20px" }} onClick={this.leverageNow}>Leverage Now</Button>
+              <Button loading={this.state.leverageNowLoading} type="primary" style={{ margin: "20px" }} onClick={this.leverageNow}>Leverage Now</Button>
             </div>
           </div>
           <Divider />
