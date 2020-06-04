@@ -380,12 +380,11 @@ class IndexPage extends Component {
       return;
     }
 
-
     let address = this.props.selectedAccount.get('address');
     console.log('address', address);
     this.setState({leverageNowLoading: true});
     info.balance = await getBalance(info.collateralToken, address);
-    this.setState({leverageNowLoading: true});
+    this.setState({leverageNowLoading: false});
     info.payAmount = Number((info.buyAmount * Number(info.price.replace('$', '')) / info.collateralTokenPrice).toFixed(8));
     info.payAmount = Number((info.payAmount + info.payAmount*info.tradeFee + 0.0001).toFixed(8));
 
