@@ -445,7 +445,7 @@ class IndexPage extends Component {
     let existBuyAmount = await getBuyOptionsOrderAmount(info.optionsToken, info.collateralToken);
     let ret = false;
     console.log('existBuyAmount:', existBuyAmount, info.amount);
-    if (existBuyAmount > info.amount) {
+    if (Number(existBuyAmount) > Number(info.amount)) {
       ret = await sellOptionsToken(address, this.props.selectedWallet, info, 'sell');
     } else {
       ret = await sellOptionsToken(address, this.props.selectedWallet, info, 'addOrder');
