@@ -72,7 +72,7 @@ class IndexPage extends Component {
     while (this.props.selectedAccount === null) {
       if (timer > 10) {
         message.info('account not found');
-        return false;
+        break;
       }
       await sleep(500);
       timer++;
