@@ -446,19 +446,19 @@ class IndexPage extends Component {
     let ret = false;
     console.log('existBuyAmount:', existBuyAmount, info.amount);
     if (existBuyAmount > info.amount) {
-      ret = await sellOptionsToken(address, this.props.selectedWallet, info);
+      ret = await sellOptionsToken(address, this.props.selectedWallet, info, 'sell');
     } else {
-      ret = await createSellOptionsTokenOrder(address, this.props.selectedWallet, info);
+      ret = await sellOptionsToken(address, this.props.selectedWallet, info, 'addOrder');
     }
 
     if (!ret) {
       message.warn("Sell Options Failed");
     } else {
       message.info("Sell Options Success");
+      this.updatePage();
     }
 
     this.setState({sellLoading: false});
-    this.updatePage();
   }
 
   sendNow = async (record) => {
