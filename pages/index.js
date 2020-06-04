@@ -3,9 +3,24 @@ import { Component } from "react";
 import { Row, Col, Input, Slider, Radio, Table, Button, Divider, Spin, Modal, message } from "antd";
 import BigNumber from 'bignumber.js';
 import { Wallet, getSelectedAccount, WalletButton, WalletButtonLong, getSelectedAccountWallet } from "wan-dex-sdk-wallet";
+import sleep from 'ko-sleep';
+
 import "wan-dex-sdk-wallet/index.css";
 import styles from './style.less';
-import { getOptionsInfo, getBalance, generateBuyOptionsTokenData, generateTx, watchTransactionStatus, sendTransaction, approve, getWeb3 } from '../utils/scHelper';
+import { 
+  getOptionsInfo, 
+  getBalance, 
+  generateBuyOptionsTokenData, 
+  generateTx, 
+  watchTransactionStatus, 
+  sendTransaction, 
+  approve, 
+  getWeb3,
+  getBuyOptionsOrderAmount,
+  sellOptionsToken,
+  createSellOptionsTokenOrder
+} from '../utils/scHelper';
+
 const { confirm } = Modal;
 
 let web3 = getWeb3();
@@ -17,6 +32,7 @@ class IndexPage extends Component {
       optionsInfo: {},
       optionTokenInfo: [],
       pageLoading: true,
+      sellLoading: false,
 
       hedgeInfo: {
         amount: 0,
@@ -52,6 +68,16 @@ class IndexPage extends Component {
   updatePage = async () => {
     this.setState({pageLoading: true});
     let address = null;
+    let timer = 0;
+    while (this.props.selectedAccount === null) {
+      if (timer > 10) {
+        message.info('account not found');
+        return false;
+      }
+      await sleep(500);
+      timer++;
+    }
+
     if (this.props.selectedAccount) {
       address = this.props.selectedAccount.get('address');
     }
@@ -191,10 +217,38 @@ class IndexPage extends Component {
       title: '',
       dataIndex: '',
       key: 'action',
-      render: () => {
-        return (<Button type="primary">Sell now</Button>)
+      render: (text, record) => {
+        return (<Button loading={this.state.sellLoading} type="primary" onClick={() => { this.sendNow(record) }} >Sell now</Button>)
       }
     },
+  ]
+
+  historyColum = [
+    {
+      title: 'Block Number',
+      dataIndex: "blockNumber",
+      key: 'blockNumber',
+    },
+    {
+      title: 'Transaction Hash',
+      dataIndex: 'txHash',
+      key: 'txHash',
+    },
+    {
+      title: 'Amount',
+      dataIndex: 'amount',
+      key: 'amount',
+    },
+    {
+      title: 'Options Price',
+      dataIndex: 'optionsPrice',
+      key: 'optionsPrice',
+    },
+    {
+      title: 'Type',
+      dataIndex: 'type',
+      key: 'type',
+    }
   ]
 
 
@@ -237,8 +291,6 @@ class IndexPage extends Component {
   }
 
   getBuyInfo = (info) => {
-    
-
     return (<div style={{marginTop:'40px'}}>
       <Row gutter={[16, 8]}>
         <Col span={8}><h4>Token Name:</h4></Col>
@@ -288,7 +340,8 @@ class IndexPage extends Component {
     this.setState({hedgeNowLoading: true});
     info.balance = await getBalance(info.collateralToken, address);
     this.setState({hedgeNowLoading: false});
-    info.payAmount = Number((info.buyAmount * Number(info.price.replace('$', '')) / info.collateralTokenPrice + 0.1).toFixed(8));
+    info.payAmount = Number((info.buyAmount * Number(info.price.replace('$', '')) / info.collateralTokenPrice).toFixed(8));
+    info.payAmount = Number((info.payAmount + info.payAmount*info.tradeFee  + 0.0001).toFixed(8));
     console.log('dlg info:', info);
     confirm({
       title: 'Buy Options Token',
@@ -333,7 +386,8 @@ class IndexPage extends Component {
     this.setState({leverageNowLoading: true});
     info.balance = await getBalance(info.collateralToken, address);
     this.setState({leverageNowLoading: true});
-    info.payAmount = Number((info.buyAmount * Number(info.price.replace('$', '')) / info.collateralTokenPrice + 0.1).toFixed(8));
+    info.payAmount = Number((info.buyAmount * Number(info.price.replace('$', '')) / info.collateralTokenPrice).toFixed(8));
+    info.payAmount = Number((info.payAmount + info.payAmount*info.tradeFee + 0.0001).toFixed(8));
 
     console.log('dlg info:', info);
     confirm({
@@ -357,7 +411,82 @@ class IndexPage extends Component {
       },
     });
   }
+  
+  getSellInfo = (info) => {
+    return (<div style={{marginTop:'40px'}}>
+      <Row gutter={[16, 8]}>
+        <Col span={8}><h4>Token Name:</h4></Col>
+        <Col span={16}><h4>{info.tokenName}</h4></Col>
+      </Row>
+      <Row gutter={[16, 8]}>
+        <Col span={8}><h4>Sell Price:</h4></Col>
+        <Col span={16}><h4>{info.sellPrice}</h4></Col>
+      </Row>
+      <Row gutter={[16, 8]}>
+        <Col span={8}><h4>Trade Fee:</h4></Col>
+        <Col span={16}><h4>{info.tradeFee*100 + '%'}</h4></Col>
+      </Row>
+      <Row gutter={[16, 8]}>
+        <Col span={8}><h4>Sell Amount:</h4></Col>
+        <Col span={16}><h4>{info.amount}</h4></Col>
+      </Row>
+    </div>)
+  }
 
+  sellOptionToken = async (info) => {
+    if (!this.props.selectedAccount) {
+      message.info("Please select wallet first");
+      return;
+    }
+
+    this.setState({sellLoading: true});
+    let address = this.props.selectedAccount.get('address');
+
+    console.log(info.optionsToken, info.collateralToken);
+    let existBuyAmount = await getBuyOptionsOrderAmount(info.optionsToken, info.collateralToken);
+    let ret = false;
+    console.log('existBuyAmount:', existBuyAmount, info.amount);
+    if (existBuyAmount > info.amount) {
+      ret = await sellOptionsToken(address, this.props.selectedWallet, info);
+    } else {
+      ret = await createSellOptionsTokenOrder(address, this.props.selectedWallet, info);
+    }
+
+    if (!ret) {
+      message.warn("Sell Options Failed");
+    } else {
+      message.info("Sell Options Success");
+    }
+
+    this.setState({sellLoading: false});
+    this.updatePage();
+  }
+
+  sendNow = async (record) => {
+    console.log(record);
+    let optionInfos = this.state.optionsInfo.optionTokenInfo;
+    let info;
+    for (let i=0; i<optionInfos.length; i++) {
+      if(optionInfos[i].tokenName === record.tokenName) {
+        info = optionInfos[i];
+        break;
+      }
+    }
+    info.amount = record.amount;
+    info.tradeFee = this.state.optionsInfo.transactionFee;
+
+    confirm({
+      title: 'Buy Options Token',
+      content: this.getSellInfo(info),
+      onOk: () => {
+        console.log('OK');
+        this.sellOptionToken(info);
+      },
+      onCancel() {
+        console.log('Cancel');
+      },
+    });
+  }
 
   buyOptionToken = async (walletAddress, balance, payAmount, buyAmount, collateralToken, optionsToken, type) => {
     if (balance < payAmount) {
@@ -406,6 +535,7 @@ class IndexPage extends Component {
     watchTransactionStatus(txID, (status) => {
       if(status) {
         message.info("Buy Options Success");
+        this.updatePage();
       } else {
         message.error("Buy Options Failed");
       }
@@ -588,7 +718,7 @@ class IndexPage extends Component {
           <Divider />
           <div className={styles.box}>
             <h1>History</h1>
-            <Table dataSource={this.myAssetDemo} columns={this.myAssetsColumn} />
+            <Table dataSource={this.state.optionsInfo.history} columns={this.historyColum} />
           </div>
           <div></div>
         </Spin>

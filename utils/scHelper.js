@@ -6,6 +6,7 @@ import abiOptionsFormulas from './abi/OptionsFormulas.json';
 import abiErc20 from './abi/Erc20.json';
 import { message } from 'antd';
 import { smartContractAddress, networkId, nodeUrl, decimals } from '../conf/config';
+import sleep from 'ko-sleep';
 
 import Web3 from 'web3';
 
@@ -19,7 +20,10 @@ if (nodeUrl.indexOf('ws') === 0) {
   web3 = new Web3(new Web3.providers.HttpProvider(nodeUrl));
 }
 
+window.debugweb3 = web3;
+
 let mmtSC = new web3.eth.Contract(abiMatchMakingTrading, matchMakingTradingSCAddress);
+window.mmtSC = mmtSC;
 
 export const getOptionsInfo = async (address) => {
   let info = {};
@@ -64,8 +68,11 @@ export const getOptionsInfo = async (address) => {
       let liquidity = subInfo.sellOrderList[2].length > 0 ? eval(subInfo.sellOrderList[2].join('+')) : 0;
       subInfo.liquidity = web3.utils.fromWei(liquidity.toString());
 
-      let price = await oracleSC.methods.getBuyOptionsPrice(token).call();
-      subInfo.price = '$' + priceConvert(price);
+      let buyPrice = await oracleSC.methods.getBuyOptionsPrice(token).call();
+      let sellPrice = await oracleSC.methods.getSellOptionsPrice(token).call();
+
+      subInfo.price = '$' + priceConvert(buyPrice);
+      subInfo.sellPrice = '$' + priceConvert(sellPrice);
 
       let underlyingPrice = await oracleSC.methods.getUnderlyingPrice(ret[2]).call();
       subInfo.underlyingAssetsPrice = '$' + priceConvert(underlyingPrice);
@@ -84,37 +91,80 @@ export const getOptionsInfo = async (address) => {
       minColPrice = priceConvert(minColPrice);
 
       let totalCollateral = 0;
+      let totoMintAmount = 0;
+
       for (let m = 0; m < writers[1].length; m++) {
         totalCollateral += Number(web3.utils.fromWei(writers[1][m]));
+        totoMintAmount += Number(web3.utils.fromWei(writers[2][m]));
       }
 
-      let collateralPercent = (Number(totalCollateral) * (collateralTokenPrice)) / (Number(minColPrice) * subInfo.liquidity);
+
+      let collateralPercent = (Number(totalCollateral) * (collateralTokenPrice)) / (Number(minColPrice) * totoMintAmount);
       subInfo.percentageOfCollateral = (collateralPercent * 100).toFixed(1) + '%';
       subInfo.minColPrice = Number((minColPrice / decimals).toFixed(4));
       subInfo.totalCollateral = totalCollateral;
       subInfo.collateralTokenPrice = collateralTokenPrice;
 
       if (address && address != null) {
-        let tokenBalance = await getBalance(token, address);
-        if (tokenBalance > 0) {
-          info.assets.push({
-            tokenName: subInfo.tokenName,
-            underlyingAssetsPrice: subInfo.underlyingAssetsPrice,
-            strikePrice: subInfo.strikePrice,
-            amount: tokenBalance,
-            pricePaid: '$--',
-            price: subInfo.price,
-            percentageOfCollateral: subInfo.percentageOfCollateral,
-            expectedReturn: '$--'
-          })
-        }
-
         let events = await mmtSC.getPastEvents('BuyOptionsToken', {
-          filter: {from: address, optionsToken: token},
+          filter: { from: address, optionsToken: token },
           fromBlock: 0,
           toBlock: info.blockNumber
         });
         console.log('events:', events);
+
+        if (events.length > 0) {
+          let totalAmount = web3.utils.toBN('0');
+          let totalPrice = web3.utils.toBN('0');
+          for (let m = 0; m < events.length; m++) {
+            totalAmount = totalAmount.add(web3.utils.toBN(events[m].returnValues.amount));
+            totalPrice = totalPrice.add(web3.utils.toBN(events[m].returnValues.amount).mul(web3.utils.toBN(events[m].returnValues.optionsPrice)));
+
+            //----history-----
+            info.history.push({
+              blockNumber: events[m].blockNumber,
+              txHash: events[m].transactionHash,
+              amount: web3.utils.fromWei(events[m].returnValues.amount),
+              optionsPrice: '$' + priceConvert(events[m].returnValues.optionsPrice),
+              type: 'buy',
+            });
+          }
+
+          let tokenBalance = await getBalance(token, address);
+          if (tokenBalance > 0) {
+            info.assets.push({
+              tokenName: subInfo.tokenName,
+              underlyingAssetsPrice: subInfo.underlyingAssetsPrice,
+              strikePrice: subInfo.strikePrice,
+              amount: tokenBalance,
+              pricePaid: '$' + priceConvert(totalPrice / totalAmount),
+              price: subInfo.price,
+              percentageOfCollateral: subInfo.percentageOfCollateral,
+              expectedReturn: '$' + (Number(subInfo.price.replace('$', '')) - priceConvert(totalPrice / totalAmount)) * tokenBalance
+            })
+          }
+        }
+
+        events = await mmtSC.getPastEvents('SellOptionsToken', {
+          filter: { from: address, optionsToken: token },
+          fromBlock: 0,
+          toBlock: info.blockNumber
+        });
+        console.log('events:', events);
+        if (events.length > 0) {
+          for (let m = 0; m < events.length; m++) {
+            //----history-----
+            info.history.push({
+              blockNumber: events[m].blockNumber,
+              txHash: events[m].transactionHash,
+              amount: web3.utils.fromWei(events[m].returnValues.amount),
+              optionsPrice: '$' + priceConvert(events[m].returnValues.optionsPrice),
+              type: 'sell',
+            });
+          }
+        }
+
+        info.history.sort((a, b) => (b.blockNumber - a.blockNumber));
       }
 
       info.optionTokenInfo.push(subInfo);
@@ -148,27 +198,34 @@ export const getBalance = async (tokenAddress, address) => {
   return Number(web3.utils.fromWei(balance.toString()));
 }
 
-export const approve = async (token, owner, amount, selectedWallet) => {
-  if (token === '0x0000000000000000000000000000000000000000') {
-    return;
-  } else {
-    let token = new web3.eth.Contract(abiErc20, token);
-    let data = await token.methods.approve(matchMakingTradingSCAddress, web3.utils.toWei(amount)).encodeABI();
+export const approve = async (tokenAddr, owner, amount, selectedWallet) => {
+  if(!tokenAddr || !amount || !selectedWallet) {
+    message.error("approve input params error");
+    return false;
+  }
+  if (tokenAddr !== '0x0000000000000000000000000000000000000000') {
+    console.log('approve token', tokenAddr, amount);
+    let token = new web3.eth.Contract(abiErc20, tokenAddr);
+    let data = await token.methods.approve(matchMakingTradingSCAddress, web3.utils.toWei(amount.toString())).encodeABI();
     const params = {
-      to: token,
+      to: tokenAddr,
       data,
       value: 0,
       gasPrice: "0x3B9ACA00",
       gasLimit: "0x989680", // 10,000,000
     };
     let txID = await sendTransaction(selectedWallet, params);
+    if (!txID) {
+      return false;
+    }
     console.log('approve tx sent:', txID);
-    watchTransactionStatus(txID, (status)=>{
-      if(!status) {
+    watchTransactionStatus(txID, (status) => {
+      if (!status) {
         message.error("token approve failed");
       }
     })
   }
+  return true;
 }
 
 export const generateBuyOptionsTokenData = async (info) => {
@@ -202,7 +259,7 @@ export const generateTx = async (data, currencyAmount, address, selectedWallet, 
       return null;
     }
   }
-  
+
   return txParam;
 }
 
@@ -235,7 +292,7 @@ export const sendTransaction = async (selectedWallet, params) => {
     console.log('sendTransaction:', transactionID);
     return transactionID;
   } catch (error) {
-    if (error.toString().indexOf('Unlock')!== -1) {
+    if (error.toString().indexOf('Unlock') !== -1) {
       message.info("Please Unlock Your Wallet");
     } else {
       message.error('sendTransaction Failed');
@@ -261,20 +318,152 @@ export const watchTransactionStatus = (txID, callback) => {
     return;
   }
   const getTransactionStatus = async () => {
-      const txReceipt = await getTransactionReceipt(txID);
-      if (!txReceipt) {
-          setTimeout(() => getTransactionStatus(txID), 3000);
-      } else if (callback) {
-          callback(txReceipt.status);
-      } else {
-          message.info('success');
-      }
+    const txReceipt = await getTransactionReceipt(txID);
+    if (!txReceipt) {
+      setTimeout(() => getTransactionStatus(txID), 3000);
+    } else if (callback) {
+      callback(txReceipt.status);
+    } else {
+      message.info('success');
+    }
   };
   setTimeout(() => getTransactionStatus(txID), 3000);
 };
 
 export const getWeb3 = () => { return web3; }
 
-export const getAssets = async (address) => {
+export const getBuyOptionsOrderAmount = async (optionsAddr, collateralToken) => {
+  let buyOrderList = await mmtSC.methods.getPayOrderList(optionsAddr, collateralToken).call();
+  console.log('buyOrderList:', buyOrderList);
+  if (buyOrderList.length < 4) {
+    return 0;
+  }
+  let totalBuyAmount = web3.utils.toBN(0);
+  for (let i = 0; i < buyOrderList[2].length; i++) {
+    totalBuyAmount = totalBuyAmount.add(web3.utils.toBN(buyOrderList[2][i]));
+  }
 
+  return Number(web3.utils.fromWei(totalBuyAmount));
+}
+
+export const sellOptionsToken = async (address, selectedWallet, info) => {
+  try {
+    //approve
+    let ret = await approve(info.optionsToken, address, info.amount, selectedWallet);
+    if (!ret) {
+      return false;
+    }
+    console.log('approve sent');
+    //sell
+    let gas = await mmtSC.methods.sellOptionsToken(info.optionsToken, web3.utils.toWei(info.amount.toString()), info.collateralToken).estimateGas({ gas: 10000000, from: address });
+    if (gas === 10000000) {
+      message.error('Estimate Gas Failed');
+      console.log('Estimate Gas Failed');
+      return false;
+    }
+
+    console.log('estimate gas:', gas);
+
+    gas = '0x' + (gas + 30000).toString(16);; // add normal tx cost
+
+    let data = await mmtSC.methods.sellOptionsToken(info.optionsToken, web3.utils.toWei(info.amount.toString()), info.collateralToken).encodeABI();
+    console.log('data:', data);
+
+    const txParam = {
+      to: matchMakingTradingSCAddress,
+      data,
+      value: 0,
+      gasPrice: "0x3B9ACA00",
+      // gasLimit: "0x989680", // 10,000,000
+    };
+
+    if (selectedWallet.type() === "EXTENSION") {
+      txParam.gas = gas;
+    } else {
+      txParam.gasLimit = gas;
+    }
+
+    let transactionID = await selectedWallet.sendTransaction(txParam);
+    console.log('sendTransaction:', transactionID);
+    message.info("Transaction Submitted, txHash:", transactionID);
+    let timeout = 20;
+    while(timeout > 0) {
+      const txReceipt = await getTransactionReceipt(transactionID);
+      if (!txReceipt) {
+        await sleep(3000);
+      } else {
+        return txReceipt.status;
+      }
+      timeout--;
+    }
+  } catch (error) {
+    console.log('Sell Options Token Error:', error);
+    if (error.toString().indexOf('Unlock') !== -1) {
+      message.info("Please Unlock Your Wallet");
+    } else {
+      message.error("Sell Options Token Error");
+    }
+  }
+  return false;
+}
+
+export const createSellOptionsTokenOrder = async (address, selectedWallet, info) => {
+  try {
+    //approve
+    let ret = await approve(info.optionsToken, address, info.amount, selectedWallet);
+    if (!ret) {
+      return false;
+    }
+    console.log('approve sent');
+    //sell
+    let gas = await mmtSC.methods.addSellOrder(info.optionsToken, info.collateralToken, web3.utils.toWei(info.amount.toString())).estimateGas({ gas: 10000000, from: address });
+    if (gas === 10000000) {
+      message.error('Estimate Gas Failed');
+      console.log('Estimate Gas Failed');
+      return false;
+    }
+
+    console.log('estimate gas:', gas);
+
+    gas = '0x' + (gas + 30000).toString(16);; // add normal tx cost
+
+    let data = await mmtSC.methods.addSellOrder(info.optionsToken, info.collateralToken, web3.utils.toWei(info.amount.toString())).encodeABI();
+    console.log('data:', data);
+
+    const txParam = {
+      to: matchMakingTradingSCAddress,
+      data,
+      value: 0,
+      gasPrice: "0x3B9ACA00",
+      // gasLimit: "0x989680", // 10,000,000
+    };
+
+    if (selectedWallet.type() === "EXTENSION") {
+      txParam.gas = gas;
+    } else {
+      txParam.gasLimit = gas;
+    }
+
+    let transactionID = await selectedWallet.sendTransaction(txParam);
+    console.log('sendTransaction:', transactionID);
+    message.info("Transaction Submitted, txHash:", transactionID);
+    let timeout = 20;
+    while(timeout > 0) {
+      const txReceipt = await getTransactionReceipt(transactionID);
+      if (!txReceipt) {
+        await sleep(3000);
+      } else {
+        return txReceipt.status;
+      }
+      timeout--;
+    }
+  } catch (error) {
+    console.log('Sell Options Token Error:', error);
+    if (error.toString().indexOf('Unlock') !== -1) {
+      message.info("Please Unlock Your Wallet");
+    } else {
+      message.error("Sell Options Token Error");
+    }
+  }
+  return false;
 }
