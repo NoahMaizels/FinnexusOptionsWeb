@@ -66,13 +66,13 @@ export const getOptionsInfo = async (address) => {
         subInfo.sellOrderList = [];
         subInfo.payOrderList = [];
         let tmpFuncs = [];
-        tmpFuncs.push(await mmtSC.methods.getSellOrderList(token, subInfo.collateralToken).call());
-        tmpFuncs.push(await mmtSC.methods.getPayOrderList(token, subInfo.collateralToken).call());
-        tmpFuncs.push(await oracleSC.methods.getBuyOptionsPrice(token).call());
-        tmpFuncs.push(await oracleSC.methods.getSellOptionsPrice(token).call());
-        tmpFuncs.push(await oracleSC.methods.getUnderlyingPrice(ret[2]).call());
-        tmpFuncs.push(await optionMangerSC.methods.getOptionsTokenWriterList(token).call());
-        tmpFuncs.push(await oracleSC.methods.getPrice(subInfo.collateralToken).call());
+        tmpFuncs.push(mmtSC.methods.getSellOrderList(token, subInfo.collateralToken).call());
+        tmpFuncs.push(mmtSC.methods.getPayOrderList(token, subInfo.collateralToken).call());
+        tmpFuncs.push(oracleSC.methods.getBuyOptionsPrice(token).call());
+        tmpFuncs.push(oracleSC.methods.getSellOptionsPrice(token).call());
+        tmpFuncs.push(oracleSC.methods.getUnderlyingPrice(ret[2]).call());
+        tmpFuncs.push(optionMangerSC.methods.getOptionsTokenWriterList(token).call());
+        tmpFuncs.push(oracleSC.methods.getPrice(subInfo.collateralToken).call());
 
         let buyPrice, sellPrice, underlyingPrice, writers, collateralTokenPrice;
         [subInfo.sellOrderList, subInfo.payOrderList, buyPrice, sellPrice, underlyingPrice, writers, collateralTokenPrice] = await Promise.all(tmpFuncs);
@@ -114,12 +114,12 @@ export const getOptionsInfo = async (address) => {
 
         if (address && address != null) {
           tmpFuncs = [];
-          tmpFuncs.push(await mmtSC.getPastEvents('BuyOptionsToken', {
+          tmpFuncs.push(mmtSC.getPastEvents('BuyOptionsToken', {
             filter: { from: address, optionsToken: token },
             fromBlock: 0,
             toBlock: info.blockNumber
           }));
-          tmpFuncs.push(await mmtSC.getPastEvents('SellOptionsToken', {
+          tmpFuncs.push(mmtSC.getPastEvents('SellOptionsToken', {
             filter: { from: address, optionsToken: token },
             fromBlock: 0,
             toBlock: info.blockNumber
@@ -180,7 +180,7 @@ export const getOptionsInfo = async (address) => {
       }
     };
 
-    funcs.push(await func());
+    funcs.push(func());
   }
   console.log('funcs:', funcs);
   await Promise.all(funcs);
