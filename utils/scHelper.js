@@ -23,7 +23,7 @@ if (nodeUrl.indexOf('ws') === 0) {
 window.debugweb3 = web3;
 
 let mmtSC = new web3.eth.Contract(abiMatchMakingTrading, matchMakingTradingSCAddress);
-window.mmtSC = mmtSC;
+let oMSC;
 
 export const getOptionsInfo = async (address) => {
   let info = {};
@@ -31,6 +31,7 @@ export const getOptionsInfo = async (address) => {
   info.optionsManagerAddress = await mmtSC.methods.getOptionsManagerAddress().call();
   info.oracleAddress = await mmtSC.methods.getOracleAddress().call();
   let optionMangerSC = new web3.eth.Contract(abiOptionsManger, info.optionsManagerAddress);
+  oMSC = optionMangerSC;
   info.formulasAddress = await optionMangerSC.methods.getFormulasAddress().call();
   let formulasSC = new web3.eth.Contract(abiOptionsFormulas, info.formulasAddress);
   let oracleSC = new web3.eth.Contract(abiCompoundOracle, info.oracleAddress);
@@ -437,4 +438,64 @@ export const sellOptionsToken = async (address, selectedWallet, info, type) => {
     }
   }
   return false;
+}
+
+export const startEventScan = (blockNumber, callback) => {
+  let eventScan = async (blockNumber) => {
+    console.log('start scan events...from blockNumber', blockNumber);
+    let tmpFuncs = [];
+    tmpFuncs.push(oMSC.getPastEvents('CreateOptions', {
+      fromBlock: blockNumber,
+    }));
+
+    tmpFuncs.push(oMSC.getPastEvents('AddCollateral', {
+      fromBlock: blockNumber,
+    }));
+
+    tmpFuncs.push(oMSC.getPastEvents('WithdrawCollateral', {
+      fromBlock: blockNumber,
+    }));
+
+    tmpFuncs.push(oMSC.getPastEvents('Exercise', {
+      fromBlock: blockNumber,
+    }));
+
+    tmpFuncs.push(oMSC.getPastEvents('Liquidate', {
+      fromBlock: blockNumber,
+    }));
+
+    tmpFuncs.push(mmtSC.getPastEvents('AddSellOrder', {
+      fromBlock: blockNumber,
+    }));
+
+    tmpFuncs.push(mmtSC.getPastEvents('RedeemSellOrder', {
+      fromBlock: blockNumber,
+    }));
+
+    tmpFuncs.push(mmtSC.getPastEvents('BuyOptionsToken', {
+      fromBlock: blockNumber,
+    }));
+
+    tmpFuncs.push(mmtSC.getPastEvents('SellOptionsToken', {
+      fromBlock: blockNumber,
+    }));
+
+    tmpFuncs.push(mmtSC.getPastEvents('ReturnExpiredOrders', {
+      fromBlock: blockNumber,
+    }));
+
+    let ret = await Promise.all(tmpFuncs);
+    for (let i=0; i<ret.length; i++) {
+      if(ret[i].length > 0) {
+        console.log('found new event.');
+        blockNumber = ret[i][0].blockNumber;
+        callback();
+        break;
+      }
+    }
+    console.log('finish scan events...');
+    setTimeout(eventScan, 30000, blockNumber);
+  }
+
+  setTimeout(eventScan, 30000, blockNumber);
 }

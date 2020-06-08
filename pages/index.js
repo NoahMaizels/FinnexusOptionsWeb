@@ -18,7 +18,7 @@ import {
   getWeb3,
   getBuyOptionsOrderAmount,
   sellOptionsToken,
-  createSellOptionsTokenOrder
+  startEventScan
 } from '../utils/scHelper';
 
 const { confirm } = Modal;
@@ -62,7 +62,8 @@ class IndexPage extends Component {
   }
 
   async componentDidMount() {
-    await this.updatePage();
+    let info = await this.updatePage();
+    startEventScan(info.blockNumber, this.updatePage);
   }
 
   updatePage = async () => {
@@ -104,6 +105,7 @@ class IndexPage extends Component {
       hedgeNowLoading: false,
       leverageNowLoading: false,
     });
+    return info;
   }
 
   getExpiration = (info) => {
