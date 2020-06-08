@@ -7,6 +7,8 @@ import "wan-dex-sdk-wallet/index.css";
 import style from './style.less';
 // import logo from '../img/wandoraLogo.png';
 import {networkId, nodeUrl} from '../conf/config.js';
+import {getNodeUrl, isSwitchFinish} from '../utils/web3switch.js';
+import sleep from 'ko-sleep';
 
 
 const networkLogo = networkId == 1 ? 'https://img.shields.io/badge/Wanchain-Mainnet-green.svg' : 'https://img.shields.io/badge/Wanchain-Testnet-green.svg';
@@ -16,8 +18,15 @@ class Layout extends Component {
     super(props);
   }
 
-  componentWillMount() {
+  async componentWillMount() {
+    while(true) {
+      if(isSwitchFinish()) {
+        break;
+      }
+      await sleep(100);
+    }
 
+    this.setState({});
   }
 
   showGameRule = () => {
@@ -25,6 +34,11 @@ class Layout extends Component {
   }
 
   render() {
+    let nodeUrl = getNodeUrl();
+    if (!isSwitchFinish()) {
+      return (<div>Loading...</div>);
+    }
+
     return (
       <div>
         <div className={style.header}>

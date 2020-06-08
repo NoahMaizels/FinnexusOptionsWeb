@@ -15,7 +15,7 @@ import {
   watchTransactionStatus, 
   sendTransaction, 
   approve, 
-  getWeb3,
+  getWeb3Obj,
   getBuyOptionsOrderAmount,
   sellOptionsToken,
   startEventScan
@@ -23,7 +23,7 @@ import {
 
 const { confirm } = Modal;
 
-let web3 = getWeb3();
+let web3 = getWeb3Obj();
 
 class IndexPage extends Component {
   constructor(props) {
