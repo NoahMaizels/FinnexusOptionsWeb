@@ -5,32 +5,36 @@ import abiOptionsManger from "./abi/OptionsManger.json";
 import abiOptionsFormulas from './abi/OptionsFormulas.json';
 import abiErc20 from './abi/Erc20.json';
 import { message } from 'antd';
-import { smartContractAddress, networkId, nodeUrl, decimals } from '../conf/config';
+import { smartContractAddress, decimals } from '../conf/config';
 import sleep from 'ko-sleep';
 
-import Web3 from 'web3';
+import { getWeb3, isSwitchFinish } from './web3switch.js';
+
 
 let matchMakingTradingSCAddress = smartContractAddress;
 
-let web3;
+let mmtSC, oMSC;
 
-if (nodeUrl.indexOf('ws') === 0) {
-  web3 = new Web3(new Web3.providers.WebsocketProvider(nodeUrl));
-} else {
-  web3 = new Web3(new Web3.providers.HttpProvider(nodeUrl));
+const initWeb3 = async () => {
+  while(true) {
+    if (isSwitchFinish) {
+      break;
+    }
+    await sleep(300);
+  }
+  let web3 = getWeb3();
+  mmtSC = new web3.eth.Contract(abiMatchMakingTrading, matchMakingTradingSCAddress);
+  return getWeb3();
 }
 
-window.debugweb3 = web3;
-
-let mmtSC = new web3.eth.Contract(abiMatchMakingTrading, matchMakingTradingSCAddress);
-window.mmtSC = mmtSC;
-
 export const getOptionsInfo = async (address) => {
+  let web3 = await initWeb3();
   let info = {};
-  info.blockNumber = await web3.eth.getBlockNumber();
+  info.blockNumber = await getWeb3().eth.getBlockNumber();
   info.optionsManagerAddress = await mmtSC.methods.getOptionsManagerAddress().call();
   info.oracleAddress = await mmtSC.methods.getOracleAddress().call();
   let optionMangerSC = new web3.eth.Contract(abiOptionsManger, info.optionsManagerAddress);
+  oMSC = optionMangerSC;
   info.formulasAddress = await optionMangerSC.methods.getFormulasAddress().call();
   let formulasSC = new web3.eth.Contract(abiOptionsFormulas, info.formulasAddress);
   let oracleSC = new web3.eth.Contract(abiCompoundOracle, info.oracleAddress);
@@ -78,7 +82,7 @@ export const getOptionsInfo = async (address) => {
         [subInfo.sellOrderList, subInfo.payOrderList, buyPrice, sellPrice, underlyingPrice, writers, collateralTokenPrice] = await Promise.all(tmpFuncs);
 
         let liquidity = subInfo.sellOrderList[2].length > 0 ? eval(subInfo.sellOrderList[2].join('+')) : 0;
-        subInfo.liquidity = web3.utils.fromWei(liquidity.toString());
+        subInfo.liquidity = getWeb3().utils.fromWei(liquidity.toString());
 
         subInfo.price = '$' + priceConvert(buyPrice);
         subInfo.sellPrice = '$' + priceConvert(sellPrice);
@@ -101,8 +105,8 @@ export const getOptionsInfo = async (address) => {
         let totoMintAmount = 0;
 
         for (let m = 0; m < writers[1].length; m++) {
-          totalCollateral += Number(web3.utils.fromWei(writers[1][m]));
-          totoMintAmount += Number(web3.utils.fromWei(writers[2][m]));
+          totalCollateral += Number(getWeb3().utils.fromWei(writers[1][m]));
+          totoMintAmount += Number(getWeb3().utils.fromWei(writers[2][m]));
         }
 
 
@@ -130,17 +134,17 @@ export const getOptionsInfo = async (address) => {
           console.log('events:', events);
 
           if (events.length > 0) {
-            let totalAmount = web3.utils.toBN('0');
-            let totalPrice = web3.utils.toBN('0');
+            let totalAmount = getWeb3().utils.toBN('0');
+            let totalPrice = getWeb3().utils.toBN('0');
             for (let m = 0; m < events.length; m++) {
-              totalAmount = totalAmount.add(web3.utils.toBN(events[m].returnValues.amount));
-              totalPrice = totalPrice.add(web3.utils.toBN(events[m].returnValues.amount).mul(web3.utils.toBN(events[m].returnValues.optionsPrice)));
+              totalAmount = totalAmount.add(getWeb3().utils.toBN(events[m].returnValues.amount));
+              totalPrice = totalPrice.add(getWeb3().utils.toBN(events[m].returnValues.amount).mul(getWeb3().utils.toBN(events[m].returnValues.optionsPrice)));
 
               //----history-----
               info.history.push({
                 blockNumber: events[m].blockNumber,
                 txHash: events[m].transactionHash,
-                amount: web3.utils.fromWei(events[m].returnValues.amount),
+                amount: getWeb3().utils.fromWei(events[m].returnValues.amount),
                 optionsPrice: '$' + priceConvert(events[m].returnValues.optionsPrice),
                 type: 'buy',
               });
@@ -169,7 +173,7 @@ export const getOptionsInfo = async (address) => {
               info.history.push({
                 blockNumber: events[m].blockNumber,
                 txHash: events[m].transactionHash,
-                amount: web3.utils.fromWei(events[m].returnValues.amount),
+                amount: getWeb3().utils.fromWei(events[m].returnValues.amount),
                 optionsPrice: '$' + priceConvert(events[m].returnValues.optionsPrice),
                 type: 'sell',
               });
@@ -209,8 +213,9 @@ export const getBalance = async (tokenAddress, address) => {
   let balance = 0;
   try {
     if (tokenAddress === '0x0000000000000000000000000000000000000000') {
-      balance = await web3.eth.getBalance(address);
+      balance = await getWeb3().eth.getBalance(address);
     } else {
+      let web3 = getWeb3();
       let token = new web3.eth.Contract(abiErc20, tokenAddress);
       balance = await token.methods.balanceOf(address).call();
     }
@@ -218,7 +223,7 @@ export const getBalance = async (tokenAddress, address) => {
     console.log(err);
   }
 
-  return Number(web3.utils.fromWei(balance.toString()));
+  return Number(getWeb3().utils.fromWei(balance.toString()));
 }
 
 export const approve = async (tokenAddr, owner, amount, selectedWallet) => {
@@ -228,8 +233,9 @@ export const approve = async (tokenAddr, owner, amount, selectedWallet) => {
   }
   if (tokenAddr !== '0x0000000000000000000000000000000000000000') {
     console.log('approve token', tokenAddr, amount);
+    let web3 = getWeb3();
     let token = new web3.eth.Contract(abiErc20, tokenAddr);
-    let data = await token.methods.approve(matchMakingTradingSCAddress, web3.utils.toWei(amount.toString())).encodeABI();
+    let data = await token.methods.approve(matchMakingTradingSCAddress, getWeb3().utils.toWei(amount.toString())).encodeABI();
     const params = {
       to: tokenAddr,
       data,
@@ -255,9 +261,9 @@ export const generateBuyOptionsTokenData = async (info) => {
   console.log('generateBuyOptionsTokenData', info);
   let encodedData = await mmtSC.methods.buyOptionsToken(
     info.optionsToken,
-    web3.utils.toWei(info.amount.toString()),
+    getWeb3().utils.toWei(info.amount.toString()),
     info.collateralToken,
-    web3.utils.toWei(info.currencyAmount.toString())
+    getWeb3().utils.toWei(info.currencyAmount.toString())
   ).encodeABI();
   return encodedData;
 }
@@ -289,12 +295,12 @@ export const generateTx = async (data, currencyAmount, address, selectedWallet, 
 export const estimateGas = async (info, value, address) => {
   try {
     console.log('estimateGas:', info, value, address);
-    // let ret = await web3.eth.estimateGas(params, { from: address, value });
+    // let ret = await getWeb3().eth.estimateGas(params, { from: address, value });
     let ret = await mmtSC.methods.buyOptionsToken(
       info.optionsToken,
-      web3.utils.toWei(info.amount.toString()),
+      getWeb3().utils.toWei(info.amount.toString()),
       info.collateralToken,
-      web3.utils.toWei(info.currencyAmount.toString())
+      getWeb3().utils.toWei(info.currencyAmount.toString())
     ).estimateGas({ gas: 10000000, value, from: address });
 
     if (ret == 10000000) {
@@ -327,7 +333,7 @@ export const sendTransaction = async (selectedWallet, params) => {
 
 export const getTransactionReceipt = async (txID) => {
   try {
-    let txReceipt = await web3.eth.getTransactionReceipt(txID);
+    let txReceipt = await getWeb3().eth.getTransactionReceipt(txID);
     return txReceipt;
   } catch (error) {
     message.error(error.toString());
@@ -353,20 +359,18 @@ export const watchTransactionStatus = (txID, callback) => {
   setTimeout(() => getTransactionStatus(txID), 3000);
 };
 
-export const getWeb3 = () => { return web3; }
-
 export const getBuyOptionsOrderAmount = async (optionsAddr, collateralToken) => {
   let buyOrderList = await mmtSC.methods.getPayOrderList(optionsAddr, collateralToken).call();
   console.log('buyOrderList:', buyOrderList);
   if (buyOrderList.length < 4) {
     return 0;
   }
-  let totalBuyAmount = web3.utils.toBN(0);
+  let totalBuyAmount = getWeb3().utils.toBN(0);
   for (let i = 0; i < buyOrderList[2].length; i++) {
-    totalBuyAmount = totalBuyAmount.add(web3.utils.toBN(buyOrderList[2][i]));
+    totalBuyAmount = totalBuyAmount.add(getWeb3().utils.toBN(buyOrderList[2][i]));
   }
 
-  return Number(web3.utils.fromWei(totalBuyAmount));
+  return Number(getWeb3().utils.fromWei(totalBuyAmount));
 }
 
 export const sellOptionsToken = async (address, selectedWallet, info, type) => {
@@ -379,9 +383,9 @@ export const sellOptionsToken = async (address, selectedWallet, info, type) => {
     console.log('approve sent');
     let gas;
     if (type === 'sell') {
-      gas = await mmtSC.methods.sellOptionsToken(info.optionsToken, web3.utils.toWei(info.amount.toString()), info.collateralToken).estimateGas({ gas: 10000000, from: address });
+      gas = await mmtSC.methods.sellOptionsToken(info.optionsToken, getWeb3().utils.toWei(info.amount.toString()), info.collateralToken).estimateGas({ gas: 10000000, from: address });
     } else {
-      gas = await mmtSC.methods.addSellOrder(info.optionsToken, info.collateralToken, web3.utils.toWei(info.amount.toString())).estimateGas({ gas: 10000000, from: address });
+      gas = await mmtSC.methods.addSellOrder(info.optionsToken, info.collateralToken, getWeb3().utils.toWei(info.amount.toString())).estimateGas({ gas: 10000000, from: address });
     }
     //sell
     if (gas === 10000000) {
@@ -395,9 +399,9 @@ export const sellOptionsToken = async (address, selectedWallet, info, type) => {
     gas = '0x' + (gas + 30000).toString(16);; // add normal tx cost
     let data;
     if (type === 'sell') {
-      data = await mmtSC.methods.sellOptionsToken(info.optionsToken, web3.utils.toWei(info.amount.toString()), info.collateralToken).encodeABI();
+      data = await mmtSC.methods.sellOptionsToken(info.optionsToken, getWeb3().utils.toWei(info.amount.toString()), info.collateralToken).encodeABI();
     } else {
-      data = await mmtSC.methods.addSellOrder(info.optionsToken, info.collateralToken, web3.utils.toWei(info.amount.toString())).encodeABI();
+      data = await mmtSC.methods.addSellOrder(info.optionsToken, info.collateralToken, getWeb3().utils.toWei(info.amount.toString())).encodeABI();
     }
     console.log('data:', data);
 
@@ -437,4 +441,68 @@ export const sellOptionsToken = async (address, selectedWallet, info, type) => {
     }
   }
   return false;
+}
+
+export const startEventScan = (blockNumber, callback) => {
+  let eventScan = async (blockNumber) => {
+    console.log('start scan events...from blockNumber', blockNumber);
+    let tmpFuncs = [];
+    tmpFuncs.push(oMSC.getPastEvents('CreateOptions', {
+      fromBlock: blockNumber,
+    }));
+
+    tmpFuncs.push(oMSC.getPastEvents('AddCollateral', {
+      fromBlock: blockNumber,
+    }));
+
+    tmpFuncs.push(oMSC.getPastEvents('WithdrawCollateral', {
+      fromBlock: blockNumber,
+    }));
+
+    tmpFuncs.push(oMSC.getPastEvents('Exercise', {
+      fromBlock: blockNumber,
+    }));
+
+    tmpFuncs.push(oMSC.getPastEvents('Liquidate', {
+      fromBlock: blockNumber,
+    }));
+
+    tmpFuncs.push(mmtSC.getPastEvents('AddSellOrder', {
+      fromBlock: blockNumber,
+    }));
+
+    tmpFuncs.push(mmtSC.getPastEvents('RedeemSellOrder', {
+      fromBlock: blockNumber,
+    }));
+
+    tmpFuncs.push(mmtSC.getPastEvents('BuyOptionsToken', {
+      fromBlock: blockNumber,
+    }));
+
+    tmpFuncs.push(mmtSC.getPastEvents('SellOptionsToken', {
+      fromBlock: blockNumber,
+    }));
+
+    tmpFuncs.push(mmtSC.getPastEvents('ReturnExpiredOrders', {
+      fromBlock: blockNumber,
+    }));
+
+    let ret = await Promise.all(tmpFuncs);
+    for (let i=0; i<ret.length; i++) {
+      if(ret[i].length > 0) {
+        console.log('found new event.');
+        blockNumber = ret[i][0].blockNumber;
+        callback();
+        break;
+      }
+    }
+    console.log('finish scan events...');
+    setTimeout(eventScan, 30000, blockNumber);
+  }
+
+  setTimeout(eventScan, 30000, blockNumber);
+}
+
+export const getWeb3Obj = () => {
+  return getWeb3();
 }

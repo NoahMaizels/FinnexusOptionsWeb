@@ -2,27 +2,22 @@
 
 ## Getting Started
 
-Install dependencies.
-
-```bash
-$ npm i
+Step 1: Install umi.
+```
+yarn global add umi@2.13.4
 ```
 
-Start dev server.
-
-```bash
-$ npm run dev
+Step 2: Install dependencies.
+```
+yarn
 ```
 
-Build.
-
-```bash
-$ npm run build
+Start dev server:
+```
+umi dev
 ```
 
-Testing.
-
-```bash
-$ npm run dev:test
-$ npm run test
+Build Dist:
+```
+umi build
 ```
