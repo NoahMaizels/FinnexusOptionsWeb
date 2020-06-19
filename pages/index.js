@@ -1,6 +1,6 @@
 import { connect } from "react-redux";
 import { Component } from "react";
-import { Row, Col, Input, Slider, Radio, Table, Button, Divider, Spin, Modal, message } from "antd";
+import { Row, Col, Input, Slider, Radio, Table, Button, Divider, Spin, Modal, message, Carousel } from "antd";
 import BigNumber from 'bignumber.js';
 import { Wallet, getSelectedAccount, WalletButton, WalletButtonLong, getSelectedAccountWallet } from "wan-dex-sdk-wallet";
 import sleep from 'ko-sleep';
@@ -20,6 +20,8 @@ import {
   sellOptionsToken,
   createSellOptionsTokenOrder
 } from '../utils/scHelper';
+
+import banner from './images/banner.png'
 
 const { confirm } = Modal;
 
@@ -562,6 +564,7 @@ class IndexPage extends Component {
 
     return (
       <div>
+        <Carousel><img src={banner} /></Carousel>
         <Spin spinning={this.state.pageLoading} size="large">
           <div className={styles.box}>
             <h1>Hedge risk of your BTC value down</h1>
