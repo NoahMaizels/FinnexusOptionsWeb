@@ -1,6 +1,6 @@
 import { connect } from "react-redux";
 import { Component } from "react";
-import { Row, Col, Input, Slider, Radio, Table, Button, Divider, Spin, Modal, message, Carousel } from "antd";
+import { Row, Col, Input, Slider, Radio, Table, Button, Divider, Spin, Modal, message, Carousel, Collapse  } from "antd";
 import BigNumber from 'bignumber.js';
 import { Wallet, getSelectedAccount, WalletButton, WalletButtonLong, getSelectedAccountWallet } from "wan-dex-sdk-wallet";
 import sleep from 'ko-sleep';
@@ -24,6 +24,7 @@ import {
 import banner from './images/banner.png'
 
 const { confirm } = Modal;
+const { Panel } = Collapse;
 
 let web3 = getWeb3Obj();
 
@@ -256,8 +257,20 @@ class IndexPage extends Component {
   ]
 
 
-  updateHedgeInput = (value) => {
+  updateHedgeInput = (value, max_value) => {
     const { hedgeData, leverageData } = this.getTableData();
+
+    const regu = "^[0-9]+\.?[0-9]*$";
+    const re = new RegExp(regu);
+    if (value != 0 && !re.test(value)) {
+      message.error("Illegal input!");
+      return;
+    }
+
+    if (value > max_value) {
+      message.warn("Input should be less than the maximum value.");
+      return;
+    }
 
     let hedgeInfo = Object.assign({}, this.state.hedgeInfo);
     hedgeInfo.amount = value;
@@ -268,8 +281,20 @@ class IndexPage extends Component {
     this.setState({ hedgeInfo });
   }
 
-  updateLeverageInput = (value) => {
+  updateLeverageInput = (value, max_value) => {
     const { hedgeData, leverageData } = this.getTableData();
+
+    const regu = "^[0-9]+\.?[0-9]*$";
+    const re = new RegExp(regu);
+    if (value != 0 && !re.test(value)) {
+      message.error("Illegal input!");
+      return;
+    }
+
+    if (value > max_value) {
+      message.warn("Input should be less than the maximum value.");
+      return;
+    }
 
     let leverageInfo = Object.assign({}, this.state.leverageInfo);
     leverageInfo.amount = value;
@@ -582,7 +607,7 @@ class IndexPage extends Component {
                 <Row gutter={[16, 16]}>
                   <Col span={12}>
                     <Input suffix={"BTC"} value={this.state.hedgeInfo.amount}
-                      onChange={e => this.updateHedgeInput(e.target.value)} />
+                      onChange={e => this.updateHedgeInput(e.target.value, hedgeLiquidity)} />
                   </Col>
                   <Col span={12}>
                     <Slider tipFormatter={value => `${value} BTC`}
@@ -636,7 +661,14 @@ class IndexPage extends Component {
                 </Row>
               </Col>
             </Row>
-            <Table dataSource={hedgeData} columns={this.hedgeColumn} />
+
+            
+            <Collapse bordered={false} defaultActiveKey={['2']}>
+              <Panel header="Click here to display the list" key="1">
+                <Table dataSource={hedgeData} columns={this.hedgeColumn} />
+              </Panel>
+            </Collapse>
+
             <div className={styles.center}>
               <Button loading={this.state.hedgeNowLoading} type="primary" style={{ margin: "20px" }} onClick={this.hedgeNow}>Hedge Now</Button>
             </div>
@@ -656,7 +688,7 @@ class IndexPage extends Component {
                 <Row gutter={[16, 16]}>
                   <Col span={12}>
                     <Input suffix={"BTC"} value={this.state.leverageInfo.amount}
-                      onChange={e => this.updateLeverageInput(e.target.value)} />
+                      onChange={e => this.updateLeverageInput(e.target.value, leverageLiquidity)} />
                   </Col>
                   <Col span={12}>
                     <Slider tipFormatter={value => `${value} BTC`}
@@ -709,7 +741,11 @@ class IndexPage extends Component {
                 </Row>
               </Col>
             </Row>
-            <Table dataSource={leverageData} columns={this.hedgeColumn} />
+            <Collapse bordered={false} defaultActiveKey={['2']}>
+              <Panel header="Click here to display the list" key="1">
+                <Table dataSource={leverageData} columns={this.hedgeColumn} />
+              </Panel>
+            </Collapse>
             <div className={styles.center}>
               <Button loading={this.state.leverageNowLoading} type="primary" style={{ margin: "20px" }} onClick={this.leverageNow}>Leverage Now</Button>
             </div>

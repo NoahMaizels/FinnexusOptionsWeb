@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@ant-design/icons": "^4.2.1",
     "@antv/data-set": "^0.10.2",
     "antd": "^4.3.3",
     "bizcharts": "^3.5.6",
