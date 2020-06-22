@@ -4,6 +4,7 @@ import { Row, Col, Input, Slider, Radio, Table, Button, Divider, Spin, Modal, me
 import BigNumber from 'bignumber.js';
 import { Wallet, getSelectedAccount, WalletButton, WalletButtonLong, getSelectedAccountWallet } from "wan-dex-sdk-wallet";
 import sleep from 'ko-sleep';
+import { DownOutlined } from '@ant-design/icons';
 
 import "wan-dex-sdk-wallet/index.css";
 import styles from './style.less';
@@ -663,8 +664,9 @@ class IndexPage extends Component {
             </Row>
 
             
-            <Collapse bordered={false} defaultActiveKey={['2']}>
-              <Panel header="Click here to display the list" key="1">
+            <Collapse bordered={false}
+              expandIcon={({ isActive }) => <DownOutlined style={{ fontSize: '20px', left: '49.4%', top: '0' }} rotate={isActive ? 180 : 0} />}>
+              <Panel>
                 <Table dataSource={hedgeData} columns={this.hedgeColumn} />
               </Panel>
             </Collapse>
@@ -741,11 +743,14 @@ class IndexPage extends Component {
                 </Row>
               </Col>
             </Row>
-            <Collapse bordered={false} defaultActiveKey={['2']}>
-              <Panel header="Click here to display the list" key="1">
+            
+            <Collapse bordered={false}
+              expandIcon={({ isActive }) => <DownOutlined style={{ fontSize: '20px', left: '49.4%', top: '0' }} rotate={isActive ? 180 : 0} />}>
+              <Panel>
                 <Table dataSource={leverageData} columns={this.hedgeColumn} />
               </Panel>
             </Collapse>
+
             <div className={styles.center}>
               <Button loading={this.state.leverageNowLoading} type="primary" style={{ margin: "20px" }} onClick={this.leverageNow}>Leverage Now</Button>
             </div>
