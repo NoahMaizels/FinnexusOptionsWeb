@@ -6,4 +6,4 @@ export const networkId = 3; //1:mainnet, 3:testnet;
 
 export const smartContractAddress = networkId == 1 ? mainnetSCAddr : testnetSCAddr;
 
-export const decimals = 10000; // Price from oracle div decimals
+export const decimals = 1e8; // Price from oracle div decimals
