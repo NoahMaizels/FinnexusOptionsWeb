@@ -43,7 +43,7 @@ class Layout extends Component {
       <div>
         <div className={style.header}>
           <Wallet title="Wan Game" nodeUrl={nodeUrl} />
-          {/* <img className={style.logo} width="28px" height="28px" src={logo} alt="Logo" /> */}
+          <img className={style.logo} width="28px" height="28px" src={require('../public/logo.png')} alt="Logo" />
           <div className={style.title}>Finnexus Options</div>
         
           <img style={{ height: "25px", margin: "3px 8px 3px 3px" }} src={networkLogo} />
