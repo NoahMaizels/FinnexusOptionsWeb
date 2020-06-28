@@ -11,7 +11,7 @@ import {getNodeUrl, isSwitchFinish} from '../utils/web3switch.js';
 import sleep from 'ko-sleep';
 
 
-const networkLogo = networkId == 1 ? 'https://img.shields.io/badge/Wanchain-Mainnet-green.svg' : 'https://img.shields.io/badge/Wanchain-Testnet-green.svg';
+const networkLogo = networkId == 1 ? require('../img/mainnet.svg') : require('../img/testnet.svg');
 
 class Layout extends Component {
   constructor(props) {
