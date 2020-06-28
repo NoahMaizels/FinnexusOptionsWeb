@@ -1,5 +1,19 @@
 [
   {
+    "constant": true,
+    "inputs": [],
+    "name": "ValidUntil",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "constant": false,
     "inputs": [],
     "name": "renounceOwnership",
@@ -71,6 +85,20 @@
     "constant": false,
     "inputs": [
       {
+        "name": "timeLimit",
+        "type": "uint256"
+      }
+    ],
+    "name": "setValidUntil",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
         "name": "asset",
         "type": "address"
       },
@@ -107,6 +135,32 @@
     "constant": false,
     "inputs": [
       {
+        "name": "assets",
+        "type": "address[]"
+      },
+      {
+        "name": "assetPrices",
+        "type": "uint256[]"
+      },
+      {
+        "name": "underlyings",
+        "type": "uint256[]"
+      },
+      {
+        "name": "ulPrices",
+        "type": "uint256[]"
+      }
+    ],
+    "name": "setPriceAndUnderlyingPrice",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
         "name": "optoken",
         "type": "address"
       },
@@ -134,6 +188,28 @@
       }
     ],
     "name": "setBuyOptionsPrice",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "optokens",
+        "type": "address[]"
+      },
+      {
+        "name": "buyPrices",
+        "type": "uint256[]"
+      },
+      {
+        "name": "SellPrices",
+        "type": "uint256[]"
+      }
+    ],
+    "name": "setOptionsBuyAndSellPrice",
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
@@ -206,6 +282,98 @@
     ],
     "name": "getBuyOptionsPrice",
     "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "asset",
+        "type": "address"
+      }
+    ],
+    "name": "getPriceDetail",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "underlying",
+        "type": "uint256"
+      }
+    ],
+    "name": "getUnderlyingPriceDetail",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "oToken",
+        "type": "address"
+      }
+    ],
+    "name": "getSellOptionsPriceDetail",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "oToken",
+        "type": "address"
+      }
+    ],
+    "name": "getBuyOptionsPriceDetail",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      },
       {
         "name": "",
         "type": "uint256"

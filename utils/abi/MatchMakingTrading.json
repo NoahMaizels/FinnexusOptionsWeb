@@ -352,7 +352,7 @@
       },
       {
         "indexed": true,
-        "name": "settlementsCurrency",
+        "name": "settlementCurrency",
         "type": "address"
       },
       {
@@ -384,7 +384,7 @@
       },
       {
         "indexed": true,
-        "name": "settlementsCurrency",
+        "name": "settlementCurrency",
         "type": "address"
       },
       {
@@ -411,7 +411,7 @@
       },
       {
         "indexed": true,
-        "name": "settlementsCurrency",
+        "name": "settlementCurrency",
         "type": "address"
       },
       {
@@ -443,7 +443,7 @@
       },
       {
         "indexed": true,
-        "name": "settlementsCurrency",
+        "name": "settlementCurrency",
         "type": "address"
       },
       {
@@ -487,7 +487,7 @@
       },
       {
         "indexed": true,
-        "name": "settlementsCurrency",
+        "name": "settlementCurrency",
         "type": "address"
       },
       {
@@ -514,7 +514,7 @@
       },
       {
         "indexed": true,
-        "name": "settlementsCurrency",
+        "name": "settlementCurrency",
         "type": "address"
       },
       {
@@ -611,11 +611,11 @@
     "constant": true,
     "inputs": [
       {
-        "name": "OptionsToken",
+        "name": "optionsToken",
         "type": "address"
       },
       {
-        "name": "settlementsCurrency",
+        "name": "settlementCurrency",
         "type": "address"
       }
     ],
@@ -646,11 +646,11 @@
     "constant": true,
     "inputs": [
       {
-        "name": "OptionsToken",
+        "name": "optionsToken",
         "type": "address"
       },
       {
-        "name": "settlementsCurrency",
+        "name": "settlementCurrency",
         "type": "address"
       }
     ],
@@ -723,7 +723,7 @@
         "type": "address"
       },
       {
-        "name": "settlementsCurrency",
+        "name": "settlementCurrency",
         "type": "address"
       },
       {
@@ -749,7 +749,7 @@
         "type": "address"
       },
       {
-        "name": "settlementsCurrency",
+        "name": "settlementCurrency",
         "type": "address"
       },
       {
@@ -771,7 +771,7 @@
         "type": "address"
       },
       {
-        "name": "settlementsCurrency",
+        "name": "settlementCurrency",
         "type": "address"
       }
     ],
@@ -789,7 +789,7 @@
         "type": "address"
       },
       {
-        "name": "settlementsCurrency",
+        "name": "settlementCurrency",
         "type": "address"
       }
     ],
@@ -811,7 +811,7 @@
         "type": "uint256"
       },
       {
-        "name": "settlementsCurrency",
+        "name": "settlementCurrency",
         "type": "address"
       },
       {
@@ -837,7 +837,7 @@
         "type": "uint256"
       },
       {
-        "name": "settlementsCurrency",
+        "name": "settlementCurrency",
         "type": "address"
       }
     ],
