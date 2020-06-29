@@ -158,7 +158,7 @@ export const getOptionsInfo = async (address) => {
                 strikePrice: subInfo.strikePrice,
                 amount: tokenBalance,
                 pricePaid: '$' + priceConvert(totalPrice / totalAmount),
-                price: subInfo.price,
+                price: subInfo.sellPrice,
                 percentageOfCollateral: subInfo.percentageOfCollateral,
                 expectedReturn: '$' + (Number(subInfo.price.replace('$', '')) - priceConvert(totalPrice / totalAmount)) * tokenBalance
               })
