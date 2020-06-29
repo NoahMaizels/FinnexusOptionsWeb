@@ -199,11 +199,11 @@ class IndexPage extends Component {
       dataIndex: 'amount',
       key: 'amount',
     },
-    {
-      title: 'Price paid',
-      dataIndex: 'pricePaid',
-      key: 'pricePaid',
-    },
+    // {
+    //   title: 'Price paid',
+    //   dataIndex: 'pricePaid',
+    //   key: 'pricePaid',
+    // },
     {
       title: 'Price now',
       dataIndex: 'price',

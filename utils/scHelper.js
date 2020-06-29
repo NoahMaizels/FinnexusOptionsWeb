@@ -159,10 +159,11 @@ export const getOptionsInfo = async (address) => {
                 underlyingAssetsPrice: subInfo.underlyingAssetsPrice,
                 strikePrice: subInfo.strikePrice,
                 amount: tokenBalance,
-                pricePaid: '$' + priceConvert(totalPrice / totalAmount),
+                // pricePaid: '$' + priceConvert(totalPrice / totalAmount),
                 price: subInfo.sellPrice,
                 percentageOfCollateral: subInfo.percentageOfCollateral,
-                expectedReturn: '$' + Number((Number(subInfo.sellPrice.replace('$', '')) - priceConvert(totalPrice / totalAmount)) * tokenBalance).toFixed(8)
+                // expectedReturn: '$' + Number((Number(subInfo.sellPrice.replace('$', '')) - priceConvert(totalPrice / totalAmount)) * tokenBalance).toFixed(8)
+                expectedReturn: '$' + Number((Number(subInfo.sellPrice.replace('$', ''))) * tokenBalance).toFixed(8)
               })
             }
           }
