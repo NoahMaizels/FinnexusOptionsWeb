@@ -664,12 +664,13 @@ class IndexPage extends Component {
             </Row>
 
             
-            <Collapse bordered={false}
+            {/* <Collapse bordered={false}
               expandIcon={({ isActive }) => <DownOutlined style={{ fontSize: '20px', left: '49.4%', top: '0' }} rotate={isActive ? 180 : 0} />}>
               <Panel>
                 <Table dataSource={hedgeData} columns={this.hedgeColumn} />
               </Panel>
-            </Collapse>
+            </Collapse> */}
+            <Table dataSource={hedgeData} columns={this.hedgeColumn} pagination={false}/>
 
             <div className={styles.center}>
               <Button loading={this.state.hedgeNowLoading} type="primary" style={{ margin: "20px" }} onClick={this.hedgeNow}>Hedge Now</Button>
@@ -744,12 +745,13 @@ class IndexPage extends Component {
               </Col>
             </Row>
             
-            <Collapse bordered={false}
+            {/* <Collapse bordered={false}
               expandIcon={({ isActive }) => <DownOutlined style={{ fontSize: '20px', left: '49.4%', top: '0' }} rotate={isActive ? 180 : 0} />}>
               <Panel>
                 <Table dataSource={leverageData} columns={this.hedgeColumn} />
               </Panel>
-            </Collapse>
+            </Collapse> */}
+            <Table dataSource={leverageData} columns={this.hedgeColumn} pagination={false}/>
 
             <div className={styles.center}>
               <Button loading={this.state.leverageNowLoading} type="primary" style={{ margin: "20px" }} onClick={this.leverageNow}>Leverage Now</Button>
