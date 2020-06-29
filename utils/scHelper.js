@@ -53,7 +53,7 @@ export const getOptionsInfo = async (address) => {
         console.log('token not eligible:', token, eligible);
         return;
       }
-      console.log('token:', token);
+      // console.log('token:', token);
       let ret = await optionMangerSC.methods.getOptionsTokenInfo(token).call();
       if (ret[5] === false) {
         let subInfo = {
@@ -90,7 +90,7 @@ export const getOptionsInfo = async (address) => {
         subInfo.underlyingAssetsPrice = '$' + priceConvert(underlyingPrice);
 
         subInfo.writers = writers;
-        console.log('writers:', writers);
+        // console.log('writers:', writers);
 
         collateralTokenPrice = priceConvert(collateralTokenPrice);
         let minColPrice;
@@ -131,7 +131,7 @@ export const getOptionsInfo = async (address) => {
 
           let events, sellEvents;
           [events, sellEvents] = await Promise.all(tmpFuncs);
-          console.log('events:', events);
+          // console.log('events:', events);
 
           if (events.length > 0) {
             let totalAmount = getWeb3().utils.toBN('0');
@@ -166,7 +166,7 @@ export const getOptionsInfo = async (address) => {
           }
 
           events = sellEvents;
-          console.log('events:', events);
+          // console.log('events:', events);
           if (events.length > 0) {
             for (let m = 0; m < events.length; m++) {
               //----history-----
@@ -186,9 +186,9 @@ export const getOptionsInfo = async (address) => {
 
     funcs.push(func());
   }
-  console.log('funcs:', funcs);
+  // console.log('funcs:', funcs);
   await Promise.all(funcs);
-  console.log('funcs finish:', funcs);
+  // console.log('funcs finish:', funcs);
 
   info.history.sort((a, b) => (b.blockNumber - a.blockNumber));
 
@@ -198,7 +198,7 @@ export const getOptionsInfo = async (address) => {
   funcs.push(mmtSC.methods.getTradingEnd().call());
 
   [info.transactionFee, info.tradingEnd] = await Promise.all(funcs);
-  console.log('fee:', info.transactionFee, info.tradingEnd);
+  // console.log('fee:', info.transactionFee, info.tradingEnd);
 
   info.transactionFee = eval(`${info.transactionFee[0]}e${info.transactionFee[1]}`);
 
@@ -232,7 +232,7 @@ export const approve = async (tokenAddr, owner, amount, selectedWallet) => {
     return false;
   }
   if (tokenAddr !== '0x0000000000000000000000000000000000000000') {
-    console.log('approve token', tokenAddr, amount);
+    // console.log('approve token', tokenAddr, amount);
     let web3 = getWeb3();
     let token = new web3.eth.Contract(abiErc20, tokenAddr);
     let data = await token.methods.approve(matchMakingTradingSCAddress, getWeb3().utils.toWei(amount.toString())).encodeABI();
@@ -247,7 +247,7 @@ export const approve = async (tokenAddr, owner, amount, selectedWallet) => {
     if (!txID) {
       return false;
     }
-    console.log('approve tx sent:', txID);
+    // console.log('approve tx sent:', txID);
     watchTransactionStatus(txID, (status) => {
       if (!status) {
         message.error("token approve failed");
@@ -258,7 +258,7 @@ export const approve = async (tokenAddr, owner, amount, selectedWallet) => {
 }
 
 export const generateBuyOptionsTokenData = async (info) => {
-  console.log('generateBuyOptionsTokenData', info);
+  // console.log('generateBuyOptionsTokenData', info);
   let encodedData = await mmtSC.methods.buyOptionsToken(
     info.optionsToken,
     getWeb3().utils.toWei(info.amount.toString()),
@@ -276,7 +276,7 @@ export const generateTx = async (data, currencyAmount, address, selectedWallet, 
     gasPrice: "0x3B9ACA00",
     // gasLimit: "0x989680", // 10,000,000
   };
-  console.log('wallet type:', selectedWallet.type());
+  // console.log('wallet type:', selectedWallet.type());
   if (selectedWallet.type() === "EXTENSION") {
     txParam.gas = await estimateGas(info, currencyAmount, address);
     if (txParam.gas === -1) {
@@ -294,7 +294,7 @@ export const generateTx = async (data, currencyAmount, address, selectedWallet, 
 
 export const estimateGas = async (info, value, address) => {
   try {
-    console.log('estimateGas:', info, value, address);
+    // console.log('estimateGas:', info, value, address);
     // let ret = await getWeb3().eth.estimateGas(params, { from: address, value });
     let ret = await mmtSC.methods.buyOptionsToken(
       info.optionsToken,
@@ -306,7 +306,7 @@ export const estimateGas = async (info, value, address) => {
     if (ret == 10000000) {
       return -1;
     }
-    console.log('estimateGas:', '0x' + (ret + 30000).toString(16));
+    // console.log('estimateGas:', '0x' + (ret + 30000).toString(16));
     return '0x' + (ret + 30000).toString(16);
   } catch (err) {
     message.error(err.toString());
@@ -316,9 +316,9 @@ export const estimateGas = async (info, value, address) => {
 
 export const sendTransaction = async (selectedWallet, params) => {
   try {
-    console.log('sendTransaction:', params);
+    // console.log('sendTransaction:', params);
     let transactionID = await selectedWallet.sendTransaction(params);
-    console.log('sendTransaction:', transactionID);
+    // console.log('sendTransaction:', transactionID);
     return transactionID;
   } catch (error) {
     if (error.toString().indexOf('Unlock') !== -1) {
@@ -361,7 +361,7 @@ export const watchTransactionStatus = (txID, callback) => {
 
 export const getBuyOptionsOrderAmount = async (optionsAddr, collateralToken) => {
   let buyOrderList = await mmtSC.methods.getPayOrderList(optionsAddr, collateralToken).call();
-  console.log('buyOrderList:', buyOrderList);
+  // console.log('buyOrderList:', buyOrderList);
   if (buyOrderList.length < 4) {
     return 0;
   }
@@ -380,7 +380,7 @@ export const sellOptionsToken = async (address, selectedWallet, info, type) => {
     if (!ret) {
       return false;
     }
-    console.log('approve sent');
+    // console.log('approve sent');
     let gas;
     if (type === 'sell') {
       gas = await mmtSC.methods.sellOptionsToken(info.optionsToken, getWeb3().utils.toWei(info.amount.toString()), info.collateralToken).estimateGas({ gas: 10000000, from: address });
@@ -394,7 +394,7 @@ export const sellOptionsToken = async (address, selectedWallet, info, type) => {
       return false;
     }
 
-    console.log('estimate gas:', gas);
+    // console.log('estimate gas:', gas);
 
     gas = '0x' + (gas + 30000).toString(16);; // add normal tx cost
     let data;
@@ -403,7 +403,7 @@ export const sellOptionsToken = async (address, selectedWallet, info, type) => {
     } else {
       data = await mmtSC.methods.addSellOrder(info.optionsToken, info.collateralToken, getWeb3().utils.toWei(info.amount.toString())).encodeABI();
     }
-    console.log('data:', data);
+    // console.log('data:', data);
 
     const txParam = {
       to: matchMakingTradingSCAddress,
@@ -420,7 +420,7 @@ export const sellOptionsToken = async (address, selectedWallet, info, type) => {
     }
 
     let transactionID = await selectedWallet.sendTransaction(txParam);
-    console.log('sendTransaction:', transactionID);
+    // console.log('sendTransaction:', transactionID);
     message.info("Transaction Submitted, txHash:" + transactionID);
     let timeout = 20;
     while (timeout > 0) {
@@ -445,7 +445,7 @@ export const sellOptionsToken = async (address, selectedWallet, info, type) => {
 
 export const startEventScan = (blockNumber, callback) => {
   let eventScan = async (blockNumber) => {
-    console.log('start scan events...from blockNumber', blockNumber);
+    // console.log('start scan events...from blockNumber', blockNumber);
     let tmpFuncs = [];
     tmpFuncs.push(oMSC.getPastEvents('CreateOptions', {
       fromBlock: blockNumber,
@@ -490,13 +490,13 @@ export const startEventScan = (blockNumber, callback) => {
     let ret = await Promise.all(tmpFuncs);
     for (let i=0; i<ret.length; i++) {
       if(ret[i].length > 0) {
-        console.log('found new event.');
+        // console.log('found new event.');
         blockNumber = ret[i][0].blockNumber;
         callback(false);
         break;
       }
     }
-    console.log('finish scan events...');
+    // console.log('finish scan events...');
     setTimeout(eventScan, 30000, blockNumber);
   }
 

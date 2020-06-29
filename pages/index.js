@@ -86,9 +86,9 @@ class IndexPage extends Component {
     if (this.props.selectedAccount) {
       address = this.props.selectedAccount.get('address');
     }
-    console.log('address:', address);
+    // console.log('address:', address);
     let info = await getOptionsInfo(address);
-    console.log(info);
+    // console.log(info);
     let optionTokenInfo = info.optionTokenInfo;
     let hedgeInfo = Object.assign({}, this.state.hedgeInfo);
     hedgeInfo.expiration = this.getExpiration(optionTokenInfo).put;
@@ -98,7 +98,7 @@ class IndexPage extends Component {
     leverageInfo.expiration = this.getExpiration(optionTokenInfo).call;
     leverageInfo.currency = this.getCollateralTokenType(optionTokenInfo);
 
-    console.log('leverageInfo', leverageInfo);
+    // console.log('leverageInfo', leverageInfo);
 
     this.setState({
       optionsInfo: info,
@@ -307,15 +307,15 @@ class IndexPage extends Component {
   }
 
   getTableData = () => {
-    console.log('getTableData:', this.state.hedgeInfo.expirationSelect, this.state.leverageInfo.expirationSelect);
+    // console.log('getTableData:', this.state.hedgeInfo.expirationSelect, this.state.leverageInfo.expirationSelect);
     const hedgeData = this.state.optionTokenInfo.filter((v) => {
       return v.type === 'put'
-        && v.expiration === this.state.hedgeInfo.expiration[this.state.hedgeInfo.expirationSelect]
+        && v.expiration === this.state.hedgeInfo.expiration.sort()[this.state.hedgeInfo.expirationSelect]
         && v.collateralTokenType === this.state.hedgeInfo.currency[this.state.hedgeInfo.currencySelect];
     });
     const leverageData = this.state.optionTokenInfo.filter((v) => {
       return v.type === 'call'
-        && v.expiration === this.state.leverageInfo.expiration[this.state.leverageInfo.expirationSelect]
+        && v.expiration === this.state.leverageInfo.expiration.sort()[this.state.leverageInfo.expirationSelect]
         && v.collateralTokenType === this.state.leverageInfo.currency[this.state.leverageInfo.currencySelect];
     });
     return { hedgeData: hedgeData.slice(), leverageData: leverageData.slice() };
@@ -367,18 +367,18 @@ class IndexPage extends Component {
 
 
     let address = this.props.selectedAccount.get('address');
-    console.log('address', address);
+    // console.log('address', address);
     this.setState({hedgeNowLoading: true});
     info.balance = await getBalance(info.collateralToken, address);
     this.setState({hedgeNowLoading: false});
     info.payAmount = Number((info.buyAmount * Number(info.price.replace('$', '')) / info.collateralTokenPrice).toFixed(8));
     info.payAmount = Number((info.payAmount + info.payAmount*info.tradeFee  + 0.0001).toFixed(8));
-    console.log('dlg info:', info);
+    // console.log('dlg info:', info);
     confirm({
       title: 'Buy Options Token',
       content: this.getBuyInfo(info),
       onOk: () => {
-        console.log('OK');
+        // console.log('OK');
         this.buyOptionToken(
           address, 
           info.balance, 
@@ -387,11 +387,11 @@ class IndexPage extends Component {
           info.collateralToken, 
           info.optionsToken,
           "hedge").then((value) => {
-            console.log(value);
+            // console.log(value);
           }).catch(console.log);
       },
       onCancel() {
-        console.log('Cancel');
+        // console.log('Cancel');
       },
     });
   }
@@ -412,19 +412,19 @@ class IndexPage extends Component {
     }
 
     let address = this.props.selectedAccount.get('address');
-    console.log('address', address);
+    // console.log('address', address);
     this.setState({leverageNowLoading: true});
     info.balance = await getBalance(info.collateralToken, address);
     this.setState({leverageNowLoading: false});
     info.payAmount = Number((info.buyAmount * Number(info.price.replace('$', '')) / info.collateralTokenPrice).toFixed(8));
     info.payAmount = Number((info.payAmount + info.payAmount*info.tradeFee + 0.0001).toFixed(8));
 
-    console.log('dlg info:', info);
+    // console.log('dlg info:', info);
     confirm({
       title: 'Buy Options Token',
       content: this.getBuyInfo(info),
       onOk: () => {
-        console.log('OK');
+        // console.log('OK');
         this.buyOptionToken(
           address, 
           info.balance, 
@@ -433,11 +433,11 @@ class IndexPage extends Component {
           info.collateralToken, 
           info.optionsToken, 
           "leverage").then((value) => {
-            console.log(value);
+            // console.log(value);
           }).catch(console.log);
       },
       onCancel() {
-        console.log('Cancel');
+        // console.log('Cancel');
       },
     });
   }
@@ -472,10 +472,10 @@ class IndexPage extends Component {
     this.setState({sellLoading: true});
     let address = this.props.selectedAccount.get('address');
 
-    console.log(info.optionsToken, info.collateralToken);
+    // console.log(info.optionsToken, info.collateralToken);
     let existBuyAmount = await getBuyOptionsOrderAmount(info.optionsToken, info.collateralToken);
     let ret = false;
-    console.log('existBuyAmount:', existBuyAmount, info.amount);
+    // console.log('existBuyAmount:', existBuyAmount, info.amount);
     if (Number(existBuyAmount) > Number(info.amount)) {
       ret = await sellOptionsToken(address, this.props.selectedWallet, info, 'sell');
     } else {
@@ -493,7 +493,7 @@ class IndexPage extends Component {
   }
 
   sendNow = async (record) => {
-    console.log(record);
+    // console.log(record);
     let optionInfos = this.state.optionsInfo.optionTokenInfo;
     let info;
     for (let i=0; i<optionInfos.length; i++) {
@@ -509,11 +509,11 @@ class IndexPage extends Component {
       title: 'Buy Options Token',
       content: this.getSellInfo(info),
       onOk: () => {
-        console.log('OK');
+        // console.log('OK');
         this.sellOptionToken(info);
       },
       onCancel() {
-        console.log('Cancel');
+        // console.log('Cancel');
       },
     });
   }
@@ -532,7 +532,7 @@ class IndexPage extends Component {
 
     let data = await generateBuyOptionsTokenData(info);
 
-    console.log('data:', data);
+    // console.log('data:', data);
 
     if (collateralToken === '0x0000000000000000000000000000000000000000') {
     } else {
@@ -541,10 +541,10 @@ class IndexPage extends Component {
     }
 
     let currencyAmount = web3.utils.toHex(web3.utils.toWei(payAmount.toString())).toString();
-    console.log('currencyAmount', currencyAmount);
+    // console.log('currencyAmount', currencyAmount);
 
     let txParam = await generateTx(data, currencyAmount, walletAddress, this.props.selectedWallet, info);
-    console.log('txParam:', txParam);
+    // console.log('txParam:', txParam);
     if (!txParam) {
       message.error("Estimate Gas Failed");
       return;
