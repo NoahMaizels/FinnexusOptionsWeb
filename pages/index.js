@@ -516,7 +516,7 @@ class IndexPage extends Component {
     info.tradeFee = this.state.optionsInfo.transactionFee;
 
     confirm({
-      title: 'Buy Options Token',
+      title: 'Sell Options Token',
       content: this.getSellInfo(info),
       onOk: () => {
         // console.log('OK');
