@@ -87,6 +87,8 @@ export const getOptionsInfo = async (address) => {
         subInfo.price = '$' + priceConvert(buyPrice);
         subInfo.sellPrice = '$' + priceConvert(sellPrice);
 
+        // console.log('tokenName', subInfo.tokenName, 'buyPrice', buyPrice, "sellPrice", sellPrice);
+
         subInfo.underlyingAssetsPrice = '$' + priceConvert(underlyingPrice);
 
         subInfo.writers = writers;
@@ -160,7 +162,7 @@ export const getOptionsInfo = async (address) => {
                 pricePaid: '$' + priceConvert(totalPrice / totalAmount),
                 price: subInfo.sellPrice,
                 percentageOfCollateral: subInfo.percentageOfCollateral,
-                expectedReturn: '$' + (Number(subInfo.price.replace('$', '')) - priceConvert(totalPrice / totalAmount)) * tokenBalance
+                expectedReturn: '$' + Number((Number(subInfo.sellPrice.replace('$', '')) - priceConvert(totalPrice / totalAmount)) * tokenBalance).toFixed(8)
               })
             }
           }
