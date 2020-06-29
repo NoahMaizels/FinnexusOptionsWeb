@@ -150,7 +150,7 @@ export const getOptionsInfo = async (address) => {
                 optionsPrice: '$' + priceConvert(events[m].returnValues.optionsPrice),
                 type: 'buy',
                 tokenName: subInfo.tokenName,
-                currencyAmount: Number(Number(getWeb3().utils.fromWei(events[m].returnValues.amount)) * Number(priceConvert(events[m].returnValues.optionsPrice))).toFixed(8),
+                currencyAmount: '$' + Number(Number(getWeb3().utils.fromWei(events[m].returnValues.amount)) * Number(priceConvert(events[m].returnValues.optionsPrice))).toFixed(8),
                 key: events[m].transactionHash
               });
             }
@@ -183,7 +183,7 @@ export const getOptionsInfo = async (address) => {
                 optionsPrice: '$' + priceConvert(events[m].returnValues.optionsPrice),
                 type: 'sell',
                 tokenName: subInfo.tokenName,
-                currencyAmount: Number(Number(getWeb3().utils.fromWei(events[m].returnValues.amount)) * Number(priceConvert(events[m].returnValues.optionsPrice))).toFixed(8),
+                currencyAmount: '$'+Number(Number(getWeb3().utils.fromWei(events[m].returnValues.amount)) * Number(priceConvert(events[m].returnValues.optionsPrice))).toFixed(8),
                 key: events[m].transactionHash
               });
             }
