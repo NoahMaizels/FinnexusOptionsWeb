@@ -307,6 +307,7 @@ class IndexPage extends Component {
   }
 
   getTableData = () => {
+    console.log('getTableData:', this.state.hedgeInfo.expirationSelect, this.state.leverageInfo.expirationSelect);
     const hedgeData = this.state.optionTokenInfo.filter((v) => {
       return v.type === 'put'
         && v.expiration === this.state.hedgeInfo.expiration[this.state.hedgeInfo.expirationSelect]
@@ -317,7 +318,7 @@ class IndexPage extends Component {
         && v.expiration === this.state.leverageInfo.expiration[this.state.leverageInfo.expirationSelect]
         && v.collateralTokenType === this.state.leverageInfo.currency[this.state.leverageInfo.currencySelect];
     });
-    return { hedgeData, leverageData };
+    return { hedgeData: hedgeData.slice(), leverageData: leverageData.slice() };
   }
 
   getBuyInfo = (info) => {
@@ -485,7 +486,7 @@ class IndexPage extends Component {
       message.warn("Sell Options Failed");
     } else {
       message.info("Sell Options Success");
-      this.updatePage(false);
+      this.updatePage(true);
     }
 
     this.setState({sellLoading: false});
