@@ -492,7 +492,7 @@ export const startEventScan = (blockNumber, callback) => {
       if(ret[i].length > 0) {
         console.log('found new event.');
         blockNumber = ret[i][0].blockNumber;
-        callback();
+        callback(false);
         break;
       }
     }

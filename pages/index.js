@@ -66,12 +66,12 @@ class IndexPage extends Component {
   }
 
   async componentDidMount() {
-    let info = await this.updatePage();
+    let info = await this.updatePage(true);
     startEventScan(info.blockNumber, this.updatePage);
   }
 
-  updatePage = async () => {
-    this.setState({pageLoading: true});
+  updatePage = async (pinning) => {
+    this.setState({pageLoading: pinning});
     let address = null;
     let timer = 0;
     while (this.props.selectedAccount === null) {
@@ -485,7 +485,7 @@ class IndexPage extends Component {
       message.warn("Sell Options Failed");
     } else {
       message.info("Sell Options Success");
-      this.updatePage();
+      this.updatePage(false);
     }
 
     this.setState({sellLoading: false});
@@ -564,7 +564,7 @@ class IndexPage extends Component {
     watchTransactionStatus(txID, (status) => {
       if(status) {
         message.info("Buy Options Success");
-        this.updatePage();
+        this.updatePage(false);
       } else {
         message.error("Buy Options Failed");
       }
