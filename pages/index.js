@@ -241,6 +241,11 @@ class IndexPage extends Component {
       key: 'txHash',
     },
     {
+      title: 'Token Name',
+      dataIndex: 'tokenName',
+      key: 'tokenName',
+    },
+    {
       title: 'Amount',
       dataIndex: 'amount',
       key: 'amount',
@@ -249,6 +254,11 @@ class IndexPage extends Component {
       title: 'Options Price',
       dataIndex: 'optionsPrice',
       key: 'optionsPrice',
+    },
+    {
+      title: 'Currency Amount',
+      dataIndex: 'currencyAmount',
+      key: 'currencyAmount',
     },
     {
       title: 'Type',
