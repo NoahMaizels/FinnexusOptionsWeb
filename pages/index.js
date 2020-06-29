@@ -224,7 +224,7 @@ class IndexPage extends Component {
       dataIndex: '',
       key: 'action',
       render: (text, record) => {
-        return (<Button loading={this.state.sellLoading} type="primary" onClick={() => { this.sendNow(record) }} >Sell now</Button>)
+        return (<Button loading={this.state.sellLoading} type="primary" onClick={() => { this.sellNow(record) }} >Sell now</Button>)
       }
     },
   ]
@@ -283,6 +283,10 @@ class IndexPage extends Component {
       return;
     }
 
+    if (hedgeData.length === 0) {
+      return;
+    }
+
     let hedgeInfo = Object.assign({}, this.state.hedgeInfo);
     hedgeInfo.amount = value;
     hedgeInfo.price = hedgeInfo.amount * Number(hedgeData[0].price.replace('$', ''))
@@ -304,6 +308,10 @@ class IndexPage extends Component {
 
     if (value > max_value) {
       message.warn("Input should be less than the maximum value.");
+      return;
+    }
+
+    if (leverageData.length === 0) {
       return;
     }
 
@@ -382,7 +390,7 @@ class IndexPage extends Component {
     info.balance = await getBalance(info.collateralToken, address);
     this.setState({hedgeNowLoading: false});
     info.payAmount = Number((info.buyAmount * Number(info.price.replace('$', '')) / info.collateralTokenPrice).toFixed(8));
-    info.payAmount = Number((info.payAmount + info.payAmount*info.tradeFee  + 0.0001).toFixed(8));
+    info.payAmount = Number((info.payAmount + info.payAmount*info.tradeFee  + 0.01).toFixed(8));
     // console.log('dlg info:', info);
     confirm({
       title: 'Buy Options Token',
@@ -453,6 +461,14 @@ class IndexPage extends Component {
   }
   
   getSellInfo = (info) => {
+    const updateSellAmount = (e) => {
+      if (Number(e.target.value) > Number(info.amount) || Number(e.target.value) < 0 || isNaN(e.target.value)) {
+        message.warn("Amount out of range.");
+        return;
+      }
+      this.sellAmount = e.target.value;
+    }
+
     return (<div style={{marginTop:'40px'}}>
       <Row gutter={[16, 8]}>
         <Col span={8}><h4>Token Name:</h4></Col>
@@ -467,17 +483,29 @@ class IndexPage extends Component {
         <Col span={16}><h4>{info.tradeFee*100 + '%'}</h4></Col>
       </Row>
       <Row gutter={[16, 8]}>
-        <Col span={8}><h4>Sell Amount:</h4></Col>
+        <Col span={8}><h4>Total Amount:</h4></Col>
         <Col span={16}><h4>{info.amount}</h4></Col>
+      </Row>
+      <Row gutter={[16, 8]}>
+        <Col span={8}><h4>Sell Amount:</h4></Col>
+        {/* <Col span={16}><Input defaultValue={0} onChange={e=>this.setState({sellAmount: e.target.value})}/></Col> */}
+        <Col span={16}><Input defaultValue={0} onChange={updateSellAmount}/></Col>
       </Row>
     </div>)
   }
+  
 
   sellOptionToken = async (info) => {
     if (!this.props.selectedAccount) {
       message.info("Please select wallet first");
       return;
     }
+    console.log('sellAmount:', this.sellAmount);
+    if (Number(this.sellAmount) > Number(info.amount) || Number(this.sellAmount) <= 0 || isNaN(this.sellAmount)) {
+      message.warn("Amount out of range.");
+      return;
+    }
+    info.sellAmount = this.sellAmount;
 
     this.setState({sellLoading: true});
     let address = this.props.selectedAccount.get('address');
@@ -486,7 +514,7 @@ class IndexPage extends Component {
     let existBuyAmount = await getBuyOptionsOrderAmount(info.optionsToken, info.collateralToken);
     let ret = false;
     // console.log('existBuyAmount:', existBuyAmount, info.amount);
-    if (Number(existBuyAmount) > Number(info.amount)) {
+    if (Number(existBuyAmount) > Number(this.sellAmount)) {
       ret = await sellOptionsToken(address, this.props.selectedWallet, info, 'sell');
     } else {
       ret = await sellOptionsToken(address, this.props.selectedWallet, info, 'addOrder');
@@ -499,10 +527,10 @@ class IndexPage extends Component {
       this.updatePage(true);
     }
 
-    this.setState({sellLoading: false});
+    this.setState({sellLoading: false, sellAmount: 0});
   }
 
-  sendNow = async (record) => {
+  sellNow = async (record) => {
     // console.log(record);
     let optionInfos = this.state.optionsInfo.optionTokenInfo;
     let info;
@@ -522,8 +550,9 @@ class IndexPage extends Component {
         // console.log('OK');
         this.sellOptionToken(info);
       },
-      onCancel() {
+      onCancel: () => {
         // console.log('Cancel');
+        this.setState({sellAmount: 0});
       },
     });
   }

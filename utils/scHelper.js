@@ -243,6 +243,9 @@ export const getOptionsInfo = async (address) => {
 }
 
 function priceConvert(price) {
+  if (Number(price) / decimals > 1e30) {
+    return " Timeout";
+  }
   return Number((Number(price) / decimals).toFixed(4));
 }
 
@@ -341,6 +344,7 @@ export const estimateGas = async (info, value, address) => {
     ).estimateGas({ gas: 10000000, value, from: address });
 
     if (ret == 10000000) {
+      console.log('estimateGas failed:', info.optionsToken, getWeb3().utils.toWei(info.amount.toString()), info.collateralToken, getWeb3().utils.toWei(info.currencyAmount.toString()));
       return -1;
     }
     // console.log('estimateGas:', '0x' + (ret + 30000).toString(16));
@@ -420,9 +424,9 @@ export const sellOptionsToken = async (address, selectedWallet, info, type) => {
     // console.log('approve sent');
     let gas;
     if (type === 'sell') {
-      gas = await mmtSC.methods.sellOptionsToken(info.optionsToken, getWeb3().utils.toWei(info.amount.toString()), info.collateralToken).estimateGas({ gas: 10000000, from: address });
+      gas = await mmtSC.methods.sellOptionsToken(info.optionsToken, getWeb3().utils.toWei(info.sellAmount.toString()), info.collateralToken).estimateGas({ gas: 10000000, from: address });
     } else {
-      gas = await mmtSC.methods.addSellOrder(info.optionsToken, info.collateralToken, getWeb3().utils.toWei(info.amount.toString())).estimateGas({ gas: 10000000, from: address });
+      gas = await mmtSC.methods.addSellOrder(info.optionsToken, info.collateralToken, getWeb3().utils.toWei(info.sellAmount.toString())).estimateGas({ gas: 10000000, from: address });
     }
     //sell
     if (gas === 10000000) {
@@ -436,9 +440,9 @@ export const sellOptionsToken = async (address, selectedWallet, info, type) => {
     gas = '0x' + (gas + 30000).toString(16);; // add normal tx cost
     let data;
     if (type === 'sell') {
-      data = await mmtSC.methods.sellOptionsToken(info.optionsToken, getWeb3().utils.toWei(info.amount.toString()), info.collateralToken).encodeABI();
+      data = await mmtSC.methods.sellOptionsToken(info.optionsToken, getWeb3().utils.toWei(info.sellAmount.toString()), info.collateralToken).encodeABI();
     } else {
-      data = await mmtSC.methods.addSellOrder(info.optionsToken, info.collateralToken, getWeb3().utils.toWei(info.amount.toString())).encodeABI();
+      data = await mmtSC.methods.addSellOrder(info.optionsToken, info.collateralToken, getWeb3().utils.toWei(info.sellAmount.toString())).encodeABI();
     }
     // console.log('data:', data);
 
