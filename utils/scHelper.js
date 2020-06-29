@@ -49,10 +49,7 @@ export const getOptionsInfo = async (address) => {
     let func = async () => {
       let token = info.optionTokenList[i];
       let eligible = await mmtSC.methods.isEligibleOptionsToken(token).call();
-      if (!eligible) {
-        console.log('token not eligible:', token, eligible);
-        return;
-      }
+      
       // console.log('token:', token);
       let ret = await optionMangerSC.methods.getOptionsTokenInfo(token).call();
       if (ret[5] === false) {
@@ -130,10 +127,15 @@ export const getOptionsInfo = async (address) => {
             fromBlock: 0,
             toBlock: info.blockNumber
           }));
+          tmpFuncs.push(oMSC.getPastEvents('Exercise', {
+            filter: { from: address, optionsToken: token },
+            fromBlock: 0,
+            toBlock: info.blockNumber
+          }));
 
-          let events, sellEvents;
-          [events, sellEvents] = await Promise.all(tmpFuncs);
-          // console.log('events:', events);
+          let events, sellEvents, exerciseEvents;
+          [events, sellEvents, exerciseEvents] = await Promise.all(tmpFuncs);
+          console.log('exerciseEvents:', exerciseEvents);
 
           if (events.length > 0) {
             let totalAmount = getWeb3().utils.toBN('0');
@@ -188,6 +190,32 @@ export const getOptionsInfo = async (address) => {
               });
             }
           }
+
+          events = exerciseEvents;
+          // console.log('events:', events);
+          if (events.length > 0) {
+            for (let m = 0; m < events.length; m++) {
+              if (events[i].returnValues.optionsToken.toLowerCase() !== token.toLowerCase()) {
+                continue;
+              }
+              //----history-----
+              info.history.push({
+                blockNumber: events[m].blockNumber,
+                txHash: events[m].transactionHash,
+                amount: address ? getBalance(token, address):"0",
+                optionsPrice: subInfo.strikePrice,
+                type: 'Exercise',
+                tokenName: subInfo.tokenName,
+                currencyAmount: '$'+Number(Number(address ? getBalance(token, address):"0") * Number(subInfo.strikePrice.replace('$',''))).toFixed(8),
+                key: events[m].transactionHash
+              });
+            }
+          }
+        }
+
+        if (!eligible) {
+          console.log('token not eligible:', token, eligible);
+          return;
         }
         info.optionTokenInfo.push(subInfo);
       }
