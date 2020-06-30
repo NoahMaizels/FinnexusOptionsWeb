@@ -38,13 +38,13 @@ class IndexPage extends Component {
       optionTokenInfo: [],
       pageLoading: true,
       sellLoading: false,
+      currencySelect: 0,
 
       hedgeInfo: {
         amount: 0,
         expiration: [],
         expirationSelect: 0,
         currency: [],
-        currencySelect: 0,
         price: 0,
         choseCurrency: 0,
         return: 0,
@@ -55,7 +55,6 @@ class IndexPage extends Component {
         expiration: [],
         expirationSelect: 0,
         currency: [],
-        currencySelect: 0,
         price: 0,
         choseCurrency: 0,
         return: 0,
@@ -296,6 +295,7 @@ class IndexPage extends Component {
     hedgeInfo.price = Number(hedgeInfo.price.toFixed(8));
     hedgeInfo.choseCurrency = hedgeInfo.price / hedgeData[0].tokenPrice[this.state.currencySelect];
     hedgeInfo.choseCurrency = Number(hedgeInfo.choseCurrency.toFixed(8));
+    // console.log('choseCurrency', hedgeInfo.price, hedgeData[0].tokenPrice, this.state.currencySelect);
     this.setState({ hedgeInfo });
   }
 
@@ -332,12 +332,10 @@ class IndexPage extends Component {
     const hedgeData = this.state.optionTokenInfo.filter((v) => {
       return v.type === 'put'
         && v.expiration === this.state.hedgeInfo.expiration.sort()[this.state.hedgeInfo.expirationSelect];
-        // && v.collateralTokenType === this.state.hedgeInfo.currency[this.state.hedgeInfo.currencySelect];
     });
     const leverageData = this.state.optionTokenInfo.filter((v) => {
       return v.type === 'call'
         && v.expiration === this.state.leverageInfo.expiration.sort()[this.state.leverageInfo.expirationSelect];
-        // && v.collateralTokenType === this.state.leverageInfo.currency[this.state.leverageInfo.currencySelect];
     });
     return { hedgeData: hedgeData.slice(), leverageData: leverageData.slice() };
   }
@@ -374,6 +372,7 @@ class IndexPage extends Component {
   hedgeNow = async () => {
     const {hedgeData, leverageData} = this.getTableData();
     let info = Object.assign({}, hedgeData[0]);
+    // console.log("info:", info);
     info.tradeFee = this.state.optionsInfo.transactionFee;
     info.buyAmount = this.state.hedgeInfo.amount;
     if (!this.props.selectedAccount) {
@@ -446,7 +445,7 @@ class IndexPage extends Component {
     info.balance = await getBalance(info.collateralToken, address);
     this.setState({leverageNowLoading: false});
     info.payAmount = Number((info.buyAmount * Number(info.price.replace('$', '')) / info.tokenPrice[this.state.currencySelect]).toFixed(8));
-    info.payAmount = Number((info.payAmount + info.payAmount*info.tradeFee + 0.0001).toFixed(8));
+    info.payAmount = Number((info.payAmount + info.payAmount*info.tradeFee + 0.01).toFixed(8));
 
     // console.log('dlg info:', info);
     confirm({
@@ -615,7 +614,7 @@ class IndexPage extends Component {
     watchTransactionStatus(txID, (status) => {
       if(status) {
         message.info("Buy Options Success");
-        this.updatePage(false);
+        this.updatePage(true);
       } else {
         message.error("Buy Options Failed");
       }
@@ -684,9 +683,7 @@ class IndexPage extends Component {
               </Col>
               <Col span={3}>
                 <Radio.Group defaultValue={0} buttonStyle="solid" onChange={(e) => {
-                  let hedgeInfo = Object.assign({}, this.state.hedgeInfo);
-                  hedgeInfo.currencySelect = e.target.value;
-                  this.setState({ hedgeInfo });
+                  this.setState({ currencySelect: e.target.value });
                 }}>
                   {
                     this.state.hedgeInfo.currency.map((v, i) => {
@@ -695,7 +692,7 @@ class IndexPage extends Component {
                   }
                 </Radio.Group>
               </Col>
-              <Col span={6}>${this.state.hedgeInfo.price} / {this.state.hedgeInfo.currency[this.state.hedgeInfo.currencySelect]} {this.state.hedgeInfo.choseCurrency}</Col>
+              <Col span={6}>${this.state.hedgeInfo.price} / {this.state.hedgeInfo.currency[this.state.currencySelect]} {this.state.hedgeInfo.choseCurrency}</Col>
               <Col span={4}>
                 <Row gutter={[16, 16]}>
                   <Col span={8}>${this.state.hedgeInfo.return}</Col>
@@ -766,9 +763,7 @@ class IndexPage extends Component {
               </Col>
               <Col span={3}>
                 <Radio.Group defaultValue={0} buttonStyle="solid" onChange={(e) => {
-                  let leverageInfo = Object.assign({}, this.state.leverageInfo);
-                  leverageInfo.currencySelect = e.target.value;
-                  this.setState({ leverageInfo });
+                  this.setState({ currencySelect: e.target.value });
                 }}>
                   {
                     this.state.leverageInfo.currency.map((v, i) => {
@@ -777,7 +772,7 @@ class IndexPage extends Component {
                   }
                 </Radio.Group>
               </Col>
-              <Col span={6}>${this.state.leverageInfo.price} / {this.state.leverageInfo.currency[this.state.leverageInfo.currencySelect]} {this.state.leverageInfo.choseCurrency}</Col>
+              <Col span={6}>${this.state.leverageInfo.price} / {this.state.leverageInfo.currency[this.state.currencySelect]} {this.state.leverageInfo.choseCurrency}</Col>
               <Col span={4}>
                 <Row gutter={[16, 16]}>
                   <Col span={8}>${this.state.leverageInfo.return}</Col>

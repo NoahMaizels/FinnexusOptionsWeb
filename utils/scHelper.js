@@ -39,6 +39,8 @@ export const getOptionsInfo = async (address) => {
   let formulasSC = new web3.eth.Contract(abiOptionsFormulas, info.formulasAddress);
   let oracleSC = new web3.eth.Contract(abiCompoundOracle, info.oracleAddress);
   info.optionTokenList = await optionMangerSC.methods.getOptionsTokenList().call();
+  // console.log('optionsList', info.optionTokenList);
+  // console.log('oralce addr:', info.oracleAddress);
   info.optionTokenInfo = [];
   info.assets = [];
   info.history = [];
@@ -74,7 +76,6 @@ export const getOptionsInfo = async (address) => {
         tmpFuncs.push(oracleSC.methods.getUnderlyingPrice(ret[2]).call());
         tmpFuncs.push(optionMangerSC.methods.getOptionsTokenWriterList(token).call());
         tmpFuncs.push(oracleSC.methods.getPrice(subInfo.collateralToken).call());
-        tmpFuncs.push(oracleSC.methods.getPrice(subInfo.collateralToken).call());
         tmpFuncs.push(oracleSC.methods.getPrice(fnxTokenAddress).call());
         tmpFuncs.push(oracleSC.methods.getPrice(wanTokenAddress).call());
 
@@ -92,7 +93,9 @@ export const getOptionsInfo = async (address) => {
         subInfo.tokenPrice[0] = priceConvert(wanPrice);
         subInfo.tokenPrice[1] = priceConvert(fnxPrice);
         console.log('wanPrice:', priceConvert(wanPrice), 'fnxPrice:', priceConvert(fnxPrice));
-
+        subInfo.currency = [];
+        subInfo.currency.push('WAN');
+        subInfo.currency.push('FNX');
         // console.log('tokenName', subInfo.tokenName, 'buyPrice', buyPrice, "sellPrice", sellPrice);
 
         subInfo.underlyingAssetsPrice = '$' + priceConvert(underlyingPrice);
