@@ -5,7 +5,7 @@ import abiOptionsManger from "./abi/OptionsManger.json";
 import abiOptionsFormulas from './abi/OptionsFormulas.json';
 import abiErc20 from './abi/Erc20.json';
 import { message } from 'antd';
-import { smartContractAddress, decimals } from '../conf/config';
+import { smartContractAddress, decimals, fnxTokenAddress, wanTokenAddress } from '../conf/config';
 import sleep from 'ko-sleep';
 
 import { getWeb3, isSwitchFinish } from './web3switch.js';
@@ -74,15 +74,24 @@ export const getOptionsInfo = async (address) => {
         tmpFuncs.push(oracleSC.methods.getUnderlyingPrice(ret[2]).call());
         tmpFuncs.push(optionMangerSC.methods.getOptionsTokenWriterList(token).call());
         tmpFuncs.push(oracleSC.methods.getPrice(subInfo.collateralToken).call());
+        tmpFuncs.push(oracleSC.methods.getPrice(subInfo.collateralToken).call());
+        tmpFuncs.push(oracleSC.methods.getPrice(fnxTokenAddress).call());
+        tmpFuncs.push(oracleSC.methods.getPrice(wanTokenAddress).call());
 
-        let buyPrice, sellPrice, underlyingPrice, writers, collateralTokenPrice;
-        [subInfo.sellOrderList, subInfo.payOrderList, buyPrice, sellPrice, underlyingPrice, writers, collateralTokenPrice] = await Promise.all(tmpFuncs);
+
+
+        let buyPrice, sellPrice, underlyingPrice, writers, collateralTokenPrice, fnxPrice, wanPrice;
+        [subInfo.sellOrderList, subInfo.payOrderList, buyPrice, sellPrice, underlyingPrice, writers, collateralTokenPrice, fnxPrice, wanPrice] = await Promise.all(tmpFuncs);
 
         let liquidity = subInfo.sellOrderList[2].length > 0 ? eval(subInfo.sellOrderList[2].join('+')) : 0;
         subInfo.liquidity = getWeb3().utils.fromWei(liquidity.toString());
 
         subInfo.price = '$' + priceConvert(buyPrice);
         subInfo.sellPrice = '$' + priceConvert(sellPrice);
+        subInfo.tokenPrice = [];
+        subInfo.tokenPrice[0] = priceConvert(wanPrice);
+        subInfo.tokenPrice[1] = priceConvert(fnxPrice);
+        console.log('wanPrice:', priceConvert(wanPrice), 'fnxPrice:', priceConvert(fnxPrice));
 
         // console.log('tokenName', subInfo.tokenName, 'buyPrice', buyPrice, "sellPrice", sellPrice);
 
@@ -135,7 +144,7 @@ export const getOptionsInfo = async (address) => {
 
           let events, sellEvents, exerciseEvents;
           [events, sellEvents, exerciseEvents] = await Promise.all(tmpFuncs);
-          console.log('exerciseEvents:', exerciseEvents);
+          // console.log('exerciseEvents:', exerciseEvents);
 
           if (events.length > 0) {
             let totalAmount = getWeb3().utils.toBN('0');

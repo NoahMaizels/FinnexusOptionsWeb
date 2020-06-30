@@ -3,8 +3,8 @@ import { networkId } from '../conf/config';
 
 let nodeUrlsTestnet = [
     'wss://apitest.wanchain.org:8443/ws/v3/30e9d7131a7fa1557eeeb9ffb18f0a2f66aee81a550ee857343136e5c04b5785',
-    // 'https://gwan-ssl.wandevs.org:46891',
-    // 'https://demodex.wandevs.org:48545',
+    'https://gwan-ssl.wandevs.org:46891',
+    'https://demodex.wandevs.org:48545',
 ];
 
 let nodeUrlsMainnet = [
@@ -56,6 +56,9 @@ export const getFastWeb3 = async () => {
                 return { delay: 100000, index: i };
             }
             let t1 = Date.now() - t0;
+            if (nodeUrls[i].includes('http')) {
+                t1 += 1000;
+            }
             return { delay: t1, index: i, url: nodeUrls[i] };
         }
         funcs.push(func());

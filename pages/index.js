@@ -23,6 +23,7 @@ import {
 } from '../utils/scHelper';
 
 import banner from './images/banner.png'
+import { wanTokenAddress, fnxTokenAddress } from "../conf/config";
 
 const { confirm } = Modal;
 const { Panel } = Collapse;
@@ -132,11 +133,13 @@ class IndexPage extends Component {
 
   getCollateralTokenType = (info) => {
     let collateralTokens = [];
-    for (let i = 0; i < info.length; i++) {
-      if (!collateralTokens.includes(info[i].collateralTokenType)) {
-        collateralTokens.push(info[i].collateralTokenType);
-      }
-    }
+    // for (let i = 0; i < info.length; i++) {
+    //   if (!collateralTokens.includes(info[i].collateralTokenType)) {
+    //     collateralTokens.push(info[i].collateralTokenType);
+    //   }
+    // }
+    collateralTokens.push("WAN");
+    collateralTokens.push("FNX");
     return collateralTokens;
   }
 
@@ -291,7 +294,7 @@ class IndexPage extends Component {
     hedgeInfo.amount = value;
     hedgeInfo.price = hedgeInfo.amount * Number(hedgeData[0].price.replace('$', ''))
     hedgeInfo.price = Number(hedgeInfo.price.toFixed(8));
-    hedgeInfo.choseCurrency = hedgeInfo.price / hedgeData[0].collateralTokenPrice;
+    hedgeInfo.choseCurrency = hedgeInfo.price / hedgeData[0].tokenPrice[this.state.currencySelect];
     hedgeInfo.choseCurrency = Number(hedgeInfo.choseCurrency.toFixed(8));
     this.setState({ hedgeInfo });
   }
@@ -319,7 +322,7 @@ class IndexPage extends Component {
     leverageInfo.amount = value;
     leverageInfo.price = leverageInfo.amount * Number(leverageData[0].price.replace('$', ''))
     leverageInfo.price = Number(leverageInfo.price.toFixed(8));
-    leverageInfo.choseCurrency = leverageInfo.price / leverageData[0].collateralTokenPrice;
+    leverageInfo.choseCurrency = leverageInfo.price / leverageData[0].tokenPrice[this.state.currencySelect];
     leverageInfo.choseCurrency = Number(leverageInfo.choseCurrency.toFixed(8));
     this.setState({ leverageInfo });
   }
@@ -328,13 +331,13 @@ class IndexPage extends Component {
     // console.log('getTableData:', this.state.hedgeInfo.expirationSelect, this.state.leverageInfo.expirationSelect);
     const hedgeData = this.state.optionTokenInfo.filter((v) => {
       return v.type === 'put'
-        && v.expiration === this.state.hedgeInfo.expiration.sort()[this.state.hedgeInfo.expirationSelect]
-        && v.collateralTokenType === this.state.hedgeInfo.currency[this.state.hedgeInfo.currencySelect];
+        && v.expiration === this.state.hedgeInfo.expiration.sort()[this.state.hedgeInfo.expirationSelect];
+        // && v.collateralTokenType === this.state.hedgeInfo.currency[this.state.hedgeInfo.currencySelect];
     });
     const leverageData = this.state.optionTokenInfo.filter((v) => {
       return v.type === 'call'
-        && v.expiration === this.state.leverageInfo.expiration.sort()[this.state.leverageInfo.expirationSelect]
-        && v.collateralTokenType === this.state.leverageInfo.currency[this.state.leverageInfo.currencySelect];
+        && v.expiration === this.state.leverageInfo.expiration.sort()[this.state.leverageInfo.expirationSelect];
+        // && v.collateralTokenType === this.state.leverageInfo.currency[this.state.leverageInfo.currencySelect];
     });
     return { hedgeData: hedgeData.slice(), leverageData: leverageData.slice() };
   }
@@ -359,7 +362,7 @@ class IndexPage extends Component {
       </Row>
       <Row gutter={[16, 8]}>
         <Col span={8}><h4>Pay Token:</h4></Col>
-        <Col span={16}><h4>{info.payAmount + ' ' + info.collateralTokenType}</h4></Col>
+        <Col span={16}><h4>{info.payAmount + ' ' + info.currency[this.state.currencySelect]}</h4></Col>
       </Row>
       <Row gutter={[16, 8]}>
         <Col span={8}><h4>My Balance:</h4></Col>
@@ -387,10 +390,18 @@ class IndexPage extends Component {
     let address = this.props.selectedAccount.get('address');
     // console.log('address', address);
     this.setState({hedgeNowLoading: true});
-    info.balance = await getBalance(info.collateralToken, address);
+    if (this.state.currencySelect === 0) {
+      info.buyUseToken = wanTokenAddress;
+    } else {
+      info.buyUseToken = fnxTokenAddress;
+    }
+    
+    info.balance = await getBalance(info.buyUseToken, address);
+
     this.setState({hedgeNowLoading: false});
-    info.payAmount = Number((info.buyAmount * Number(info.price.replace('$', '')) / info.collateralTokenPrice).toFixed(8));
+    info.payAmount = Number((info.buyAmount * Number(info.price.replace('$', '')) / info.tokenPrice[this.state.currencySelect]).toFixed(8));
     info.payAmount = Number((info.payAmount + info.payAmount*info.tradeFee  + 0.01).toFixed(8));
+    
     // console.log('dlg info:', info);
     confirm({
       title: 'Buy Options Token',
@@ -402,7 +413,7 @@ class IndexPage extends Component {
           info.balance, 
           info.payAmount, 
           info.buyAmount, 
-          info.collateralToken, 
+          info.buyUseToken,
           info.optionsToken,
           "hedge").then((value) => {
             // console.log(value);
@@ -434,7 +445,7 @@ class IndexPage extends Component {
     this.setState({leverageNowLoading: true});
     info.balance = await getBalance(info.collateralToken, address);
     this.setState({leverageNowLoading: false});
-    info.payAmount = Number((info.buyAmount * Number(info.price.replace('$', '')) / info.collateralTokenPrice).toFixed(8));
+    info.payAmount = Number((info.buyAmount * Number(info.price.replace('$', '')) / info.tokenPrice[this.state.currencySelect]).toFixed(8));
     info.payAmount = Number((info.payAmount + info.payAmount*info.tradeFee + 0.0001).toFixed(8));
 
     // console.log('dlg info:', info);
