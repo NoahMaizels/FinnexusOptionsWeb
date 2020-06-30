@@ -23,7 +23,7 @@ import {
 } from '../utils/scHelper';
 
 import banner from './images/banner.png'
-import { wanTokenAddress, fnxTokenAddress } from "../conf/config";
+import { wanTokenAddress, fnxTokenAddress, additionalFee } from "../conf/config";
 
 const { confirm } = Modal;
 const { Panel } = Collapse;
@@ -399,7 +399,7 @@ class IndexPage extends Component {
 
     this.setState({hedgeNowLoading: false});
     info.payAmount = Number((info.buyAmount * Number(info.price.replace('$', '')) / info.tokenPrice[this.state.currencySelect]).toFixed(8));
-    info.payAmount = Number((info.payAmount + info.payAmount*info.tradeFee  + 0.01).toFixed(8));
+    info.payAmount = Number((info.payAmount + info.payAmount*info.tradeFee  + additionalFee).toFixed(8));
     
     // console.log('dlg info:', info);
     confirm({
@@ -445,7 +445,7 @@ class IndexPage extends Component {
     info.balance = await getBalance(info.collateralToken, address);
     this.setState({leverageNowLoading: false});
     info.payAmount = Number((info.buyAmount * Number(info.price.replace('$', '')) / info.tokenPrice[this.state.currencySelect]).toFixed(8));
-    info.payAmount = Number((info.payAmount + info.payAmount*info.tradeFee + 0.01).toFixed(8));
+    info.payAmount = Number((info.payAmount + info.payAmount*info.tradeFee + additionalFee).toFixed(8));
 
     // console.log('dlg info:', info);
     confirm({
@@ -577,21 +577,24 @@ class IndexPage extends Component {
       amount: buyAmount,
       collateralToken,
       currencyAmount: payAmount,
+      buyUseToken: this.state.currencySelect === 0 ? wanTokenAddress : fnxTokenAddress
     };
+
+
+    console.log('currencySelect', this.state.currencySelect)
+
+    if (this.state.currencySelect !== 0) {
+      console.log('ready to approve');
+      await approve(fnxTokenAddress, walletAddress, payAmount, this.props.selectedWallet);
+      payAmount = 0;
+    }
 
     let data = await generateBuyOptionsTokenData(info);
 
     // console.log('data:', data);
 
-    if (collateralToken === '0x0000000000000000000000000000000000000000') {
-    } else {
-      await approve(collateralToken, walletAddress, payAmount, this.props.selectedWallet);
-      payAmount = 0;
-    }
-
     let currencyAmount = web3.utils.toHex(web3.utils.toWei(payAmount.toString())).toString();
     // console.log('currencyAmount', currencyAmount);
-
     let txParam = await generateTx(data, currencyAmount, walletAddress, this.props.selectedWallet, info);
     // console.log('txParam:', txParam);
     if (!txParam) {

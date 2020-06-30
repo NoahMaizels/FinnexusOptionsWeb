@@ -9,5 +9,7 @@ export const smartContractAddress = networkId == 1 ? mainnetSCAddr : testnetSCAd
 
 export const decimals = 1e8; // Price from oracle div decimals
 
-export const fnxTokenAddress = "0xdF228001e053641FAd2BD84986413Af3BeD03E0B";
+export const fnxTokenAddress = "0xdf228001e053641fad2bd84986413af3bed03e0b";
 export const wanTokenAddress = "0x0000000000000000000000000000000000000000";
+
+export const additionalFee = 0.01;

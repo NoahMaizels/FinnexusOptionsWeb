@@ -283,6 +283,7 @@ export const approve = async (tokenAddr, owner, amount, selectedWallet) => {
     message.error("approve input params error");
     return false;
   }
+  console.log('approve', tokenAddr, amount);
   if (tokenAddr !== '0x0000000000000000000000000000000000000000') {
     // console.log('approve token', tokenAddr, amount);
     let web3 = getWeb3();
@@ -296,25 +297,33 @@ export const approve = async (tokenAddr, owner, amount, selectedWallet) => {
       gasLimit: "0x989680", // 10,000,000
     };
     let txID = await sendTransaction(selectedWallet, params);
+    console.log('approve tx id: ', txID);
     if (!txID) {
       return false;
     }
-    // console.log('approve tx sent:', txID);
-    watchTransactionStatus(txID, (status) => {
-      if (!status) {
-        message.error("token approve failed");
-      }
-    })
+    message.info('approve tx sent: ' + txID);
+    let watch = new Promise((resolve, reject) => {
+      watchTransactionStatus(txID, (status) => {
+        if (!status) {
+          message.error("token approve failed");
+          reject();
+        }
+        message.info("approve success: " + status);
+        resolve();
+      })
+    });
+    
+    await watch;
   }
   return true;
 }
 
 export const generateBuyOptionsTokenData = async (info) => {
-  // console.log('generateBuyOptionsTokenData', info);
+  console.log('generateBuyOptionsTokenData', info);
   let encodedData = await mmtSC.methods.buyOptionsToken(
     info.optionsToken,
     getWeb3().utils.toWei(info.amount.toString()),
-    info.collateralToken,
+    info.buyUseToken,
     getWeb3().utils.toWei(info.currencyAmount.toString())
   ).encodeABI();
   return encodedData;
@@ -351,13 +360,14 @@ export const estimateGas = async (info, value, address) => {
     let ret = await mmtSC.methods.buyOptionsToken(
       info.optionsToken,
       getWeb3().utils.toWei(info.amount.toString()),
-      info.collateralToken,
+      info.buyUseToken,
       getWeb3().utils.toWei(info.currencyAmount.toString())
     ).estimateGas({ gas: 10000000, value, from: address });
 
     if (ret == 10000000) {
-      console.log('estimateGas failed:', info.optionsToken, getWeb3().utils.toWei(info.amount.toString()), info.collateralToken, getWeb3().utils.toWei(info.currencyAmount.toString()));
-      return -1;
+      console.log('estimateGas failed:', info.optionsToken, getWeb3().utils.toWei(info.amount.toString()), info.buyUseToken, getWeb3().utils.toWei(info.currencyAmount.toString()));
+      // return -1;
+      return '0x' + (8000000).toString(16);
     }
     // console.log('estimateGas:', '0x' + (ret + 30000).toString(16));
     return '0x' + (ret + 30000).toString(16);
@@ -371,7 +381,7 @@ export const sendTransaction = async (selectedWallet, params) => {
   try {
     // console.log('sendTransaction:', params);
     let transactionID = await selectedWallet.sendTransaction(params);
-    // console.log('sendTransaction:', transactionID);
+    console.log('sendTransaction:', transactionID);
     return transactionID;
   } catch (error) {
     if (error.toString().indexOf('Unlock') !== -1) {
