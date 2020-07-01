@@ -269,6 +269,31 @@ class IndexPage extends Component {
     }
   ]
 
+  updateHedgeCurrencyData = (select) => {
+    const { hedgeData, leverageData } = this.getTableData();
+    if (hedgeData.length === 0) {
+      return;
+    }
+
+    let hedgeInfo = Object.assign({}, this.state.hedgeInfo);
+    hedgeInfo.choseCurrency = hedgeInfo.price / hedgeData[0].tokenPrice[select];
+    hedgeInfo.choseCurrency = Number(hedgeInfo.choseCurrency.toFixed(8));
+    // console.log('choseCurrency', hedgeInfo.price, hedgeData[0].tokenPrice, this.state.currencySelect);
+    this.setState({ hedgeInfo });
+  }
+
+  updateLeverageCurrencyData = (select) => {
+    const { hedgeData, leverageData } = this.getTableData();
+    if (leverageData.length === 0) {
+      return;
+    }
+
+    let leverageInfo = Object.assign({}, this.state.leverageInfo);
+    leverageInfo.choseCurrency = leverageInfo.price / leverageData[0].tokenPrice[select];
+    leverageInfo.choseCurrency = Number(leverageInfo.choseCurrency.toFixed(8));
+    // console.log('choseCurrency', hedgeInfo.price, hedgeData[0].tokenPrice, this.state.currencySelect);
+    this.setState({ leverageInfo });
+  }
 
   updateHedgeInput = (value, max_value) => {
     const { hedgeData, leverageData } = this.getTableData();
@@ -688,6 +713,7 @@ class IndexPage extends Component {
               <Col span={3}>
                 <Radio.Group defaultValue={0} buttonStyle="solid" value={this.state.currencySelect} onChange={(e) => {
                   this.setState({ currencySelect: e.target.value });
+                  this.updateHedgeCurrencyData(e.target.value);
                 }}>
                   {
                     this.state.hedgeInfo.currency.map((v, i) => {
@@ -768,6 +794,7 @@ class IndexPage extends Component {
               <Col span={3}>
                 <Radio.Group defaultValue={0} buttonStyle="solid" value={this.state.currencySelect} onChange={(e) => {
                   this.setState({ currencySelect: e.target.value });
+                  this.updateLeverageCurrencyData(e.target.value);
                 }}>
                   {
                     this.state.leverageInfo.currency.map((v, i) => {
