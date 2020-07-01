@@ -714,6 +714,7 @@ class IndexPage extends Component {
                 <Radio.Group defaultValue={0} buttonStyle="solid" value={this.state.currencySelect} onChange={(e) => {
                   this.setState({ currencySelect: e.target.value });
                   this.updateHedgeCurrencyData(e.target.value);
+                  this.updateLeverageCurrencyData(e.target.value);
                 }}>
                   {
                     this.state.hedgeInfo.currency.map((v, i) => {
@@ -795,6 +796,7 @@ class IndexPage extends Component {
                 <Radio.Group defaultValue={0} buttonStyle="solid" value={this.state.currencySelect} onChange={(e) => {
                   this.setState({ currencySelect: e.target.value });
                   this.updateLeverageCurrencyData(e.target.value);
+                  this.updateHedgeCurrencyData(e.target.value);
                 }}>
                   {
                     this.state.leverageInfo.currency.map((v, i) => {
