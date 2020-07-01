@@ -398,6 +398,7 @@ class IndexPage extends Component {
     info.balance = await getBalance(info.buyUseToken, address);
 
     this.setState({hedgeNowLoading: false});
+    console.log('tokenPrice:', info.tokenPrice[this.state.currencySelect]);
     info.payAmount = Number((info.buyAmount * Number(info.price.replace('$', '')) / info.tokenPrice[this.state.currencySelect]).toFixed(8));
     info.payAmount = Number((info.payAmount + info.payAmount*info.tradeFee  + additionalFee).toFixed(8));
     
@@ -685,7 +686,7 @@ class IndexPage extends Component {
                 </Radio.Group>
               </Col>
               <Col span={3}>
-                <Radio.Group defaultValue={0} buttonStyle="solid" onChange={(e) => {
+                <Radio.Group defaultValue={0} buttonStyle="solid" value={this.state.currencySelect} onChange={(e) => {
                   this.setState({ currencySelect: e.target.value });
                 }}>
                   {
@@ -765,7 +766,7 @@ class IndexPage extends Component {
                 </Radio.Group>
               </Col>
               <Col span={3}>
-                <Radio.Group defaultValue={0} buttonStyle="solid" onChange={(e) => {
+                <Radio.Group defaultValue={0} buttonStyle="solid" value={this.state.currencySelect} onChange={(e) => {
                   this.setState({ currencySelect: e.target.value });
                 }}>
                   {
