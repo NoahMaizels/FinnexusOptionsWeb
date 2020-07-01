@@ -275,6 +275,8 @@ class IndexPage extends Component {
       return;
     }
 
+
+
     let hedgeInfo = Object.assign({}, this.state.hedgeInfo);
     hedgeInfo.choseCurrency = hedgeInfo.price / hedgeData[0].tokenPrice[select];
     hedgeInfo.choseCurrency = Number(hedgeInfo.choseCurrency.toFixed(8));
@@ -362,7 +364,17 @@ class IndexPage extends Component {
       return v.type === 'call'
         && v.expiration === this.state.leverageInfo.expiration.sort()[this.state.leverageInfo.expirationSelect];
     });
-    return { hedgeData: hedgeData.slice(), leverageData: leverageData.slice() };
+
+    let ret = { hedgeData: hedgeData.slice(), leverageData: leverageData.slice() };
+
+    for (let i=0; i<ret.hedgeData.length; i++) {
+      ret.hedgeData[i].liquidity = ret.hedgeData[i].liquidityAll[this.state.currencySelect];
+    }
+
+    for (let i=0; i<ret.leverageData.length; i++) {
+      ret.leverageData[i].liquidity = ret.leverageData[i].liquidityAll[this.state.currencySelect];
+    }
+    return ret;
   }
 
   getBuyInfo = (info) => {

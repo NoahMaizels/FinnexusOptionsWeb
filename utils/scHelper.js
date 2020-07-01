@@ -66,11 +66,11 @@ export const getOptionsInfo = async (address) => {
           optionsToken: token,
         };
         subInfo.tokenName = [subInfo.underlyingAssets, subInfo.type, subInfo.expiration, subInfo.strikePrice].join(', ');
-        subInfo.sellOrderList = [];
-        subInfo.payOrderList = [];
+        // subInfo.sellOrderList = [];
+        // subInfo.payOrderList = [];
         let tmpFuncs = [];
-        tmpFuncs.push(mmtSC.methods.getSellOrderList(token, subInfo.collateralToken).call());
-        tmpFuncs.push(mmtSC.methods.getPayOrderList(token, subInfo.collateralToken).call());
+        tmpFuncs.push(getTokenLiquidity(token, wanTokenAddress));
+        tmpFuncs.push(getTokenLiquidity(token, fnxTokenAddress));
         tmpFuncs.push(oracleSC.methods.getBuyOptionsPrice(token).call());
         tmpFuncs.push(oracleSC.methods.getSellOptionsPrice(token).call());
         tmpFuncs.push(oracleSC.methods.getUnderlyingPrice(ret[2]).call());
@@ -80,12 +80,9 @@ export const getOptionsInfo = async (address) => {
         tmpFuncs.push(oracleSC.methods.getPrice(wanTokenAddress).call());
 
 
-
+        subInfo.liquidityAll = [];
         let buyPrice, sellPrice, underlyingPrice, writers, collateralTokenPrice, fnxPrice, wanPrice;
-        [subInfo.sellOrderList, subInfo.payOrderList, buyPrice, sellPrice, underlyingPrice, writers, collateralTokenPrice, fnxPrice, wanPrice] = await Promise.all(tmpFuncs);
-
-        let liquidity = subInfo.sellOrderList[2].length > 0 ? eval(subInfo.sellOrderList[2].join('+')) : 0;
-        subInfo.liquidity = getWeb3().utils.fromWei(liquidity.toString());
+        [subInfo.liquidityAll[0], subInfo.liquidityAll[1], buyPrice, sellPrice, underlyingPrice, writers, collateralTokenPrice, fnxPrice, wanPrice] = await Promise.all(tmpFuncs);
 
         subInfo.price = '$' + priceConvert(buyPrice);
         subInfo.sellPrice = '$' + priceConvert(sellPrice);
@@ -259,6 +256,13 @@ function priceConvert(price) {
     return " Timeout";
   }
   return Number((Number(price) / decimals).toFixed(4));
+}
+
+export const getTokenLiquidity = async (optionsTokenAddress, payTokenAddress) => {
+  let sellOrderList = await mmtSC.methods.getSellOrderList(optionsTokenAddress, payTokenAddress).call();
+
+  let liquidity = sellOrderList[2].length > 0 ? eval(sellOrderList[2].join('+')) : 0;
+  return getWeb3().utils.fromWei(liquidity.toString());
 }
 
 export const getBalance = async (tokenAddress, address) => {
