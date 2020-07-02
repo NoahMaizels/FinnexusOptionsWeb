@@ -88,14 +88,6 @@
       {
         "name": "",
         "type": "address[]"
-      },
-      {
-        "name": "",
-        "type": "uint256[]"
-      },
-      {
-        "name": "",
-        "type": "uint256[]"
       }
     ],
     "payable": false,
@@ -115,6 +107,29 @@
       {
         "name": "",
         "type": "address"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "writer",
+        "type": "address"
+      },
+      {
+        "name": "tokenAddress",
+        "type": "address"
+      }
+    ],
+    "name": "getWriterOptionsTokenBalance",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
       }
     ],
     "payable": false,
@@ -207,6 +222,29 @@
       {
         "name": "",
         "type": "bool"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "writer",
+        "type": "address"
+      },
+      {
+        "name": "collateral",
+        "type": "address"
+      }
+    ],
+    "name": "getWriterCollateralBalance",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
       }
     ],
     "payable": false,
@@ -507,28 +545,6 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
-        "name": "value0",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "name": "value1",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "name": "value2",
-        "type": "uint256"
-      }
-    ],
-    "name": "DebugEvent",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
         "indexed": true,
         "name": "previousOwner",
         "type": "address"
@@ -698,7 +714,7 @@
     "constant": false,
     "inputs": [
       {
-        "name": "optionsToken",
+        "name": "collateral",
         "type": "address"
       },
       {
@@ -759,6 +775,60 @@
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "collateral",
+        "type": "address"
+      },
+      {
+        "name": "writer",
+        "type": "address"
+      },
+      {
+        "name": "optionToken",
+        "type": "address"
+      },
+      {
+        "name": "newCollateral",
+        "type": "uint256"
+      }
+    ],
+    "name": "calculateMaxMintAmount",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "collateral",
+        "type": "address"
+      },
+      {
+        "name": "writer",
+        "type": "address"
+      }
+    ],
+    "name": "calculateOptionsValueUSD",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
     "type": "function"
   }
 ]

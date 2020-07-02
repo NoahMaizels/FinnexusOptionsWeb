@@ -74,15 +74,17 @@ export const getOptionsInfo = async (address) => {
         tmpFuncs.push(oracleSC.methods.getBuyOptionsPrice(token).call());
         tmpFuncs.push(oracleSC.methods.getSellOptionsPrice(token).call());
         tmpFuncs.push(oracleSC.methods.getUnderlyingPrice(ret[2]).call());
-        tmpFuncs.push(optionMangerSC.methods.getOptionsTokenWriterList(token).call());
+        // tmpFuncs.push(optionMangerSC.methods.getOptionsTokenWriterList(token).call());
         tmpFuncs.push(oracleSC.methods.getPrice(subInfo.collateralToken).call());
         tmpFuncs.push(oracleSC.methods.getPrice(fnxTokenAddress).call());
         tmpFuncs.push(oracleSC.methods.getPrice(wanTokenAddress).call());
 
 
         subInfo.liquidityAll = [];
-        let buyPrice, sellPrice, underlyingPrice, writers, collateralTokenPrice, fnxPrice, wanPrice;
-        [subInfo.liquidityAll[0], subInfo.liquidityAll[1], buyPrice, sellPrice, underlyingPrice, writers, collateralTokenPrice, fnxPrice, wanPrice] = await Promise.all(tmpFuncs);
+        // let buyPrice, sellPrice, underlyingPrice, writers, collateralTokenPrice, fnxPrice, wanPrice;
+        // [subInfo.liquidityAll[0], subInfo.liquidityAll[1], buyPrice, sellPrice, underlyingPrice, writers, collateralTokenPrice, fnxPrice, wanPrice] = await Promise.all(tmpFuncs);
+        let buyPrice, sellPrice, underlyingPrice, collateralTokenPrice, fnxPrice, wanPrice;
+        [subInfo.liquidityAll[0], subInfo.liquidityAll[1], buyPrice, sellPrice, underlyingPrice, collateralTokenPrice, fnxPrice, wanPrice] = await Promise.all(tmpFuncs);
 
         subInfo.price = '$' + priceConvert(buyPrice);
         subInfo.sellPrice = '$' + priceConvert(sellPrice);
@@ -97,32 +99,32 @@ export const getOptionsInfo = async (address) => {
 
         subInfo.underlyingAssetsPrice = '$' + priceConvert(underlyingPrice);
 
-        subInfo.writers = writers;
+        // subInfo.writers = writers;
         // console.log('writers:', writers);
 
-        collateralTokenPrice = priceConvert(collateralTokenPrice);
-        let minColPrice;
-        if (subInfo.type === 'call') {
-          minColPrice = await formulasSC.methods.callCollateralPrice(ret[3], underlyingPrice).call();
-        } else {
-          minColPrice = await formulasSC.methods.putCollateralPrice(ret[3], underlyingPrice).call();
-        }
-        minColPrice = priceConvert(minColPrice);
+        // collateralTokenPrice = priceConvert(collateralTokenPrice);
+        // let minColPrice;
+        // if (subInfo.type === 'call') {
+        //   minColPrice = await formulasSC.methods.callCollateralPrice(ret[3], underlyingPrice).call();
+        // } else {
+        //   minColPrice = await formulasSC.methods.putCollateralPrice(ret[3], underlyingPrice).call();
+        // }
+        // minColPrice = priceConvert(minColPrice);
 
-        let totalCollateral = 0;
-        let totoMintAmount = 0;
+        // let totalCollateral = 0;
+        // let totoMintAmount = 0;
 
-        for (let m = 0; m < writers[1].length; m++) {
-          totalCollateral += Number(getWeb3().utils.fromWei(writers[1][m]));
-          totoMintAmount += Number(getWeb3().utils.fromWei(writers[2][m]));
-        }
+        // for (let m = 0; m < writers[1].length; m++) {
+        //   totalCollateral += Number(getWeb3().utils.fromWei(writers[1][m]));
+        //   totoMintAmount += Number(getWeb3().utils.fromWei(writers[2][m]));
+        // }
 
 
-        let collateralPercent = (Number(totalCollateral) * (collateralTokenPrice)) / (Number(minColPrice) * totoMintAmount);
-        subInfo.percentageOfCollateral = (collateralPercent * 100).toFixed(1) + '%';
-        subInfo.minColPrice = Number((minColPrice / decimals).toFixed(4));
-        subInfo.totalCollateral = totalCollateral;
-        subInfo.collateralTokenPrice = collateralTokenPrice;
+        // let collateralPercent = (Number(totalCollateral) * (collateralTokenPrice)) / (Number(minColPrice) * totoMintAmount);
+        // subInfo.percentageOfCollateral = (collateralPercent * 100).toFixed(1) + '%';
+        // subInfo.minColPrice = Number((minColPrice / decimals).toFixed(4));
+        // subInfo.totalCollateral = totalCollateral;
+        // subInfo.collateralTokenPrice = collateralTokenPrice;
 
         if (address && address != null) {
           tmpFuncs = [];

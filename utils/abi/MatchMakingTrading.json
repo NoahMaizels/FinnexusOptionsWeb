@@ -530,28 +530,6 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
-        "name": "value0",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "name": "value1",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "name": "value2",
-        "type": "uint256"
-      }
-    ],
-    "name": "DebugEvent",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
         "indexed": true,
         "name": "previousOwner",
         "type": "address"

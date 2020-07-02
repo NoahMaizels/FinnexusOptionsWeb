@@ -919,6 +919,33 @@
       {
         "name": "_currentPrice",
         "type": "uint256"
+      },
+      {
+        "name": "optType",
+        "type": "uint8"
+      }
+    ],
+    "name": "getCollateralPrice",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "_strikePrice",
+        "type": "uint256"
+      },
+      {
+        "name": "_currentPrice",
+        "type": "uint256"
       }
     ],
     "name": "callCollateralPrice",
@@ -976,41 +1003,6 @@
     ],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "name": "collateralPrice",
-        "type": "uint256"
-      },
-      {
-        "name": "collateralAmount",
-        "type": "uint256"
-      },
-      {
-        "name": "strikePrice",
-        "type": "uint256"
-      },
-      {
-        "name": "underlyingPrice",
-        "type": "uint256"
-      },
-      {
-        "name": "optType",
-        "type": "uint8"
-      }
-    ],
-    "name": "calculateMaxMintAmount",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
     "type": "function"
   }
 ]

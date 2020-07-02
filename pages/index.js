@@ -173,11 +173,11 @@ class IndexPage extends Component {
       dataIndex: 'price',
       key: 'price',
     },
-    {
-      title: 'Percentage of collateral',
-      dataIndex: 'percentageOfCollateral',
-      key: 'percentageOfCollateral',
-    },
+    // {
+    //   title: 'Percentage of collateral',
+    //   dataIndex: 'percentageOfCollateral',
+    //   key: 'percentageOfCollateral',
+    // },
   ]
 
   myAssetsColumn = [
@@ -211,11 +211,11 @@ class IndexPage extends Component {
       dataIndex: 'price',
       key: 'price',
     },
-    {
-      title: 'Percentage of collateral',
-      dataIndex: 'percentageOfCollateral',
-      key: 'percentageOfCollateral',
-    },
+    // {
+    //   title: 'Percentage of collateral',
+    //   dataIndex: 'percentageOfCollateral',
+    //   key: 'percentageOfCollateral',
+    // },
     {
       title: 'Expected Return',
       dataIndex: 'expectedReturn',
