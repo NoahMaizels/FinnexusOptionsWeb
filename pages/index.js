@@ -67,7 +67,7 @@ class IndexPage extends Component {
 
   async componentDidMount() {
     let info = await this.updatePage(true);
-    startEventScan(info.blockNumber, this.updatePage);
+    startEventScan(Number(window.localStorage.getItem('createOptionsEventStartBlock')), this.updatePage);
   }
 
   updatePage = async (pinning) => {
@@ -92,11 +92,11 @@ class IndexPage extends Component {
     let optionTokenInfo = info.optionTokenInfo;
     let hedgeInfo = Object.assign({}, this.state.hedgeInfo);
     hedgeInfo.expiration = this.getExpiration(optionTokenInfo).put;
-    hedgeInfo.currency = this.getCollateralTokenType(optionTokenInfo);
+    hedgeInfo.currency = this.getBuyTokenType(optionTokenInfo);
 
     let leverageInfo = Object.assign({}, this.state.leverageInfo);
     leverageInfo.expiration = this.getExpiration(optionTokenInfo).call;
-    leverageInfo.currency = this.getCollateralTokenType(optionTokenInfo);
+    leverageInfo.currency = this.getBuyTokenType(optionTokenInfo);
 
     // console.log('leverageInfo', leverageInfo);
 
@@ -130,16 +130,11 @@ class IndexPage extends Component {
     return { put, call };
   }
 
-  getCollateralTokenType = (info) => {
-    let collateralTokens = [];
-    // for (let i = 0; i < info.length; i++) {
-    //   if (!collateralTokens.includes(info[i].collateralTokenType)) {
-    //     collateralTokens.push(info[i].collateralTokenType);
-    //   }
-    // }
-    collateralTokens.push("WAN");
-    collateralTokens.push("FNX");
-    return collateralTokens;
+  getBuyTokenType = (info) => {
+    let tokenType = [];
+    tokenType.push("WAN");
+    tokenType.push("FNX");
+    return tokenType;
   }
 
   hedgeColumn = [
@@ -503,7 +498,7 @@ class IndexPage extends Component {
           info.balance, 
           info.payAmount, 
           info.buyAmount, 
-          info.collateralToken, 
+          info.buyUseToken,
           info.optionsToken, 
           "leverage").then((value) => {
             // console.log(value);
@@ -565,8 +560,13 @@ class IndexPage extends Component {
     this.setState({sellLoading: true});
     let address = this.props.selectedAccount.get('address');
 
-    // console.log(info.optionsToken, info.collateralToken);
-    let existBuyAmount = await getBuyOptionsOrderAmount(info.optionsToken, info.collateralToken);
+    if (this.state.currencySelect === 0) {
+      info.buyUseToken = wanTokenAddress;
+    } else {
+      info.buyUseToken = fnxTokenAddress;
+    }
+
+    let existBuyAmount = await getBuyOptionsOrderAmount(info.optionsToken, info.buyUseToken);
     let ret = false;
     // console.log('existBuyAmount:', existBuyAmount, info.amount);
     if (Number(existBuyAmount) > Number(this.sellAmount)) {
@@ -612,7 +612,7 @@ class IndexPage extends Component {
     });
   }
 
-  buyOptionToken = async (walletAddress, balance, payAmount, buyAmount, collateralToken, optionsToken, type) => {
+  buyOptionToken = async (walletAddress, balance, payAmount, buyAmount, buyUseToken, optionsToken, type) => {
     if (balance < payAmount) {
       message.error("Balance not enough");
       return false;
@@ -620,7 +620,7 @@ class IndexPage extends Component {
     let info = {
       optionsToken,
       amount: buyAmount,
-      collateralToken,
+      buyUseToken,
       currencyAmount: payAmount,
       buyUseToken: this.state.currencySelect === 0 ? wanTokenAddress : fnxTokenAddress
     };
