@@ -28,6 +28,7 @@ const initWeb3 = async () => {
 }
 
 export const getOptionsInfo = async (address) => {
+  console.log('*******************getOptionsInfo', new Date().toISOString());
   let web3 = await initWeb3();
   let info = {};
   info.blockNumber = await getWeb3().eth.getBlockNumber();
@@ -39,7 +40,7 @@ export const getOptionsInfo = async (address) => {
   let formulasSC = new web3.eth.Contract(abiOptionsFormulas, info.formulasAddress);
   let oracleSC = new web3.eth.Contract(abiCompoundOracle, info.oracleAddress);
   info.optionTokenList = await optionMangerSC.methods.getOptionsTokenList().call();
-  // console.log('optionsList', info.optionTokenList);
+  console.log('optionsList', info.optionTokenList);
   // console.log('oralce addr:', info.oracleAddress);
   info.optionTokenInfo = [];
   info.assets = [];
@@ -81,8 +82,7 @@ export const getOptionsInfo = async (address) => {
 
 
         subInfo.liquidityAll = [];
-        // let buyPrice, sellPrice, underlyingPrice, writers, collateralTokenPrice, fnxPrice, wanPrice;
-        // [subInfo.liquidityAll[0], subInfo.liquidityAll[1], buyPrice, sellPrice, underlyingPrice, writers, collateralTokenPrice, fnxPrice, wanPrice] = await Promise.all(tmpFuncs);
+
         let buyPrice, sellPrice, underlyingPrice, collateralTokenPrice, fnxPrice, wanPrice;
         [subInfo.liquidityAll[0], subInfo.liquidityAll[1], buyPrice, sellPrice, underlyingPrice, collateralTokenPrice, fnxPrice, wanPrice] = await Promise.all(tmpFuncs);
 
@@ -95,36 +95,8 @@ export const getOptionsInfo = async (address) => {
         subInfo.currency = [];
         subInfo.currency.push('WAN');
         subInfo.currency.push('FNX');
-        // console.log('tokenName', subInfo.tokenName, 'buyPrice', buyPrice, "sellPrice", sellPrice);
 
         subInfo.underlyingAssetsPrice = '$' + priceConvert(underlyingPrice);
-
-        // subInfo.writers = writers;
-        // console.log('writers:', writers);
-
-        // collateralTokenPrice = priceConvert(collateralTokenPrice);
-        // let minColPrice;
-        // if (subInfo.type === 'call') {
-        //   minColPrice = await formulasSC.methods.callCollateralPrice(ret[3], underlyingPrice).call();
-        // } else {
-        //   minColPrice = await formulasSC.methods.putCollateralPrice(ret[3], underlyingPrice).call();
-        // }
-        // minColPrice = priceConvert(minColPrice);
-
-        // let totalCollateral = 0;
-        // let totoMintAmount = 0;
-
-        // for (let m = 0; m < writers[1].length; m++) {
-        //   totalCollateral += Number(getWeb3().utils.fromWei(writers[1][m]));
-        //   totoMintAmount += Number(getWeb3().utils.fromWei(writers[2][m]));
-        // }
-
-
-        // let collateralPercent = (Number(totalCollateral) * (collateralTokenPrice)) / (Number(minColPrice) * totoMintAmount);
-        // subInfo.percentageOfCollateral = (collateralPercent * 100).toFixed(1) + '%';
-        // subInfo.minColPrice = Number((minColPrice / decimals).toFixed(4));
-        // subInfo.totalCollateral = totalCollateral;
-        // subInfo.collateralTokenPrice = collateralTokenPrice;
 
         if (address && address != null) {
           tmpFuncs = [];
@@ -147,6 +119,7 @@ export const getOptionsInfo = async (address) => {
           let events, sellEvents, exerciseEvents;
           [events, sellEvents, exerciseEvents] = await Promise.all(tmpFuncs);
           // console.log('exerciseEvents:', exerciseEvents);
+          console.log('events', events);
 
           if (events.length > 0) {
             let totalAmount = getWeb3().utils.toBN('0');
