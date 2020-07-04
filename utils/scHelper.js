@@ -682,7 +682,7 @@ export const startEventScan = (blockNumber, callback) => {
     let ret = await Promise.all(tmpFuncs);
     for (let i = 0; i < ret.length; i++) {
       if (ret[i].length > 0) {
-        blockNumber = ret[i][0].blockNumber;
+        blockNumber = Number(ret[i][0].blockNumber) + 1;
         callback(false);
         break;
       }
