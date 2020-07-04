@@ -24,6 +24,7 @@ import {
 
 import banner from './images/banner.png'
 import { wanTokenAddress, fnxTokenAddress, additionalFee } from "../conf/config";
+import { Label } from "bizcharts";
 
 const { confirm } = Modal;
 const { Panel } = Collapse;
@@ -68,6 +69,20 @@ class IndexPage extends Component {
   async componentDidMount() {
     let info = await this.updatePage(true);
     startEventScan(Number(window.localStorage.getItem('createOptionsEventStartBlock')), this.updatePage);
+  }
+
+  componentDidUpdate(pre) {
+    if (!pre.selectedAccount) {
+      return;
+    }
+    let preAddr = pre.selectedAccount.get('address');
+    if (this.props.selectedAccount) {
+      let currentAddr = this.props.selectedAccount.get('address');
+      if (preAddr !== currentAddr) {
+        console.log('address changed.');
+        this.updatePage(true);
+      }
+    }
   }
 
   updatePage = async (pinning) => {
@@ -168,11 +183,6 @@ class IndexPage extends Component {
       dataIndex: 'price',
       key: 'price',
     },
-    // {
-    //   title: 'Percentage of collateral',
-    //   dataIndex: 'percentageOfCollateral',
-    //   key: 'percentageOfCollateral',
-    // },
   ]
 
   myAssetsColumn = [
@@ -196,21 +206,11 @@ class IndexPage extends Component {
       dataIndex: 'amount',
       key: 'amount',
     },
-    // {
-    //   title: 'Price paid',
-    //   dataIndex: 'pricePaid',
-    //   key: 'pricePaid',
-    // },
     {
       title: 'Price now',
       dataIndex: 'price',
       key: 'price',
     },
-    // {
-    //   title: 'Percentage of collateral',
-    //   dataIndex: 'percentageOfCollateral',
-    //   key: 'percentageOfCollateral',
-    // },
     {
       title: 'Expected Return',
       dataIndex: 'expectedReturn',
@@ -221,6 +221,9 @@ class IndexPage extends Component {
       dataIndex: '',
       key: 'action',
       render: (text, record) => {
+        if (record.status === 'exercise') {
+          return (<label>Exercised</label>);
+        } 
         return (<Button loading={this.state.sellLoading} type="primary" onClick={() => { this.sellNow(record) }} >Sell now</Button>)
       }
     },
@@ -537,6 +540,10 @@ class IndexPage extends Component {
         <Col span={16}><h4>{info.amount}</h4></Col>
       </Row>
       <Row gutter={[16, 8]}>
+        <Col span={8}><h4>Currency:</h4></Col>
+        <Col span={16}><h4>{['WAN', 'FNX'][this.state.currencySelect]}</h4></Col>
+      </Row>
+      <Row gutter={[16, 8]}>
         <Col span={8}><h4>Sell Amount:</h4></Col>
         {/* <Col span={16}><Input defaultValue={0} onChange={e=>this.setState({sellAmount: e.target.value})}/></Col> */}
         <Col span={16}><Input defaultValue={0} onChange={updateSellAmount}/></Col>
@@ -568,7 +575,7 @@ class IndexPage extends Component {
 
     let existBuyAmount = await getBuyOptionsOrderAmount(info.optionsToken, info.buyUseToken);
     let ret = false;
-    // console.log('existBuyAmount:', existBuyAmount, info.amount);
+    console.log('existBuyAmount:', existBuyAmount, info.sellAmount);
     if (Number(existBuyAmount) > Number(this.sellAmount)) {
       ret = await sellOptionsToken(address, this.props.selectedWallet, info, 'sell');
     } else {

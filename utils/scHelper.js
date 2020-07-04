@@ -13,15 +13,13 @@ import { getWeb3, isSwitchFinish } from './web3switch.js';
 
 let matchMakingTradingSCAddress = smartContractAddress;
 
-let mmtSC, oMSC;
-
 // All smart contract instance
 let scs = {};
 
 const defaultStartBlock = 7000000;
 
 const initWeb3 = async () => {
-  while(true) {
+  while (true) {
     if (isSwitchFinish) {
       break;
     }
@@ -87,9 +85,9 @@ const getOptionsList = async () => {
 
   console.log('getOptionsList', blockNumber, eventCreate, eventExercise);
 
-  window.localStorage.setItem('createOptionsEventStartBlock', blockNumber);
+  window.localStorage.setItem('createOptionsEventStartBlock', blockNumber + 1);
 
-  for (let i=0; i<eventCreate.length; i++) {
+  for (let i = 0; i < eventCreate.length; i++) {
     let op = {
       collateral: eventCreate[i].returnValues.collateral,
       expiration: eventCreate[i].returnValues.expiration,
@@ -105,9 +103,9 @@ const getOptionsList = async () => {
 
   let activeAddr = [];
   // check exercise
-  for (let i=0; i<localInfo.length; i++) {
+  for (let i = 0; i < localInfo.length; i++) {
     if (localInfo[i].status === 'active') {
-      for (let m=0; m<eventExercise.length; m++) {
+      for (let m = 0; m < eventExercise.length; m++) {
         if (localInfo[i].tokenAddress.toLowerCase() === eventExercise[m].returnValues.optionsToken.toLowerCase()) {
           localInfo[i].status = 'exercise';
         }
@@ -121,16 +119,16 @@ const getOptionsList = async () => {
 
   funcs = [];
   // check timeout
-  for (let i=0; i<activeAddr.length; i++) {
+  for (let i = 0; i < activeAddr.length; i++) {
     funcs.push(scs.mmt.methods.isEligibleOptionsToken(activeAddr[i]).call());
   }
 
   let ret = await Promise.all(funcs);
 
   if (ret && ret.length > 0) {
-    for (let i=0; i<ret.length; i++) {
+    for (let i = 0; i < ret.length; i++) {
       if (!ret[i]) {
-        localStorage = localStorage.map((v) => {
+        localInfo = localInfo.map((v) => {
           if (v.tokenAddress === activeAddr[i]) {
             v.status = 'timeout';
           }
@@ -140,7 +138,7 @@ const getOptionsList = async () => {
     }
   }
 
-  console.log('localInfo', localInfo, activeAddr);
+  // console.log('localInfo', localInfo, activeAddr);
 
   str = JSON.stringify(localInfo);
 
@@ -151,23 +149,23 @@ const getOptionsList = async () => {
 
 const getPrices = async (tokens) => {
   let tmpFuncs = [];
-  for (let i=0; i<tokens.length; i++) {
+  for (let i = 0; i < tokens.length; i++) {
     tmpFuncs.push(scs.oracle.methods.getBuyOptionsPrice(tokens[i].tokenAddress).call());
     tmpFuncs.push(scs.oracle.methods.getSellOptionsPrice(tokens[i].tokenAddress).call());
     tmpFuncs.push(scs.oracle.methods.getUnderlyingPrice(tokens[i].underlyingAssetsRaw).call());
   }
 
-  tmpFuncs.push(scs.oracle.methods.getPrice(wanTokenAddress).call()); 
+  tmpFuncs.push(scs.oracle.methods.getPrice(wanTokenAddress).call());
   tmpFuncs.push(scs.oracle.methods.getPrice(fnxTokenAddress).call());
 
   let ret = await Promise.all(tmpFuncs);
-  let wanPrice = ret[3*tokens.length];
-  let fnxPrice = ret[3*tokens.length + 1];
+  let wanPrice = ret[3 * tokens.length];
+  let fnxPrice = ret[3 * tokens.length + 1];
 
-  for (let i=0; i<tokens.length; i++) {
-    tokens[i].price = '$' + priceConvert(ret[i*3]);           // buy price
-    tokens[i].sellPrice = '$' + priceConvert(ret[i*3 + 1]);   // sell price
-    tokens[i].underlyingAssetsPrice = '$' + priceConvert(ret[i*3 + 2]);
+  for (let i = 0; i < tokens.length; i++) {
+    tokens[i].price = '$' + priceConvert(ret[i * 3]);           // buy price
+    tokens[i].sellPrice = '$' + priceConvert(ret[i * 3 + 1]);   // sell price
+    tokens[i].underlyingAssetsPrice = '$' + priceConvert(ret[i * 3 + 2]);
 
     tokens[i].tokenPrice = [];
     tokens[i].tokenPrice[0] = priceConvert(wanPrice);
@@ -177,124 +175,174 @@ const getPrices = async (tokens) => {
 
 const getOpLiquidityAll = async (tokens) => {
   let tmpFuncs = [];
-  for (let i=0; i< tokens.length; i++) {
+  for (let i = 0; i < tokens.length; i++) {
     tmpFuncs.push(getTokenLiquidity(tokens[i].tokenAddress, wanTokenAddress));
     tmpFuncs.push(getTokenLiquidity(tokens[i].tokenAddress, fnxTokenAddress));
   }
 
   let ret = await Promise.all(tmpFuncs);
-  for (let i=0; i< tokens.length; i++) {
+  for (let i = 0; i < tokens.length; i++) {
     tokens[i].liquidityAll = [];
-    tokens[i].liquidityAll[0] = ret[i*2];
-    tokens[i].liquidityAll[1] = ret[i*2 + 1];
+    tokens[i].liquidityAll[0] = ret[i * 2];
+    tokens[i].liquidityAll[1] = ret[i * 2 + 1];
   }
 }
 
 const getHistory = async (allTokens, address) => {
+  let history = [];
+  let startBlock = defaultStartBlock;
   if (address && address != null) {
-    tmpFuncs = [];
-    tmpFuncs.push(mmtSC.getPastEvents('BuyOptionsToken', {
-      filter: { from: address, optionsToken: token },
-      fromBlock: 0,
-      toBlock: info.blockNumber
-    }));
-    tmpFuncs.push(mmtSC.getPastEvents('SellOptionsToken', {
-      filter: { from: address, optionsToken: token },
-      fromBlock: 0,
-      toBlock: info.blockNumber
-    }));
-    tmpFuncs.push(oMSC.getPastEvents('Exercise', {
-      filter: { from: address, optionsToken: token },
-      fromBlock: 0,
-      toBlock: info.blockNumber
-    }));
+    let localAddress = window.localStorage.getItem('localAddress');
+    if (localAddress && address.toLowerCase() === localAddress.toLowerCase()) {
+      startBlock = window.localStorage.getItem('historyStartBlock');
+      if (!startBlock || startBlock === '') {
+        startBlock = defaultStartBlock;
+      } else {
+        let str = window.localStorage.getItem('history');
+        history = JSON.parse(str);
+      }
+    }
+    let blockNumber = await getWeb3().eth.getBlockNumber();
 
-    let events, sellEvents, exerciseEvents;
-    [events, sellEvents, exerciseEvents] = await Promise.all(tmpFuncs);
-    // console.log('exerciseEvents:', exerciseEvents);
-    console.log('events', events);
+    for (let i = 0; i < allTokens.length; i++) {
+      let token = allTokens[i].tokenAddress;
+      let subInfo = getSubInfo(allTokens[i]);
+      let tmpFuncs = [];
+      tmpFuncs.push(scs.mmt.getPastEvents('BuyOptionsToken', {
+        filter: { from: address, optionsToken: token },
+        fromBlock: startBlock,
+      }));
+      tmpFuncs.push(scs.mmt.getPastEvents('SellOptionsToken', {
+        filter: { from: address, optionsToken: token },
+        fromBlock: startBlock,
+      }));
 
-    if (events.length > 0) {
-      let totalAmount = getWeb3().utils.toBN('0');
-      let totalPrice = getWeb3().utils.toBN('0');
-      for (let m = 0; m < events.length; m++) {
-        totalAmount = totalAmount.add(getWeb3().utils.toBN(events[m].returnValues.amount));
-        totalPrice = totalPrice.add(getWeb3().utils.toBN(events[m].returnValues.amount).mul(getWeb3().utils.toBN(events[m].returnValues.optionsPrice)));
+      let events, sellEvents;
+      [events, sellEvents] = await Promise.all(tmpFuncs);
+      // console.log('exerciseEvents:', exerciseEvents);
+      console.log('events', events, sellEvents);
 
-        //----history-----
-        info.history.push({
-          blockNumber: events[m].blockNumber,
-          txHash: events[m].transactionHash,
-          amount: getWeb3().utils.fromWei(events[m].returnValues.amount),
-          optionsPrice: '$' + priceConvert(events[m].returnValues.optionsPrice),
-          type: 'buy',
-          tokenName: subInfo.tokenName,
-          currencyAmount: '$' + Number(Number(getWeb3().utils.fromWei(events[m].returnValues.amount)) * Number(priceConvert(events[m].returnValues.optionsPrice))).toFixed(8),
-          key: events[m].transactionHash
-        });
+      if (events.length > 0) {
+        let totalAmount = getWeb3().utils.toBN('0');
+        let totalPrice = getWeb3().utils.toBN('0');
+        for (let m = 0; m < events.length; m++) {
+          totalAmount = totalAmount.add(getWeb3().utils.toBN(events[m].returnValues.amount));
+          totalPrice = totalPrice.add(getWeb3().utils.toBN(events[m].returnValues.amount).mul(getWeb3().utils.toBN(events[m].returnValues.optionsPrice)));
+
+          //----history-----
+          history.push({
+            blockNumber: events[m].blockNumber,
+            txHash: events[m].transactionHash,
+            amount: getWeb3().utils.fromWei(events[m].returnValues.amount),
+            optionsPrice: '$' + priceConvert(events[m].returnValues.optionsPrice),
+            type: 'buy',
+            tokenName: subInfo.tokenName,
+            currencyAmount: '$' + Number(Number(getWeb3().utils.fromWei(events[m].returnValues.amount)) * Number(priceConvert(events[m].returnValues.optionsPrice))).toFixed(8),
+            key: events[m].transactionHash,
+            settlementCurrency: events[m].returnValues.settlementCurrency === wanTokenAddress ? "WAN" : "FNX"
+          });
+        }
       }
 
-      let tokenBalance = await getBalance(token, address);
-      if (tokenBalance > 0) {
-        info.assets.push({
+      events = sellEvents;
+      // console.log('events:', events);
+      if (events.length > 0) {
+        for (let m = 0; m < events.length; m++) {
+          //----history-----
+          history.push({
+            blockNumber: events[m].blockNumber,
+            txHash: events[m].transactionHash,
+            amount: getWeb3().utils.fromWei(events[m].returnValues.amount),
+            optionsPrice: '$' + priceConvert(events[m].returnValues.optionsPrice),
+            type: 'sell',
+            tokenName: subInfo.tokenName,
+            currencyAmount: '$' + Number(Number(getWeb3().utils.fromWei(events[m].returnValues.amount)) * Number(priceConvert(events[m].returnValues.optionsPrice))).toFixed(8),
+            key: events[m].transactionHash
+          });
+        }
+      }
+    }
+
+    window.localStorage.setItem('localAddress', address);
+    window.localStorage.setItem('historyStartBlock', blockNumber + 1);
+    window.localStorage.setItem('history', JSON.stringify(history));
+  }
+  return history;
+}
+
+const getSubInfo = (opToken) => {
+  let subInfo = {
+    type: opToken.optType === '0' ? "call" : "put",
+    underlyingAssets: opToken.underlyingAssets === '1' ? 'BTC' : 'ETH', // 1: BTC, 2: ETH
+    underlyingAssetsRaw: opToken.underlyingAssets,
+    strikePrice: '$' + priceConvert(opToken.strikePrice),
+    expiration: (new Date(opToken.expiration * 1000)).toDateString().split(' ').slice(1, 3).join(' '),
+    key: opToken.tokenAddress,
+    optionsToken: opToken.tokenAddress,
+    tokenAddress: opToken.tokenAddress,
+    currency: ['WAN', 'FNX'],
+    status: opToken.status,
+  };
+
+  subInfo.tokenName = [subInfo.underlyingAssets, subInfo.type, subInfo.expiration, subInfo.strikePrice].join(', ');
+
+  return subInfo;
+}
+
+const getAssets = async (exerciseOp, nowTokens, address) => {
+  let assets = [];
+
+  if (address && address != null) {
+    let funcs = [];
+    for (let i = 0; i < exerciseOp.length; i++) {
+      funcs.push(getBalance(exerciseOp[i].tokenAddress, address));
+    }
+
+    let ret = await Promise.all(funcs);
+    funcs = [];
+
+    // get exercised op
+    for (let i = 0; i < exerciseOp.length; i++) {
+      if (ret[i] > 0) {
+        let subInfo = exerciseOp[i];
+        // console.log('subInfo:', subInfo);
+        assets.push({
+          tokenName: subInfo.tokenName,
+          underlyingAssetsPrice: '--',
+          strikePrice: subInfo.strikePrice,
+          amount: ret[i],
+          price: '--',
+          expectedReturn: '--',
+          status: subInfo.status,
+        });
+      }
+    }
+
+    //get now op
+    for (let i = 0; i < nowTokens.length; i++) {
+      funcs.push(getBalance(nowTokens[i].tokenAddress, address));
+    }
+
+    ret = await Promise.all(funcs);
+    funcs = [];
+
+    // get exercised op
+    for (let i = 0; i < nowTokens.length; i++) {
+      if (ret[i] > 0) {
+        let subInfo = nowTokens[i];
+        assets.push({
           tokenName: subInfo.tokenName,
           underlyingAssetsPrice: subInfo.underlyingAssetsPrice,
           strikePrice: subInfo.strikePrice,
-          amount: tokenBalance,
-          // pricePaid: '$' + priceConvert(totalPrice / totalAmount),
+          amount: ret[i],
           price: subInfo.sellPrice,
           percentageOfCollateral: subInfo.percentageOfCollateral,
-          // expectedReturn: '$' + Number((Number(subInfo.sellPrice.replace('$', '')) - priceConvert(totalPrice / totalAmount)) * tokenBalance).toFixed(8)
-          expectedReturn: '$' + Number((Number(subInfo.sellPrice.replace('$', ''))) * tokenBalance).toFixed(8)
-        })
-      }
-    }
-
-    events = sellEvents;
-    // console.log('events:', events);
-    if (events.length > 0) {
-      for (let m = 0; m < events.length; m++) {
-        //----history-----
-        info.history.push({
-          blockNumber: events[m].blockNumber,
-          txHash: events[m].transactionHash,
-          amount: getWeb3().utils.fromWei(events[m].returnValues.amount),
-          optionsPrice: '$' + priceConvert(events[m].returnValues.optionsPrice),
-          type: 'sell',
-          tokenName: subInfo.tokenName,
-          currencyAmount: '$'+Number(Number(getWeb3().utils.fromWei(events[m].returnValues.amount)) * Number(priceConvert(events[m].returnValues.optionsPrice))).toFixed(8),
-          key: events[m].transactionHash
-        });
-      }
-    }
-
-    events = exerciseEvents;
-    // console.log('events:', events);
-    if (events.length > 0) {
-      for (let m = 0; m < events.length; m++) {
-        if (events[i].returnValues.optionsToken.toLowerCase() !== token.toLowerCase()) {
-          continue;
-        }
-        //----history-----
-        info.history.push({
-          blockNumber: events[m].blockNumber,
-          txHash: events[m].transactionHash,
-          amount: address ? getBalance(token, address):"0",
-          optionsPrice: subInfo.strikePrice,
-          type: 'Exercise',
-          tokenName: subInfo.tokenName,
-          currencyAmount: '$'+Number(Number(address ? getBalance(token, address):"0") * Number(subInfo.strikePrice.replace('$',''))).toFixed(8),
-          key: events[m].transactionHash
+          expectedReturn: '$' + Number((Number(subInfo.sellPrice.replace('$', ''))) * ret[i]).toFixed(8)
         });
       }
     }
   }
-}
-
-const getAssets = async (allTokens, address) => {
-  if (address && address != null) {
-    
-  }
+  return assets;
 }
 
 export const getOptionsInfo = async (address) => {
@@ -305,32 +353,20 @@ export const getOptionsInfo = async (address) => {
   info.optionTokenInfo = [];
   info.assets = [];
   info.history = [];
-
-  for (let i=0; i<opTokens.length; i++) {
-    if (opTokens[i].status === 'active') {
-      let subInfo = {
-        type: opTokens[i].optType === '0' ? "call" : "put",
-        underlyingAssets: opTokens[i].underlyingAssets === '1' ? 'BTC' : 'ETH', // 1: BTC, 2: ETH
-        underlyingAssetsRaw: opTokens[i].underlyingAssets,
-        strikePrice: '$' + priceConvert(opTokens[i].strikePrice),
-        expiration: (new Date(opTokens[i].expiration * 1000)).toDateString().split(' ').slice(1, 3).join(' '),
-        key: i,
-        optionsToken: opTokens[i].tokenAddress,
-        tokenAddress: opTokens[i].tokenAddress,
-        currency: ['WAN', 'FNX'],
-      };
-
-      subInfo.tokenName = [subInfo.underlyingAssets, subInfo.type, subInfo.expiration, subInfo.strikePrice].join(', ');
-     
-      info.optionTokenInfo.push(subInfo);
+  let exerciseOp = [];
+  for (let i = 0; i < opTokens.length; i++) {
+    if (opTokens[i].status !== 'exercise') {
+      info.optionTokenInfo.push(getSubInfo(opTokens[i]));
+    } else {
+      exerciseOp.push(getSubInfo(opTokens[i]));
     }
   }
 
   await getPrices(info.optionTokenInfo);
   await getOpLiquidityAll(info.optionTokenInfo);
 
+  info.assets = await getAssets(exerciseOp, info.optionTokenInfo, address);
   info.history = await getHistory(opTokens, address);
-  info.assets = await getAssets(opTokens, address);
 
   if (info.history) {
     info.history.sort((a, b) => (b.blockNumber - a.blockNumber));
@@ -411,7 +447,7 @@ export const approve = async (tokenAddr, owner, amount, selectedWallet) => {
         resolve();
       })
     });
-    
+
     await watch;
   }
   return true;
@@ -419,7 +455,7 @@ export const approve = async (tokenAddr, owner, amount, selectedWallet) => {
 
 export const generateBuyOptionsTokenData = async (info) => {
   console.log('generateBuyOptionsTokenData', info);
-  let encodedData = await mmtSC.methods.buyOptionsToken(
+  let encodedData = await scs.mmt.methods.buyOptionsToken(
     info.optionsToken,
     getWeb3().utils.toWei(info.amount.toString()),
     info.buyUseToken,
@@ -456,7 +492,7 @@ export const estimateGas = async (info, value, address) => {
   try {
     // console.log('estimateGas:', info, value, address);
     // let ret = await getWeb3().eth.estimateGas(params, { from: address, value });
-    let ret = await mmtSC.methods.buyOptionsToken(
+    let ret = await scs.mmt.methods.buyOptionsToken(
       info.optionsToken,
       getWeb3().utils.toWei(info.amount.toString()),
       info.buyUseToken,
@@ -465,8 +501,8 @@ export const estimateGas = async (info, value, address) => {
 
     if (ret == 10000000) {
       console.log('estimateGas failed:', info.optionsToken, getWeb3().utils.toWei(info.amount.toString()), info.buyUseToken, getWeb3().utils.toWei(info.currencyAmount.toString()));
-      // return -1;
-      return '0x' + (8000000).toString(16);
+      return -1;
+      // return '0x' + (8000000).toString(16);
     }
     // console.log('estimateGas:', '0x' + (ret + 30000).toString(16));
     return '0x' + (ret + 30000).toString(16);
@@ -522,7 +558,7 @@ export const watchTransactionStatus = (txID, callback) => {
 };
 
 export const getBuyOptionsOrderAmount = async (optionsAddr, buyUseToken) => {
-  let buyOrderList = await mmtSC.methods.getPayOrderList(optionsAddr, buyUseToken).call();
+  let buyOrderList = await scs.mmt.methods.getPayOrderList(optionsAddr, buyUseToken).call();
   // console.log('buyOrderList:', buyOrderList);
   if (buyOrderList.length < 4) {
     return 0;
@@ -545,9 +581,9 @@ export const sellOptionsToken = async (address, selectedWallet, info, type) => {
     // console.log('approve sent');
     let gas;
     if (type === 'sell') {
-      gas = await mmtSC.methods.sellOptionsToken(info.optionsToken, getWeb3().utils.toWei(info.sellAmount.toString()), info.buyUseToken).estimateGas({ gas: 10000000, from: address });
+      gas = await scs.mmt.methods.sellOptionsToken(info.optionsToken, getWeb3().utils.toWei(info.sellAmount.toString()), info.buyUseToken).estimateGas({ gas: 10000000, from: address });
     } else {
-      gas = await mmtSC.methods.addSellOrder(info.optionsToken, info.buyUseToken, getWeb3().utils.toWei(info.sellAmount.toString())).estimateGas({ gas: 10000000, from: address });
+      gas = await scs.mmt.methods.addSellOrder(info.optionsToken, info.buyUseToken, getWeb3().utils.toWei(info.sellAmount.toString())).estimateGas({ gas: 10000000, from: address });
     }
     //sell
     if (gas === 10000000) {
@@ -561,11 +597,12 @@ export const sellOptionsToken = async (address, selectedWallet, info, type) => {
     gas = '0x' + (gas + 30000).toString(16);; // add normal tx cost
     let data;
     if (type === 'sell') {
-      data = await mmtSC.methods.sellOptionsToken(info.optionsToken, getWeb3().utils.toWei(info.sellAmount.toString()), info.buyUseToken).encodeABI();
+      data = await scs.mmt.methods.sellOptionsToken(info.optionsToken, getWeb3().utils.toWei(info.sellAmount.toString()), info.buyUseToken).encodeABI();
     } else {
-      data = await mmtSC.methods.addSellOrder(info.optionsToken, info.buyUseToken, getWeb3().utils.toWei(info.sellAmount.toString())).encodeABI();
+      data = await scs.mmt.methods.addSellOrder(info.optionsToken, info.buyUseToken, getWeb3().utils.toWei(info.sellAmount.toString())).encodeABI();
     }
     // console.log('data:', data);
+    console.log('sell Amount:', getWeb3().utils.toWei(info.sellAmount.toString()));
 
     const txParam = {
       to: matchMakingTradingSCAddress,
@@ -650,8 +687,8 @@ export const startEventScan = (blockNumber, callback) => {
     }));
 
     let ret = await Promise.all(tmpFuncs);
-    for (let i=0; i<ret.length; i++) {
-      if(ret[i].length > 0) {
+    for (let i = 0; i < ret.length; i++) {
+      if (ret[i].length > 0) {
         // console.log('found new event.');
         blockNumber = ret[i][0].blockNumber;
         callback(false);
