@@ -305,6 +305,7 @@ const getAssets = async (exerciseOp, nowTokens, address) => {
           price: '--',
           expectedReturn: '--',
           status: subInfo.status,
+          key: subInfo.tokenName,
         });
       }
     }
@@ -328,7 +329,8 @@ const getAssets = async (exerciseOp, nowTokens, address) => {
           amount: ret[i],
           price: subInfo.sellPrice,
           percentageOfCollateral: subInfo.percentageOfCollateral,
-          expectedReturn: '$' + Number((Number(subInfo.sellPrice.replace('$', ''))) * ret[i]).toFixed(8)
+          expectedReturn: '$' + Number((Number(subInfo.sellPrice.replace('$', ''))) * ret[i]).toFixed(8),
+          key: subInfo.tokenName,
         });
       }
     }
