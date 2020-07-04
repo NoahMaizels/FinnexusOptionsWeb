@@ -65,8 +65,6 @@ const getOptionsList = async () => {
     createOptionsEventStartBlock = defaultStartBlock;
   }
 
-  console.log('createOptionsEventStartBlock', createOptionsEventStartBlock);
-
   let funcs = [];
 
   funcs.push(web3.eth.getBlockNumber());
@@ -82,8 +80,6 @@ const getOptionsList = async () => {
   let blockNumber, eventCreate, eventExercise;
   [blockNumber, eventCreate, eventExercise] = await Promise.all(funcs);
   funcs = [];
-
-  console.log('getOptionsList', blockNumber, eventCreate, eventExercise);
 
   window.localStorage.setItem('createOptionsEventStartBlock', blockNumber + 1);
 
@@ -137,8 +133,6 @@ const getOptionsList = async () => {
       }
     }
   }
-
-  // console.log('localInfo', localInfo, activeAddr);
 
   str = JSON.stringify(localInfo);
 
@@ -219,8 +213,7 @@ const getHistory = async (allTokens, address) => {
 
       let events, sellEvents;
       [events, sellEvents] = await Promise.all(tmpFuncs);
-      // console.log('exerciseEvents:', exerciseEvents);
-      console.log('events', events, sellEvents);
+      // console.log('events', events, sellEvents);
 
       if (events.length > 0) {
         let totalAmount = getWeb3().utils.toBN('0');
@@ -245,7 +238,6 @@ const getHistory = async (allTokens, address) => {
       }
 
       events = sellEvents;
-      // console.log('events:', events);
       if (events.length > 0) {
         for (let m = 0; m < events.length; m++) {
           //----history-----
@@ -305,7 +297,6 @@ const getAssets = async (exerciseOp, nowTokens, address) => {
     for (let i = 0; i < exerciseOp.length; i++) {
       if (ret[i] > 0) {
         let subInfo = exerciseOp[i];
-        // console.log('subInfo:', subInfo);
         assets.push({
           tokenName: subInfo.tokenName,
           underlyingAssetsPrice: '--',
@@ -644,7 +635,7 @@ export const sellOptionsToken = async (address, selectedWallet, info, type) => {
 
 export const startEventScan = (blockNumber, callback) => {
   let eventScan = async (blockNumber) => {
-    // console.log('start scan events...from blockNumber', blockNumber);
+    console.log('start scan events...from blockNumber', blockNumber, new Date().toISOString());
     let tmpFuncs = [];
     tmpFuncs.push(scs.opm.getPastEvents('CreateOptions', {
       fromBlock: blockNumber,
@@ -689,13 +680,11 @@ export const startEventScan = (blockNumber, callback) => {
     let ret = await Promise.all(tmpFuncs);
     for (let i = 0; i < ret.length; i++) {
       if (ret[i].length > 0) {
-        // console.log('found new event.');
         blockNumber = ret[i][0].blockNumber;
         callback(false);
         break;
       }
     }
-    // console.log('finish scan events...');
     setTimeout(eventScan, 30000, blockNumber);
   }
 
