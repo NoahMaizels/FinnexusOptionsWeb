@@ -210,9 +210,13 @@ const getHistory = async (allTokens, address) => {
         filter: { from: address, optionsToken: token },
         fromBlock: startBlock,
       }));
+      tmpFuncs.push(scs.opm.getPastEvents('ExercisePayback', {
+        filter: { recieptor: address, optionsToken: token },
+        fromBlock: startBlock,
+      }));
 
-      let events, sellEvents;
-      [events, sellEvents] = await Promise.all(tmpFuncs);
+      let events, sellEvents, exerciseEvents;
+      [events, sellEvents, exerciseEvents] = await Promise.all(tmpFuncs);
       // console.log('events', events, sellEvents);
 
       if (events.length > 0) {
@@ -230,9 +234,8 @@ const getHistory = async (allTokens, address) => {
             optionsPrice: '$' + priceConvert(events[m].returnValues.optionsPrice),
             type: 'buy',
             tokenName: subInfo.tokenName,
-            currencyAmount: '$' + Number(Number(getWeb3().utils.fromWei(events[m].returnValues.amount)) * Number(priceConvert(events[m].returnValues.optionsPrice))).toFixed(8),
+            currencyAmount: Number(getWeb3().utils.fromWei(events[m].returnValues.totalPay)).toFixed(8) + (events[m].returnValues.settlementCurrency === wanTokenAddress ? " WAN" : " FNX"),
             key: events[m].transactionHash,
-            settlementCurrency: events[m].returnValues.settlementCurrency === wanTokenAddress ? "WAN" : "FNX"
           });
         }
       }
@@ -248,7 +251,22 @@ const getHistory = async (allTokens, address) => {
             optionsPrice: '$' + priceConvert(events[m].returnValues.optionsPrice),
             type: 'sell',
             tokenName: subInfo.tokenName,
-            currencyAmount: '$' + Number(Number(getWeb3().utils.fromWei(events[m].returnValues.amount)) * Number(priceConvert(events[m].returnValues.optionsPrice))).toFixed(8),
+            currencyAmount: Number(getWeb3().utils.fromWei(events[m].returnValues.payback)).toFixed(8) + (events[m].returnValues.settlementCurrency === wanTokenAddress ? " WAN" : " FNX"),
+            key: events[m].transactionHash
+          });
+        }
+      }
+
+      events = exerciseEvents;
+      if (events.length > 0) {
+        for (let m = 0; m < events.length; m++) {
+          //----history-----
+          history.push({
+            blockNumber: events[m].blockNumber,
+            txHash: events[m].transactionHash,
+            type: 'exercise',
+            tokenName: subInfo.tokenName,
+            currencyAmount: Number(getWeb3().utils.fromWei(events[m].returnValues.payback)).toFixed(8) + (events[m].returnValues.collateral === wanTokenAddress ? " WAN" : " FNX"),
             key: events[m].transactionHash
           });
         }

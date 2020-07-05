@@ -423,6 +423,11 @@
         "indexed": false,
         "name": "amount",
         "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "payback",
+        "type": "uint256"
       }
     ],
     "name": "SellOptionsToken",
@@ -455,9 +460,63 @@
         "indexed": false,
         "name": "amount",
         "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "totalPay",
+        "type": "uint256"
       }
     ],
     "name": "BuyOptionsToken",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "name": "optionsToken",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "name": "seller",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "name": "settlementCurrency",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "name": "payback",
+        "type": "uint256"
+      }
+    ],
+    "name": "OrderSellerPayback",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "name": "optionsToken",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "name": "buyer",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "OrderBuyerPayback",
     "type": "event"
   },
   {
@@ -754,6 +813,24 @@
       }
     ],
     "name": "redeemPayOrder",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "optionsToken",
+        "type": "address"
+      },
+      {
+        "name": "settlementCurrency",
+        "type": "address"
+      }
+    ],
+    "name": "redeemInvalidPayOrder",
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",

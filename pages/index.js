@@ -546,7 +546,7 @@ class IndexPage extends Component {
       <Row gutter={[16, 8]}>
         <Col span={8}><h4>Sell Amount:</h4></Col>
         {/* <Col span={16}><Input defaultValue={0} onChange={e=>this.setState({sellAmount: e.target.value})}/></Col> */}
-        <Col span={16}><Input defaultValue={0} onChange={updateSellAmount}/></Col>
+        <Col span={16}><Input placeholder={0} onChange={updateSellAmount}/></Col>
       </Row>
     </div>)
   }

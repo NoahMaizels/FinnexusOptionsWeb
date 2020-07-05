@@ -463,6 +463,11 @@
     "inputs": [
       {
         "indexed": true,
+        "name": "Sender",
+        "type": "address"
+      },
+      {
+        "indexed": true,
         "name": "optionsToken",
         "type": "address"
       },
@@ -487,9 +492,41 @@
         "indexed": true,
         "name": "optionsToken",
         "type": "address"
+      },
+      {
+        "indexed": false,
+        "name": "unitPrice",
+        "type": "uint256"
       }
     ],
     "name": "Exercise",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "name": "optionsToken",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "name": "recieptor",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "name": "collateral",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "name": "payback",
+        "type": "uint256"
+      }
+    ],
+    "name": "ExercisePayback",
     "type": "event"
   },
   {
@@ -513,6 +550,11 @@
       {
         "indexed": false,
         "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "payback",
         "type": "uint256"
       }
     ],
