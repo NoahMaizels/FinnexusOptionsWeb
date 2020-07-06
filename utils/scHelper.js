@@ -100,7 +100,7 @@ const getOptionsList = async () => {
   let activeAddr = [];
   // check exercise
   for (let i = 0; i < localInfo.length; i++) {
-    if (localInfo[i].status === 'active') {
+    if (localInfo[i].status !== 'exercise') {
       for (let m = 0; m < eventExercise.length; m++) {
         if (localInfo[i].tokenAddress.toLowerCase() === eventExercise[m].returnValues.optionsToken.toLowerCase()) {
           localInfo[i].status = 'exercise';
@@ -262,6 +262,8 @@ const getHistory = async (allTokens, address) => {
         for (let m = 0; m < events.length; m++) {
           //----history-----
           history.push({
+            amount: await getBalance(events[m].returnValues.optionsToken, address),
+            optionsPrice: '--',
             blockNumber: events[m].blockNumber,
             txHash: events[m].transactionHash,
             type: 'exercise',
@@ -384,7 +386,7 @@ export const getOptionsInfo = async (address) => {
   }
 
   if (info.assets) {
-    info.assets.sort();
+    info.assets.sort().reverse();
   }
 
   info.transactionFee = await scs.opm.methods.getTransactionFee().call();
