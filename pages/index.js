@@ -6,8 +6,9 @@ import { Wallet, getSelectedAccount, WalletButton, WalletButtonLong, getSelected
 import sleep from 'ko-sleep';
 import { DownOutlined } from '@ant-design/icons';
 
-import "wan-dex-sdk-wallet/index.css";
 import styles from './style.less';
+import "wan-dex-sdk-wallet/index.css";
+
 import { 
   getOptionsInfo, 
   getBalance, 
@@ -159,7 +160,7 @@ class IndexPage extends Component {
       key: 'tokenName',
     },
     {
-      title: 'Underlying assets price',
+      title: 'Current BTC price',
       dataIndex: 'underlyingAssetsPrice',
       key: 'underlyingAssetsPrice',
     },
@@ -192,7 +193,7 @@ class IndexPage extends Component {
       key: 'tokenName',
     },
     {
-      title: 'Underlying assets price',
+      title: 'Current BTC price',
       dataIndex: 'underlyingAssetsPrice',
       key: 'underlyingAssetsPrice',
     },
@@ -700,12 +701,12 @@ class IndexPage extends Component {
         <Carousel><img src={banner} /></Carousel>
         <Spin spinning={this.state.pageLoading} size="large">
           <div className={styles.box}>
-            <h1>Hedge risk of your BTC value down</h1>
+            <h1>Buy BTC Put options (Hedge BTC downside risk)</h1>
             <Row gutter={[16, 16]} className={styles.center}>
-              <Col span={6}>How many BTC are you holding</Col>
+              <Col span={6}>How many BTC you want to protect</Col>
               <Col span={4}>Expiration</Col>
               <Col span={3}>Currency to pay</Col>
-              <Col span={6}>Hedge Price in $ / chose currency</Col>
+              <Col span={6}>to ’cost’</Col>
               <Col span={4}>Return due to the price go down in percentage</Col>
             </Row>
             <Row gutter={[16, 16]} className={styles.center}>
@@ -783,7 +784,7 @@ class IndexPage extends Component {
           </div>
           <Divider />
           <div className={styles.box}>
-            <h1>Leverage your BTC</h1>
+            <h1>Buy BTC Call options(Leverage your BTC)</h1>
             <Row gutter={[16, 16]} className={styles.center}>
               <Col span={6}>How many BTC are you plan to leverage</Col>
               <Col span={4}>Expiration</Col>
@@ -864,7 +865,8 @@ class IndexPage extends Component {
           </div>
           <Divider />
           <div className={styles.box}>
-            <h1>My assets</h1>
+            {/* <h1>My assets<Button type="primary" style={{marginLeft: "20px"}}>Connect Wallet</Button></h1> */}
+            <h1>My assets <div style={{display: "inline-block"}}><WalletButtonLong /></div></h1>
             <Table dataSource={this.state.optionsInfo.assets} columns={this.myAssetsColumn} />
           </div>
           <Divider />
