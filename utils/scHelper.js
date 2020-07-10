@@ -657,7 +657,7 @@ export const sellOptionsToken = async (address, selectedWallet, info, type) => {
 
 export const startEventScan = (blockNumber, callback) => {
   let eventScan = async (blockNumber) => {
-    console.log('start scan events...from blockNumber', blockNumber, new Date().toISOString());
+    // console.log('start scan events...from blockNumber', blockNumber, new Date().toISOString());
     let tmpFuncs = [];
     tmpFuncs.push(scs.opm.getPastEvents('CreateOptions', {
       fromBlock: blockNumber,
