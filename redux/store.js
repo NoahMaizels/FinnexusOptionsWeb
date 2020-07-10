@@ -2,6 +2,7 @@ import { createStore, applyMiddleware, combineReducers, compose } from 'redux';
 import thunk from 'redux-thunk';
 import { reducer } from './reducer';
 import { WalletReducer } from "wan-dex-sdk-wallet";
+import { EthWalletReducer } from "eth-sdk-wallet";
 
 const composeEnhancers =
   process.env.NODE_ENV === 'development' &&
@@ -14,7 +15,8 @@ const enhancer = composeEnhancers(applyMiddleware(...[thunk]));
 
 const reducers = {
   global: reducer,
-  WalletReducer
+  WalletReducer,
+  EthWalletReducer
 };
 
 export const store = createStore(combineReducers(reducers), enhancer);

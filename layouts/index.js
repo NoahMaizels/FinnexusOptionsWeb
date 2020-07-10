@@ -3,6 +3,9 @@ import withRouter from 'umi/withRouter';
 import { connect } from 'react-redux';
 import { message } from 'antd';
 import { Wallet, getSelectedAccount, WalletButton, WalletButtonLong, getSelectedAccountWallet, getTransactionReceipt } from "wan-dex-sdk-wallet";
+import { Wallet as EthWallet, WalletButton as EthWalletButton } from 'eth-sdk-wallet';
+import "eth-sdk-wallet/index.css";
+
 import "wan-dex-sdk-wallet/index.css";
 import style from './style.less';
 // import logo from '../img/wandoraLogo.png';
@@ -53,12 +56,14 @@ class Layout extends Component {
       <div>
         <div className={style.header}>
           <Wallet title="Wan Game" nodeUrl={nodeUrl} />
+          <EthWallet nodeUrl={"https://ropsten.infura.io/v3/f977681c79004fad87aa00da8f003597"} />
           <img className={style.logo} width="28px" height="28px" src={require('../public/logo.png')} alt="Logo" />
           <div className={style.title}>Finnexus Options</div>
         
           <img style={{ height: "25px", margin: "3px 8px 3px 3px" }} src={networkLogo} />
           <div className={style.gameRule} onClick={this.showGameRule}>Know more</div>
           <WalletButton />
+          <EthWalletButton />
         </div>
         {this.props.selectedAccountID === 'EXTENSION' && parseInt(this.props.networkId, 10) !== parseInt(networkId, 10) && (
           <div className="network-warning bg-warning text-white text-center" style={{ padding: 4, backgroundColor: "red", textAlign:"center" }}>
