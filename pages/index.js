@@ -706,7 +706,7 @@ class IndexPage extends Component {
               <Col span={6}>How many BTC you want to protect</Col>
               <Col span={4}>Expiration</Col>
               <Col span={3}>Currency to pay</Col>
-              <Col span={6}>to ’cost’</Col>
+              <Col span={6}>Cost</Col>
               <Col span={4}>Return due to the price go down in percentage</Col>
             </Row>
             <Row gutter={[16, 16]} className={styles.center}>
@@ -761,6 +761,7 @@ class IndexPage extends Component {
                       let strikePrice = Number(hedgeData[0].strikePrice.replace('$', ''));
                       let liq = hedgeInfo.amount;
                       hedgeInfo.return = (strikePrice - underlyingAssetsPrice * (100 - value) / 100) * liq;
+                      hedgeInfo.return = Number(hedgeInfo.return) < 0 ? 0 : hedgeInfo.return;
                       hedgeInfo.return = Number(hedgeInfo.return.toFixed(8));
                       this.setState({ hedgeInfo });
                     }} />
@@ -784,12 +785,12 @@ class IndexPage extends Component {
           </div>
           <Divider />
           <div className={styles.box}>
-            <h1>Buy BTC Call options(Leverage your BTC)</h1>
+            <h1>Buy BTC Call options (Leverage your BTC)</h1>
             <Row gutter={[16, 16]} className={styles.center}>
-              <Col span={6}>How many BTC are you plan to leverage</Col>
+              <Col span={6}>How many BTC you want to leverage</Col>
               <Col span={4}>Expiration</Col>
               <Col span={3}>Currency to pay</Col>
-              <Col span={6}>Leverage Price in $ / chose currency</Col>
+              <Col span={6}>Cost</Col>
               <Col span={4}>Return due to the price go up in percentage</Col>
             </Row>
             <Row gutter={[16, 16]} className={styles.center}>
@@ -843,6 +844,7 @@ class IndexPage extends Component {
                       let strikePrice = Number(leverageData[0].strikePrice.replace('$', ''));
                       let liq = leverageInfo.amount;
                       leverageInfo.return = (underlyingAssetsPrice * (100 + value) / 100 - strikePrice) * liq;
+                      leverageInfo.return = Number(leverageInfo.return) < 0 ? 0 : leverageInfo.return;
                       leverageInfo.return = Number(leverageInfo.return.toFixed(8));
                       this.setState({ leverageInfo });
                     }} />
@@ -866,7 +868,7 @@ class IndexPage extends Component {
           <Divider />
           <div className={styles.box}>
             {/* <h1>My assets<Button type="primary" style={{marginLeft: "20px"}}>Connect Wallet</Button></h1> */}
-            <h1>My assets <div style={{display: "inline-block"}}><WalletButtonLong /></div></h1>
+            <h1>My assets <div className={styles.assets}><WalletButtonLong /></div></h1>
             <Table dataSource={this.state.optionsInfo.assets} columns={this.myAssetsColumn} />
           </div>
           <Divider />
