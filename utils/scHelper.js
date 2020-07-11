@@ -300,20 +300,15 @@ const getSubInfo = (opToken) => {
   let leftTime = (opToken.expiration - Date.now() / 1000);
   let timeStr = "";
   if (leftTime < 0) {
-    console.log(leftTime);
     timeStr = "expired";
   } else {
-    console.log(leftTime);
     const d = parseInt(leftTime / 24 / 3600);
     leftTime = leftTime % (24 * 3600);
-    console.log(d, leftTime);
     const h = parseInt(leftTime / 3600);
     leftTime = leftTime % 3600;
-    console.log(h, leftTime);
 
     const m = parseInt(leftTime / 60);
     leftTime = leftTime % 60;
-    console.log(m, leftTime);
 
     const s = leftTime;
     timeStr = d + "d " + h + "h " + m + "m";
