@@ -221,6 +221,20 @@
   },
   {
     "constant": true,
+    "inputs": [],
+    "name": "halted",
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
     "inputs": [
       {
         "name": "",
@@ -332,6 +346,20 @@
       }
     ],
     "name": "transferOwnership",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "halt",
+        "type": "bool"
+      }
+    ],
+    "name": "setHalt",
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
@@ -553,6 +581,11 @@
         "indexed": false,
         "name": "amount",
         "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "settlementsAmount",
+        "type": "uint256"
       }
     ],
     "name": "RedeemPayOrder",
@@ -583,6 +616,28 @@
       }
     ],
     "name": "RedeemSellOrder",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "name": "recieptor",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "name": "collateral",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "name": "payback",
+        "type": "uint256"
+      }
+    ],
+    "name": "TransferPayback",
     "type": "event"
   },
   {

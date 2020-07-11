@@ -1,7 +1,7 @@
 import abiOptionsToken from "./abi/OptionsToken.json";
 import abiCompoundOracle from "./abi/CompoundOracle.json";
 import abiMatchMakingTrading from "./abi/MatchMakingTrading.json";
-import abiOptionsManger from "./abi/OptionsManger.json";
+import abiOptionsManger from "./abi/OptionsManager.json";
 import abiOptionsFormulas from './abi/OptionsFormulas.json';
 import abiErc20 from './abi/Erc20.json';
 import { message } from 'antd';

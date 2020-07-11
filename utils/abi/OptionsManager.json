@@ -305,6 +305,20 @@
   {
     "constant": true,
     "inputs": [],
+    "name": "halted",
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
     "name": "getOptionsTokenList",
     "outputs": [
       {
@@ -400,6 +414,20 @@
     "type": "function"
   },
   {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "halt",
+        "type": "bool"
+      }
+    ],
+    "name": "setHalt",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "anonymous": false,
     "inputs": [
       {
@@ -468,7 +496,7 @@
       },
       {
         "indexed": true,
-        "name": "optionsToken",
+        "name": "collateral",
         "type": "address"
       },
       {
@@ -581,6 +609,28 @@
       }
     ],
     "name": "BurnOptionsToken",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "name": "recieptor",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "name": "collateral",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "name": "payback",
+        "type": "uint256"
+      }
+    ],
+    "name": "TransferPayback",
     "type": "event"
   },
   {

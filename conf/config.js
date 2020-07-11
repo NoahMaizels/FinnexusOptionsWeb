@@ -1,5 +1,5 @@
 const mainnetSCAddr = '';//mainnet
-const testnetSCAddr = '0x7962dd9d8af81ec0c2f24efcaffd7a47d05a212f';//testnet 
+const testnetSCAddr = '0xb5a351fe7f7a76eef14745492a64d4998f2d6fa9';//testnet 
 
 
 // change networkId to switch network
