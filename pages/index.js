@@ -170,6 +170,11 @@ class IndexPage extends Component {
       key: 'expiration',
     },
     {
+      title: 'Countdown',
+      dataIndex: 'countdown',
+      key: 'countdown',
+    },
+    {
       title: 'Strike price',
       dataIndex: 'strikePrice',
       key: 'strikePrice',

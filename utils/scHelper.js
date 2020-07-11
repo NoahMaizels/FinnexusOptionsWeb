@@ -295,8 +295,35 @@ const getSubInfo = (opToken) => {
     currency: ['WAN', 'FNX'],
     status: opToken.status,
   };
+  
+  // let utc8 = parseInt(Date.now() / 1000 / 3600 / 24)*3600*24 + 8*3600 ;
+  let leftTime = (opToken.expiration - Date.now() / 1000);
+  let timeStr = "";
+  if (leftTime < 0) {
+    console.log(leftTime);
+    timeStr = "expired";
+  } else {
+    console.log(leftTime);
+    const d = parseInt(leftTime / 24 / 3600);
+    leftTime = leftTime % (24 * 3600);
+    console.log(d, leftTime);
+    const h = parseInt(leftTime / 3600);
+    leftTime = leftTime % 3600;
+    console.log(h, leftTime);
 
-  subInfo.tokenName = [subInfo.underlyingAssets, subInfo.type, subInfo.expiration, subInfo.strikePrice].join(', ');
+    const m = parseInt(leftTime / 60);
+    leftTime = leftTime % 60;
+    console.log(m, leftTime);
+
+    const s = leftTime;
+    timeStr = d + "d " + h + "h " + m + "m";
+  }
+
+  subInfo.countdown = timeStr;
+
+  let expirationWithYear = (new Date(opToken.expiration * 1000)).toDateString().split(' ').slice(1, 4).join(' ');
+
+  subInfo.tokenName = [subInfo.underlyingAssets, subInfo.type, expirationWithYear, subInfo.strikePrice].join(', ');
 
   return subInfo;
 }
