@@ -160,6 +160,11 @@ class IndexPage extends Component {
       key: 'tokenName',
     },
     {
+      title: 'Collateral',
+      dataIndex: "collateralTokenType",
+      key: 'collateralTokenType',
+    },
+    {
       title: 'Current BTC price',
       dataIndex: 'underlyingAssetsPrice',
       key: 'underlyingAssetsPrice',

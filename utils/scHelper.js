@@ -86,6 +86,7 @@ const getOptionsList = async () => {
   for (let i = 0; i < eventCreate.length; i++) {
     let op = {
       collateral: eventCreate[i].returnValues.collateral,
+      collateralTokenType: eventCreate[i].returnValues.collateral === "0x0000000000000000000000000000000000000000" ? 'WAN' : 'FNX',
       expiration: eventCreate[i].returnValues.expiration,
       optType: eventCreate[i].returnValues.optType,
       strikePrice: eventCreate[i].returnValues.strikePrice,
@@ -293,6 +294,7 @@ const getSubInfo = (opToken) => {
     optionsToken: opToken.tokenAddress,
     tokenAddress: opToken.tokenAddress,
     currency: ['WAN', 'FNX'],
+    collateralTokenType: opToken.collateralTokenType,
     status: opToken.status,
   };
   
