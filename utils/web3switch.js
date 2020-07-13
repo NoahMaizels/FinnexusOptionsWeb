@@ -9,7 +9,7 @@ let nodeUrlsTestnet = [
 
 let nodeUrlsMainnet = [
     'wss://api.wanchain.org:8443/ws/v3/30e9d7131a7fa1557eeeb9ffb18f0a2f66aee81a550ee857343136e5c04b5785',
-    'wss://api2.wanchain.org:8443/ws/v3/30e9d7131a7fa1557eeeb9ffb18f0a2f66aee81a550ee857343136e5c04b5785',
+    'wss://api.wanglutech.net:8443/ws/v3/30e9d7131a7fa1557eeeb9ffb18f0a2f66aee81a550ee857343136e5c04b5785',
 ]
 
 let nodeUrls = networkId === 1 ? nodeUrlsMainnet : nodeUrlsTestnet;
