@@ -30,7 +30,7 @@ class Layout extends Component {
   }
 
   showGameRule = () => {
-    window.open("https://finnexus.io");
+    window.open("https://www.docs.finnexus.io/options/");
   }
 
   static getDerivedStateFromError(error) {
