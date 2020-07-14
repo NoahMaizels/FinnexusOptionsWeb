@@ -30,7 +30,7 @@ class Layout extends Component {
   }
 
   showGameRule = () => {
-    window.open("https://github.com/wandevs/wan-game/blob/master/GameRule.md");
+    window.open("https://finnexus.io");
   }
 
   static getDerivedStateFromError(error) {
