@@ -40,7 +40,7 @@ class Layout extends Component {
   }
 
   showGameRule = () => {
-    window.open("https://github.com/wandevs/wan-game/blob/master/GameRule.md");
+    window.open("https://finnexus.io");
   }
 
   static getDerivedStateFromError(error) {
@@ -96,10 +96,10 @@ class Layout extends Component {
         
           <img style={{ height: "25px", margin: "3px 8px 3px 3px" }} src={networkLogo} />
           <div className={style.gameRule} onClick={this.showGameRule}>Know more</div>
-          {/* <ConnectWallet onClick={()=>{this.setState({visible: true})}}>Connect Wallet</ConnectWallet>
+          <ConnectWallet onClick={()=>{this.setState({visible: true})}}>Connect Wallet</ConnectWallet>
           {
             renderSelectWalletModal(this.state.visible, this.handleCancel)
-          } */}
+          }
          
         </div>
         {this.props.selectedAccountID === 'EXTENSION' && parseInt(this.props.networkId, 10) !== parseInt(networkId, 10) && (

@@ -56,7 +56,17 @@ class Collateral extends Component {
   
             </InALineBetween>
           </Header2>
-          <CollateralInfo />
+          {
+            this.state.tabSelect1
+            ? <CollateralInfo chain='wan'/>
+            : null
+          }
+          {
+            this.state.tabSelect2
+            ? <CollateralInfo chain='eth'/>
+            : null
+          }
+          
         </Body>
       </Center>
     );

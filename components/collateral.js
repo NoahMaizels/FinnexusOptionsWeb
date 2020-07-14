@@ -13,7 +13,7 @@ class CollateralInfo extends Component {
     };
   }
 
-  data = [
+  dataWan = [
     {
       date: "2020-07-11",
       amount: 70,
@@ -44,6 +44,37 @@ class CollateralInfo extends Component {
     }
   ];
 
+  dataEth = [
+    {
+      date: "2020-07-11",
+      amount: 100,
+    },
+    {
+      date: "2020-07-12",
+      amount: 200,
+    },
+    {
+      date: "2020-07-13",
+      amount: 280,
+    },
+    {
+      date: "2020-07-14",
+      amount: 240,
+    },
+    {
+      date: "2020-07-15",
+      amount: 250,
+    },
+    {
+      date: "2020-07-16",
+      amount: 200,
+    },
+    {
+      date: "2020-07-17",
+      amount: 210,
+    }
+  ];
+
   render() {
     return (
       <div>
@@ -51,7 +82,7 @@ class CollateralInfo extends Component {
           padding={[10, 20, 50, 40]}
           autoFit
           height={300}
-          data={this.data}
+          data={this.props.chain === 'wan' ? this.dataWan : this.dataEth}
           xField='date'
           yField='amount'
           smooth={true}
@@ -88,6 +119,12 @@ class CollateralInfo extends Component {
             <MyButton onClick={() => { }}>Withdraw</MyButton>
           </InALineLeft>
         </Header2>
+        <Row gutter={[24, 40]}>
+          <Col span={6}><Statistic title="My shares token" value={'2.123456'} /></Col>
+          <Col span={6}><Statistic title="Percentage of the pool" value={'1.1'} suffix="%" /></Col>
+          <Col span={6}><Statistic title="Current value" value={'20.3413'} suffix="$" /></Col>
+          <Col span={6}><Statistic title="Total return" value={'32.1234'} suffix="$" /></Col>
+        </Row>
         <Space/>
       </div>
     );
