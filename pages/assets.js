@@ -39,13 +39,24 @@ export default class Assets extends Component {
       dataIndex: "operation",
       key: 'operation',
       render: (value) => {
-        return (
-          <InALine>
-            <SmallButton>Buy</SmallButton>
-            <SmallButton>Sell</SmallButton>
-            <SmallButton>Transfer</SmallButton>
-          </InALine>
-        );
+        console.log('value:',value);
+        if (value === 0) {
+          return (
+            <InALine>
+              <SmallButton>Buy</SmallButton>
+              <SmallButton>Sell</SmallButton>
+              <SmallButton>Transfer</SmallButton>
+            </InALine>
+          );
+        } else {
+          return (
+            <InALine>
+              <SmallButton>Exercise</SmallButton>
+              <SmallButton>Close</SmallButton>
+              <SmallButton>Transfer</SmallButton>
+            </InALine>
+          );
+        }
       }
     },
   ]
@@ -57,6 +68,7 @@ export default class Assets extends Component {
       usd: "$ 20043.2345",
       currentReturn: "--",
       expiration: '--',
+      operation: 0
     },
     {
       assets: "WAN",
@@ -64,6 +76,7 @@ export default class Assets extends Component {
       usd: "$ 20043.2345",
       currentReturn: "--",
       expiration: '--',
+      operation: 0
     },
     {
       assets: "Shares token(WRC20)",
@@ -71,6 +84,7 @@ export default class Assets extends Component {
       usd: "$ 20043.2345",
       currentReturn: "--",
       expiration: '--',
+      operation: 0
     },
     {
       assets: "Shares token(ERC20)",
@@ -78,6 +92,7 @@ export default class Assets extends Component {
       usd: "$ 20043.2345",
       currentReturn: "--",
       expiration: '--',
+      operation: 0
     },
     {
       assets: "BTC put, 9th July, $8200(ERC20)",
@@ -85,6 +100,7 @@ export default class Assets extends Component {
       usd: "$ 20043.2345",
       currentReturn: "$ 12.31234",
       expiration: '3d 18h 15m',
+      operation: 1
     },
     {
       assets: "BTC call, 9th July, $8200(WRC20)",
@@ -92,6 +108,7 @@ export default class Assets extends Component {
       usd: "$ 20043.2345",
       currentReturn: "$ 234.12312",
       expiration: '12d 20h 20m',
+      operation: 1
     },
   ]
 
@@ -126,8 +143,8 @@ export default class Assets extends Component {
 
 const SmallButton = styled(ConnectWalletSub)`
   height: 20px;
-  margin: 1px;
-  width: 80%;
+  margin: 1px 5px 1px 5px;
+  width: 70%;
   border-radius: 5px;
 `;
 
