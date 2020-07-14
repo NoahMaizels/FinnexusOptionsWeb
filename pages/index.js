@@ -69,7 +69,15 @@ class IndexPage extends Component {
 
   async componentDidMount() {
     let info = await this.updatePage(true);
-    startEventScan(Number(window.localStorage.getItem('createOptionsEventStartBlock')), this.updatePage);
+    // startEventScan(Number(window.localStorage.getItem('createOptionsEventStartBlock')), this.updatePage);
+    this.timer = setInterval(()=>{this.updatePage(false);}, 30000);
+  }
+
+  componentWillUnmount() {
+    if (this.timer) {
+      clearInterval(this.timer);
+      this.timer = null;
+    }
   }
 
   componentDidUpdate(pre) {
