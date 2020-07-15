@@ -313,7 +313,11 @@ const getSubInfo = (opToken) => {
     leftTime = leftTime % 60;
 
     const s = leftTime;
-    timeStr = d + "d " + h + "h " + m + "m";
+    timeStr = d + "d " + h + "h ";
+    if (d === 0 && h === 0) {
+      timeStr = "< 1h";
+    }
+    // timeStr = d + "d " + h + "h " + m + "m";
   }
 
   subInfo.countdown = timeStr;
