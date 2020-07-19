@@ -105,6 +105,7 @@ const getOptionsList = async () => {
       for (let m = 0; m < eventExercise.length; m++) {
         if (localInfo[i].tokenAddress.toLowerCase() === eventExercise[m].returnValues.optionsToken.toLowerCase()) {
           localInfo[i].status = 'exercise';
+          localInfo[i].tokenPayback = eventExercise[m].returnValues.unitPrice;
         }
       }
 
@@ -296,6 +297,7 @@ const getSubInfo = (opToken) => {
     currency: ['WAN', 'FNX'],
     collateralTokenType: opToken.collateralTokenType,
     status: opToken.status,
+    tokenPayback: opToken.tokenPayback,
   };
   
   // let utc8 = parseInt(Date.now() / 1000 / 3600 / 24)*3600*24 + 8*3600 ;
@@ -354,6 +356,7 @@ const getAssets = async (exerciseOp, nowTokens, address) => {
           expectedReturn: '--',
           status: subInfo.status,
           key: subInfo.tokenName,
+          tokenPayback: subInfo.tokenPayback
         });
       }
     }

@@ -241,7 +241,11 @@ class IndexPage extends Component {
       key: 'action',
       render: (text, record) => {
         if (record.status === 'exercise') {
-          return (<label>Exercised</label>);
+          if (record.tokenPayback === undefined || Number(record.tokenPayback) > 0) {
+            return (<label>Exercised</label>);
+          } else {
+            return (<label>Expired</label>);
+          }
         } 
         return (<Button loading={this.state.sellLoading} type="primary" onClick={() => { this.sellNow(record) }} >Sell now</Button>)
       }
