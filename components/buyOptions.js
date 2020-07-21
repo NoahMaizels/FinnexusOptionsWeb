@@ -29,7 +29,7 @@ export default class BuyOptions extends Component {
     return (
       <CenterAlign style={{ background: "#1A1B2F" }}>
         <Row>
-          <Col span={12}>
+          <Col span={8}>
             <BuyBlock>
               <Row>
                 <p>Corresponding {this.props.baseToken} Amount</p>
@@ -106,16 +106,21 @@ export default class BuyOptions extends Component {
               </Row>
             </BuyBlock>
           </Col>
-          <Col span={12}>
+          <Col span={16}>
             <Row>
-              <h2>{this.props.title}</h2>
+              <InALineLeft style={{ width: "100%" }}>
+                <VerticalLine />
+                <BigTitle>{this.props.title}</BigTitle>
+              </InALineLeft>
             </Row>
             <Row>
-              <p>Current {this.props.baseToken} Price: 8,200$</p>
-            </Row>
-            <Row>
-              <p>Expected {this.props.baseToken} Price: 9,200$</p>
-              <Slider defaultValue={30} style={{ width: "100%" }} />
+              <SubLine>
+                <T1>Current {this.props.baseToken} Price:</T1>
+                <T1Number>8,200$</T1Number>
+                <T2>Expected {this.props.baseToken} Price:</T2>
+                <T2Number>9,200$</T2Number>
+                <PriceSlider defaultValue={30} />
+              </SubLine>
             </Row>
             <Row>
               <MyChart />
@@ -283,4 +288,73 @@ const DarkText = styled.div`
   font-weight:400;
   color:rgba(255,255,255,1);
   opacity:0.8;
+`;
+
+const VerticalLine = styled.div`
+  width:2px;
+  height:16px;
+  background:linear-gradient(90deg,rgba(99,125,255,1) 0%,rgba(99,176,255,1) 100%);
+  margin: 13px 10px 13px 0px;
+`;
+
+const BigTitle = styled.div`
+  font-size:24px;
+  font-family:Helvetica Neue;
+  font-weight:bold;
+  color:rgba(255,255,255,1);
+
+`;
+
+const SubLine = styled(InALineLeft)`
+  width:895px;
+  height:60px;
+  background:rgba(31,32,52,1);
+  border:1px solid rgba(47,48,82,1);
+  padding: 12px;
+  margin-top: 30px;
+`;
+
+const T1 = styled.div`
+  font-size:18px;
+  font-family:Helvetica Neue;
+  font-weight:bold;
+  color:rgba(255,255,255,1);
+  margin: 0px 10px 0px 10px;
+`;
+
+const T1Number = styled.div`
+  font-size:18px;
+  font-family:Helvetica Neue;
+  font-weight:bold;
+  color:#FFBA00;
+  margin: 0px 10px 0px 10px;
+`;
+
+const T2 = styled.div`
+  font-size:16px;
+  font-family:Helvetica Neue;
+  font-weight:400;
+  color:rgba(255,255,255,1);
+  opacity:0.8;
+  margin: 2px 10px 2px 10px;
+`;
+
+const T2Number = styled(T2)`
+  font-weight:700;
+`;
+
+const PriceSlider = styled(Slider)`
+  width:330px;
+  .ant-slider-rail {
+    background: linear-gradient(0deg, #4B93FF 100%, #345EFF 100%);
+  }
+
+  .ant-slider-track {
+    background: linear-gradient(0deg, #4B93FF 100%, #345EFF 100%);
+  }
+
+  .ant-slider-handle {
+    background:rgba(40,46,119,1);
+    border: solid 2px rgba(75,147,255,1);
+  }
 `;

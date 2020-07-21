@@ -26,9 +26,9 @@ class MyChart extends Component {
   render() {
     return (
       <LineChart
-        padding={[10, 20, 50, 40]}
+        padding={[30, 20, 50, 40]}
         autoFit
-        height={300}
+        height={500}
         data={this.data}
         xField='price'
         yField='profit'
