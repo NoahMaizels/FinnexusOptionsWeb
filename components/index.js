@@ -62,8 +62,6 @@ export const WalletBt = styled.div`
 export const TabButton = styled.div`
   font-family:"HelveticaNeue";
   font-weight:400;
-  display: flex;
-  justify-content: center;
   text-align: center;
   -webkit-box-align: center;
   align-items: center;
@@ -72,9 +70,10 @@ export const TabButton = styled.div`
   line-height:17px;
   height: 73px;
   padding: 6px 20px 6px 20px;
-  background: ${props => props.select ? 'rgb(48, 46, 96)' : 'transparent'};
+  background: transparent;
   border: none;
   margin: -13px 0px;
+  padding: 30px;
   :hover {
     background-color: rgb(48, 46, 96);
   }
@@ -112,7 +111,7 @@ export const Body = styled.div`
 `;
 
 export const Header2 = styled.div`
-  height: 52px;
+  height: 60px;
   width: auto;
   /* background: blue; */
   background-color: #1A1C2B;
@@ -138,6 +137,8 @@ export const InALineBetween = styled(InALine)`
 `;
 
 export const TabButtonSub = styled(TabButton)`
+  display: flex;
+  justify-content: center;
   margin: 0px;
   height: 52px;
   font-size:18px;
@@ -194,3 +195,45 @@ export const HistoryTable = styled(Table)`
     
   }
 `;
+
+export const SubTitle = styled.div`
+  font-family: Roboto Condensed;
+  font-weight: 700;
+  line-height: 15px;
+  margin-left: 10px;
+  font-size:18px;
+`;
+
+export const VerticalLine = styled.div`
+  width:2px;
+  height:16px;
+  background:linear-gradient(90deg,rgba(99,125,255,1) 0%,rgba(99,176,255,1) 100%);
+  margin: 13px 10px 13px 0px;
+`;
+
+export const BigTitle = styled.div`
+  font-size:24px;
+  font-family:Helvetica Neue;
+  font-weight:bold;
+  color:rgba(255,255,255,1);
+
+`;
+
+export const DarkContainer = styled(Center)`
+  background-color: #1A1C2B
+`;
+
+export const MiddleLine = styled.div`
+  width:40px;
+  height:2px;
+  background:${props => props.visible ? 'linear-gradient(90deg,rgba(99,125,255,1) 0%,rgba(99,176,255,1) 100%);': 'transparent'};
+  border-radius:1px;
+  position: relative;
+  top: 23px;
+`;
+
+export const HeaderLine = styled(MiddleLine)`
+  width:51px;
+  height:2px;
+`;
+

@@ -13,7 +13,7 @@ import style from './style.less';
 import { networkId, nodeUrl } from '../conf/config.js';
 import { getNodeUrl, isSwitchFinish } from '../utils/web3switch.js';
 import sleep from 'ko-sleep';
-import { TabButton, WalletBt, InALine, WalletTitle, ConnectWallet, renderSelectWalletModal, InALineLeft, InALineBetween } from '../components';
+import { TabButton, WalletBt, InALine, WalletTitle, ConnectWallet, renderSelectWalletModal, InALineLeft, InALineBetween, HeaderLine } from '../components';
 
 
 const networkLogo = networkId == 1 ? require('../img/mainnet.svg') : require('../img/testnet.svg');
@@ -92,9 +92,9 @@ class Layout extends Component {
             <InALineBetween style={{width:"1440px"}}>
               <InALineLeft>
                 <img className={style.logo} width="139px" height="40px" src={require('../img/FNXlogo@2x.png')} alt="Logo" />
-                <Link to="/" ><TabButton select={this.state.tabSelect1} onClick={() => { this.onTabSelect(1) }}>Options Exchange</TabButton></Link>
-                <Link to="/collateral" ><TabButton select={this.state.tabSelect2} onClick={() => { this.onTabSelect(2) }}>Collateral</TabButton></Link>
-                <Link to="/assets" ><TabButton select={this.state.tabSelect3} onClick={() => { this.onTabSelect(3) }}>Assets</TabButton></Link>
+                <Link to="/" ><TabButton select={this.state.tabSelect1} onClick={() => { this.onTabSelect(1) }}>Options Exchange<HeaderLine visible={this.state.tabSelect1} style={{top: "24px", left: "34px"}}/></TabButton></Link>
+                <Link to="/collateral" ><TabButton select={this.state.tabSelect2} onClick={() => { this.onTabSelect(2) }}>Collateral<HeaderLine visible={this.state.tabSelect2} style={{top: "24px", left: "8px"}}/></TabButton></Link>
+                <Link to="/assets" ><TabButton select={this.state.tabSelect3} onClick={() => { this.onTabSelect(3) }}>Assets<HeaderLine visible={this.state.tabSelect3} style={{top: "24px", left: "8px"}}/></TabButton></Link>
               </InALineLeft>
 
               <InALine>

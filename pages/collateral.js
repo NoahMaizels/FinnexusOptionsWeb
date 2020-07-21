@@ -1,6 +1,6 @@
 import { Carousel } from 'antd';
 import { Component } from 'react';
-import { renderSelectWalletModal, Center, Body, Header2, Space, ConnectWalletSub, TabButtonSub, InALineBetween, InALineLeft } from '../components';
+import { SingleLine, Center, Body, Header2, Space, MiddleLine, TabButtonSub, InALineBetween, InALineLeft, SubTitle } from '../components';
 import CollateralInfo from '../components/collateral.js';
 
 
@@ -37,31 +37,29 @@ class Collateral extends Component {
     });
   };
 
-  render () {
+  render() {
     return (
       <Center>
         <Body>
-          <Carousel><img src={require('../img/banner.png')} /></Carousel>
-          <h2 style={{ textAlign: "left" }}>Pool Detail</h2>
+          <Carousel><img src={require('../img/banner2.png')} /></Carousel>
           <Header2>
-            <InALineBetween>
-              <InALineLeft>
-                <TabButtonSub select={this.state.tabSelect1} onClick={() => { this.onTabSelect(1) }}>Wanchain</TabButtonSub>
-                <TabButtonSub select={this.state.tabSelect2} onClick={() => { this.onTabSelect(2) }}>Ethereum</TabButtonSub>
-              </InALineLeft>
-            </InALineBetween>
+            <InALineLeft>
+              <TabButtonSub select={this.state.tabSelect1} onClick={() => { this.onTabSelect(1) }}><img src={require('../img/wanchain.png')} /><SubTitle>Wanchain<MiddleLine visible={this.state.tabSelect1} /></SubTitle></TabButtonSub>
+              <TabButtonSub select={this.state.tabSelect2} onClick={() => { this.onTabSelect(2) }}><img src={require('../img/ETH.png')} /><SubTitle>Ethereum<MiddleLine visible={this.state.tabSelect2} /></SubTitle></TabButtonSub>
+            </InALineLeft>
           </Header2>
+          <SingleLine/>
           {
             this.state.tabSelect1
-            ? <CollateralInfo chain='wan'/>
-            : null
+              ? <CollateralInfo chain='wan' />
+              : null
           }
           {
             this.state.tabSelect2
-            ? <CollateralInfo chain='eth'/>
-            : null
+              ? <CollateralInfo chain='eth' />
+              : null
           }
-          
+
         </Body>
       </Center>
     );

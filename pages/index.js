@@ -27,7 +27,7 @@ import {
 import { wanTokenAddress, fnxTokenAddress, additionalFee } from "../conf/config";
 import { Label } from "bizcharts";
 
-import { HistoryTable, Center, Body, Header2, Space, ConnectWalletSub, TabButtonSub, InALineBetween, InALineLeft, SingleLine } from '../components';
+import { HistoryTable, Center, Body, Header2, Space, DarkContainer, TabButtonSub, InALineBetween, InALineLeft, SingleLine, SubTitle, MiddleLine } from '../components';
 import BuyOptions from "../components/buyOptions";
 
 
@@ -186,8 +186,8 @@ class IndexPage extends Component {
           <Header2>
             <InALineBetween>
               <InALineLeft>
-                <TabButtonSub select={this.state.tabSelect1} onClick={() => { this.onTabSelect(1) }}><img src={require('../img/BTC.png')} /><SubTitle>BTC</SubTitle></TabButtonSub>
-                <TabButtonSub select={this.state.tabSelect2} onClick={() => { this.onTabSelect(2) }}><img src={require('../img/ETH.png')} /><SubTitle>ETH</SubTitle></TabButtonSub>
+                <TabButtonSub select={this.state.tabSelect1} onClick={() => { this.onTabSelect(1) }}><img src={require('../img/BTC.png')} /><SubTitle>BTC<MiddleLine visible={this.state.tabSelect1} /></SubTitle></TabButtonSub>
+                <TabButtonSub select={this.state.tabSelect2} onClick={() => { this.onTabSelect(2) }}><img src={require('../img/ETH.png')} /><SubTitle>ETH<MiddleLine visible={this.state.tabSelect2} /></SubTitle></TabButtonSub>
               </InALineLeft>
             </InALineBetween>
           </Header2>
@@ -204,10 +204,11 @@ class IndexPage extends Component {
           }
           <Header2>
             <InALineLeft>
-              <TabButtonSub select={this.state.historySelect1} onClick={() => { this.onHistorySelect(1) }}>Orders History</TabButtonSub>
-              <TabButtonSub select={this.state.historySelect2} onClick={() => { this.onHistorySelect(2) }}>My Options</TabButtonSub>
+              <TabButtonSub select={this.state.historySelect1} onClick={() => { this.onHistorySelect(1) }}>Orders History<MiddleLine visible={this.state.historySelect1} style={{top:"30px", left: "-82px"}}/></TabButtonSub>
+              <TabButtonSub select={this.state.historySelect2} onClick={() => { this.onHistorySelect(2) }}>My Options<MiddleLine visible={this.state.historySelect2} style={{top:"30px", left: "-72px"}}/></TabButtonSub>
             </InALineLeft>
           </Header2>
+          <SingleLine/>
           <DarkContainer>
           {
             this.state.historySelect1
@@ -228,18 +229,9 @@ class IndexPage extends Component {
 }
 
 
-const SubTitle = styled.div`
-  font-family: Roboto Condensed;
-  font-weight: 700;
-  line-height: 15px;
-  margin-left: 10px;
-  font-size:18px;
-`;
 
 
-const DarkContainer = styled(Center)`
-  background-color: #1A1C2B
-`;
+
 
 
 

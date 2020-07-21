@@ -2,7 +2,7 @@ import styled from 'styled-components';
 import { Component } from 'react';
 import { Row, Col, Input, Radio, Select, InputNumber, Slider, Button } from 'antd';
 import MyChart from './chart.js';
-import { ConnectWallet, BuyBlock, InALineLeft, InALine } from './index';
+import { ConnectWallet, BuyBlock, InALineLeft, InALine, VerticalLine, BigTitle } from './index';
 
 const { Option } = Select;
 
@@ -290,20 +290,7 @@ const DarkText = styled.div`
   opacity:0.6;
 `;
 
-const VerticalLine = styled.div`
-  width:2px;
-  height:16px;
-  background:linear-gradient(90deg,rgba(99,125,255,1) 0%,rgba(99,176,255,1) 100%);
-  margin: 13px 10px 13px 0px;
-`;
 
-const BigTitle = styled.div`
-  font-size:24px;
-  font-family:Helvetica Neue;
-  font-weight:bold;
-  color:rgba(255,255,255,1);
-
-`;
 
 const SubLine = styled(InALineLeft)`
   width:895px;
