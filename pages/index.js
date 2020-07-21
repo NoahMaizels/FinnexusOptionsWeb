@@ -27,7 +27,7 @@ import {
 import { wanTokenAddress, fnxTokenAddress, additionalFee } from "../conf/config";
 import { Label } from "bizcharts";
 
-import { renderSelectWalletModal, Center, Body, Header2, Space, ConnectWalletSub, TabButtonSub, InALineBetween, InALineLeft, SingleLine } from '../components';
+import { HistoryTable, Center, Body, Header2, Space, ConnectWalletSub, TabButtonSub, InALineBetween, InALineLeft, SingleLine } from '../components';
 import BuyOptions from "../components/buyOptions";
 
 
@@ -208,16 +208,18 @@ class IndexPage extends Component {
               <TabButtonSub select={this.state.historySelect2} onClick={() => { this.onHistorySelect(2) }}>My Options</TabButtonSub>
             </InALineLeft>
           </Header2>
+          <DarkContainer>
           {
             this.state.historySelect1
-              ? <Table columns={this.historyColumn} dataSource={this.demoData} />
+              ? <HistoryTable columns={this.historyColumn} dataSource={this.demoData} />
               : null
           }
           {
             this.state.historySelect2
-              ? <Table columns={this.historyColumn} dataSource={this.demoMyOptions} />
+              ? <HistoryTable columns={this.historyColumn} dataSource={this.demoMyOptions} />
               : null
           }
+          </DarkContainer>
           <Space />
         </Body>
       </Center>
@@ -234,6 +236,10 @@ const SubTitle = styled.div`
   font-size:18px;
 `;
 
+
+const DarkContainer = styled(Center)`
+  background-color: #1A1C2B
+`;
 
 
 

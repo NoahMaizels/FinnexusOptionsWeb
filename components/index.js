@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { Modal } from 'antd';
+import { Modal, Table } from 'antd';
 import {  WalletButton, WalletButtonLong } from "wan-dex-sdk-wallet";
 import {  WalletButton as EthWalletButton } from 'eth-sdk-wallet';
 import "eth-sdk-wallet/index.css";
@@ -140,6 +140,9 @@ export const InALineBetween = styled(InALine)`
 export const TabButtonSub = styled(TabButton)`
   margin: 0px;
   height: 52px;
+  font-size:18px;
+  font-family:HelveticaNeue;
+  font-weight: ${props => props.select ? '700':'400'};
 `;
 
 export const ConnectWalletSub = styled(ConnectWallet)`
@@ -160,4 +163,34 @@ export const BuyBlock = styled.div`
   padding: 20px;
   font-family:HelveticaNeue;
   font-weight:400;
+`;
+
+export const HistoryTable = styled(Table)`
+  margin: 20px;
+  width: 100%;
+  .ant-table {
+    line-height: 50px;
+    background: #1A1C2B;
+  }
+  .ant-table-thead > tr > th {
+    font-size:20px;
+    font-family:Helvetica Neue;
+    font-weight:bold;
+    color:rgba(255,255,255,1);
+    opacity:0.3;
+  }
+  .ant-table-tbody {
+    background: #1F2034;
+    border-radius: 5px;
+   
+  }
+  .ant-table-tbody > tr > td {
+    font-size:16px;
+    font-family:Helvetica Neue;
+    font-weight:400;
+    color:rgba(255,255,255,1);
+    line-height:46px;
+    border-bottom: 10px solid #1A1C2B;
+    
+  }
 `;
