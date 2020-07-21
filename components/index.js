@@ -7,24 +7,26 @@ import "wan-dex-sdk-wallet/index.css";
 
 
 export const ConnectWallet = styled.button`
-  font-family: apercu-medium, sans-serif;
-  letter-spacing: 0.2px;
-  text-transform: uppercase;
+  font-family:Roboto Condensed;
+  font-weight:700;
   white-space: nowrap;
   cursor: pointer;
-  height: 32px;
   font-size: 14px;
   color: rgb(255, 255, 255);
-  background-color: rgb(121, 93, 245);
-  border-radius: 15px;
   border-width: initial;
   border-style: none;
   border-color: initial;
   border-image: initial;
   outline: none;
   padding: 0px 15px;
+
+  width:114px;
+  height:28px;
+  background:linear-gradient(90deg,rgba(99,125,255,1) 0%,rgba(99,176,255,1) 100%);
+  border-radius:4px;
+
   &:hover {
-    background-color: rgb(101, 73, 225);
+    background: linear-gradient(90deg,rgba(99,125,255,1) 0%,rgba(99,176,255,1) 50%);
   }
 `;
 
@@ -57,15 +59,16 @@ export const WalletBt = styled.div`
 `;
 
 export const TabButton = styled.div`
-  font-family: apercu-medium, sans-serif;
-  font-size: 14px;
-  text-transform: uppercase;
+  font-family:"Roboto Condensed";
+  font-weight:400;
   display: flex;
   justify-content: center;
   text-align: center;
   -webkit-box-align: center;
   align-items: center;
-  color: rgb(148, 146, 196);
+  font-size:14px;
+  color:rgba(255,255,255,1);
+  line-height:17px;
   height: 32px;
   padding: 6px 10px;
   background: ${props => props.select ? 'rgb(48, 46, 96)' : 'transparent'};

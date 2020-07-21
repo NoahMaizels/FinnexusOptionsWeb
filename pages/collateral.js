@@ -41,7 +41,7 @@ class Collateral extends Component {
     return (
       <Center>
         <Body>
-          <Carousel><img src={require('./images/banner.png')} /></Carousel>
+          <Carousel><img src={require('../img/banner.png')} /></Carousel>
           <h2 style={{ textAlign: "left" }}>Pool Detail</h2>
           <Header2>
             <InALineBetween>
@@ -49,11 +49,6 @@ class Collateral extends Component {
                 <TabButtonSub select={this.state.tabSelect1} onClick={() => { this.onTabSelect(1) }}>Wanchain</TabButtonSub>
                 <TabButtonSub select={this.state.tabSelect2} onClick={() => { this.onTabSelect(2) }}>Ethereum</TabButtonSub>
               </InALineLeft>
-              <ConnectWalletSub onClick={() => { this.setState({ visible: true }) }}>Connect Wallet</ConnectWalletSub>
-              {
-                renderSelectWalletModal(this.state.visible, this.handleCancel)
-              }
-  
             </InALineBetween>
           </Header2>
           {

@@ -10,10 +10,10 @@ import "eth-sdk-wallet/index.css";
 import "wan-dex-sdk-wallet/index.css";
 import style from './style.less';
 // import logo from '../img/wandoraLogo.png';
-import {networkId, nodeUrl} from '../conf/config.js';
-import {getNodeUrl, isSwitchFinish} from '../utils/web3switch.js';
+import { networkId, nodeUrl } from '../conf/config.js';
+import { getNodeUrl, isSwitchFinish } from '../utils/web3switch.js';
 import sleep from 'ko-sleep';
-import { TabButton, WalletBt, InALine, WalletTitle, ConnectWallet, renderSelectWalletModal} from '../components';
+import { TabButton, WalletBt, InALine, WalletTitle, ConnectWallet, renderSelectWalletModal, InALineLeft, InALineBetween } from '../components';
 
 
 const networkLogo = networkId == 1 ? require('../img/mainnet.svg') : require('../img/testnet.svg');
@@ -29,8 +29,8 @@ class Layout extends Component {
   }
 
   async componentWillMount() {
-    while(true) {
-      if(isSwitchFinish()) {
+    while (true) {
+      if (isSwitchFinish()) {
         break;
       }
       await sleep(100);
@@ -54,18 +54,18 @@ class Layout extends Component {
   }
 
   onTabSelect = (id) => {
-    switch(id) {
+    switch (id) {
       case 1:
-        this.setState({tabSelect1: true, tabSelect2: false, tabSelect3: false});
+        this.setState({ tabSelect1: true, tabSelect2: false, tabSelect3: false });
         break;
       case 2:
-        this.setState({tabSelect1: false, tabSelect2: true, tabSelect3: false});
+        this.setState({ tabSelect1: false, tabSelect2: true, tabSelect3: false });
         break;
       case 3:
-        this.setState({tabSelect1: false, tabSelect2: false, tabSelect3: true});
+        this.setState({ tabSelect1: false, tabSelect2: false, tabSelect3: true });
         break;
       default:
-        this.setState({tabSelect1: true, tabSelect2: false, tabSelect3: false});
+        this.setState({ tabSelect1: true, tabSelect2: false, tabSelect3: false });
         break;
     }
   }
@@ -84,26 +84,31 @@ class Layout extends Component {
     }
 
     return (
-      <div>
-        <div className={style.header}>
-          <Wallet title="Wan Game" nodeUrl={nodeUrl} />
-          <EthWallet nodeUrl={"https://ropsten.infura.io/v3/f977681c79004fad87aa00da8f003597"} />
-          <img className={style.logo} width="28px" height="28px" src={require('../public/logo.png')} alt="Logo" />
-          <div className={style.title}>Finnexus Options 2</div>
-          <Link to="/" className={style.link1}><TabButton select={this.state.tabSelect1} onClick={()=>{this.onTabSelect(1)}}>Options Exchange</TabButton></Link>
-          <Link to="/collateral" className={style.link2}><TabButton select={this.state.tabSelect2} onClick={()=>{this.onTabSelect(2)}}>Collateral</TabButton></Link>
-          <Link to="/assets" className={style.link3}><TabButton select={this.state.tabSelect3} onClick={()=>{this.onTabSelect(3)}}>Assets</TabButton></Link>
-        
-          <img style={{ height: "25px", margin: "3px 8px 3px 3px" }} src={networkLogo} />
-          <div className={style.gameRule} onClick={this.showGameRule}>Know more</div>
-          <ConnectWallet onClick={()=>{this.setState({visible: true})}}>Connect Wallet</ConnectWallet>
-          {
-            renderSelectWalletModal(this.state.visible, this.handleCancel)
-          }
-         
-        </div>
+      <div className={style.app}>
+        <InALine>
+          <div className={style.header}>
+            <Wallet title="Wan Game" nodeUrl={nodeUrl} />
+            <EthWallet nodeUrl={"https://ropsten.infura.io/v3/f977681c79004fad87aa00da8f003597"} />
+            <InALineBetween style={{width:"1024px"}}>
+              <InALineLeft>
+                <img className={style.logo} width="98px" height="28px" src={require('../img/FNXlogo@2x.png')} alt="Logo" />
+                <Link to="/" ><TabButton select={this.state.tabSelect1} onClick={() => { this.onTabSelect(1) }}>Options Exchange</TabButton></Link>
+                <Link to="/collateral" ><TabButton select={this.state.tabSelect2} onClick={() => { this.onTabSelect(2) }}>Collateral</TabButton></Link>
+                <Link to="/assets" ><TabButton select={this.state.tabSelect3} onClick={() => { this.onTabSelect(3) }}>Assets</TabButton></Link>
+              </InALineLeft>
+
+              <InALine>
+                <div className={style.gameRule} onClick={this.showGameRule}>Know more</div>
+                <ConnectWallet onClick={() => { this.setState({ visible: true }) }}>Connect Wallet</ConnectWallet>
+                {
+                  renderSelectWalletModal(this.state.visible, this.handleCancel)
+                }
+              </InALine>
+            </InALineBetween>
+          </div>
+        </InALine>
         {this.props.selectedAccountID === 'EXTENSION' && parseInt(this.props.networkId, 10) !== parseInt(networkId, 10) && (
-          <div className="network-warning bg-warning text-white text-center" style={{ padding: 4, backgroundColor: "red", textAlign:"center" }}>
+          <div className="network-warning bg-warning text-white text-center" style={{ padding: 4, backgroundColor: "red", textAlign: "center" }}>
             Please be noted that you are currently choosing the Testnet for WanMask and shall switch to Mainnet for playing Wandora.
           </div>
         )}

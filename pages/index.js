@@ -24,7 +24,6 @@ import {
   startEventScan
 } from '../utils/scHelper';
 
-import banner from './images/banner.png'
 import { wanTokenAddress, fnxTokenAddress, additionalFee } from "../conf/config";
 import { Label } from "bizcharts";
 
@@ -183,18 +182,13 @@ class IndexPage extends Component {
     return (
       <Center>
         <Body>
-          <Carousel ><img src={banner} /></Carousel>
+          <Carousel ><img src={require('../img/banner.png')} /></Carousel>
           <Header2>
             <InALineBetween>
               <InALineLeft>
                 <TabButtonSub select={this.state.tabSelect1} onClick={() => { this.onTabSelect(1) }}>BTC</TabButtonSub>
                 <TabButtonSub select={this.state.tabSelect2} onClick={() => { this.onTabSelect(2) }}>ETH</TabButtonSub>
               </InALineLeft>
-              <ConnectWalletSub onClick={() => { this.setState({ visible: true }) }}>Connect Wallet</ConnectWalletSub>
-              {
-                renderSelectWalletModal(this.state.visible, this.handleCancel)
-              }
-
             </InALineBetween>
           </Header2>
           {
