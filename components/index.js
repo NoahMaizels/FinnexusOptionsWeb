@@ -59,7 +59,7 @@ export const WalletBt = styled.div`
 `;
 
 export const TabButton = styled.div`
-  font-family:"Roboto Condensed";
+  font-family:"HelveticaNeue";
   font-weight:400;
   display: flex;
   justify-content: center;
@@ -67,12 +67,13 @@ export const TabButton = styled.div`
   -webkit-box-align: center;
   align-items: center;
   font-size:14px;
-  color:rgba(255,255,255,1);
+  color: ${props => props.select ? 'rgba(255,255,255,1)' : 'rgba(255,255,255,0.3)'};
   line-height:17px;
-  height: 32px;
-  padding: 6px 10px;
+  height: 57px;
+  padding: 6px 20px 6px 20px;
   background: ${props => props.select ? 'rgb(48, 46, 96)' : 'transparent'};
   border: none;
+  margin: -13px 0px;
   :hover {
     background-color: rgb(48, 46, 96);
   }
@@ -125,7 +126,7 @@ export const InALineBetween = styled(InALine)`
 `;
 
 export const TabButtonSub = styled(TabButton)`
-  margin: 10px 0px 10px 10px;
+  margin: 0px;
 `;
 
 export const ConnectWalletSub = styled(ConnectWallet)`

@@ -98,7 +98,7 @@ class Layout extends Component {
               </InALineLeft>
 
               <InALine>
-                <div className={style.gameRule} onClick={this.showGameRule}>Know more</div>
+                <div className={style.gameRule} onClick={this.showGameRule}><img height="25px" src={require('../img/help.png')}/></div>
                 <ConnectWallet onClick={() => { this.setState({ visible: true }) }}>Connect Wallet</ConnectWallet>
                 {
                   renderSelectWalletModal(this.state.visible, this.handleCancel)

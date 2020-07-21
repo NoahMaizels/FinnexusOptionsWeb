@@ -186,8 +186,8 @@ class IndexPage extends Component {
           <Header2>
             <InALineBetween>
               <InALineLeft>
-                <TabButtonSub select={this.state.tabSelect1} onClick={() => { this.onTabSelect(1) }}>BTC</TabButtonSub>
-                <TabButtonSub select={this.state.tabSelect2} onClick={() => { this.onTabSelect(2) }}>ETH</TabButtonSub>
+                <TabButtonSub select={this.state.tabSelect1} onClick={() => { this.onTabSelect(1) }}><img src={require('../img/BTC.png')} /><SubTitle>BTC</SubTitle></TabButtonSub>
+                <TabButtonSub select={this.state.tabSelect2} onClick={() => { this.onTabSelect(2) }}><img src={require('../img/ETH.png')} /><SubTitle>ETH</SubTitle></TabButtonSub>
               </InALineLeft>
             </InALineBetween>
           </Header2>
@@ -217,7 +217,7 @@ class IndexPage extends Component {
               ? <Table columns={this.historyColumn} dataSource={this.demoMyOptions} />
               : null
           }
-          <Space/>
+          <Space />
         </Body>
       </Center>
     );
@@ -225,7 +225,12 @@ class IndexPage extends Component {
 }
 
 
-
+const SubTitle = styled.div`
+  font-family: Roboto Condensed;
+  font-weight: 700;
+  line-height: 15px;
+  margin-left: 10px;
+`;
 
 
 
