@@ -89,9 +89,9 @@ class Layout extends Component {
           <div className={style.header}>
             <Wallet title="Wan Game" nodeUrl={nodeUrl} />
             <EthWallet nodeUrl={"https://ropsten.infura.io/v3/f977681c79004fad87aa00da8f003597"} />
-            <InALineBetween style={{width:"1024px"}}>
+            <InALineBetween style={{width:"1440px"}}>
               <InALineLeft>
-                <img className={style.logo} width="98px" height="28px" src={require('../img/FNXlogo@2x.png')} alt="Logo" />
+                <img className={style.logo} width="139px" height="40px" src={require('../img/FNXlogo@2x.png')} alt="Logo" />
                 <Link to="/" ><TabButton select={this.state.tabSelect1} onClick={() => { this.onTabSelect(1) }}>Options Exchange</TabButton></Link>
                 <Link to="/collateral" ><TabButton select={this.state.tabSelect2} onClick={() => { this.onTabSelect(2) }}>Collateral</TabButton></Link>
                 <Link to="/assets" ><TabButton select={this.state.tabSelect3} onClick={() => { this.onTabSelect(3) }}>Assets</TabButton></Link>

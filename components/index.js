@@ -7,8 +7,8 @@ import "wan-dex-sdk-wallet/index.css";
 
 
 export const ConnectWallet = styled.button`
-  font-family:Roboto Condensed;
-  font-weight:700;
+  font-family:HelveticaNeue;
+  font-weight:500;
   white-space: nowrap;
   cursor: pointer;
   font-size: 14px;
@@ -20,10 +20,11 @@ export const ConnectWallet = styled.button`
   outline: none;
   padding: 0px 15px;
 
-  width:114px;
-  height:28px;
+  width:161px;
+  height:35px;
   background:linear-gradient(90deg,rgba(99,125,255,1) 0%,rgba(99,176,255,1) 100%);
   border-radius:4px;
+  margin: 4px;
 
   &:hover {
     background: linear-gradient(90deg,rgba(99,125,255,1) 0%,rgba(99,176,255,1) 50%);
@@ -66,10 +67,10 @@ export const TabButton = styled.div`
   text-align: center;
   -webkit-box-align: center;
   align-items: center;
-  font-size:14px;
+  font-size:16px;
   color: ${props => props.select ? 'rgba(255,255,255,1)' : 'rgba(255,255,255,0.3)'};
   line-height:17px;
-  height: 57px;
+  height: 72px;
   padding: 6px 20px 6px 20px;
   background: ${props => props.select ? 'rgb(48, 46, 96)' : 'transparent'};
   border: none;
@@ -107,7 +108,7 @@ export const Center = styled.div`
 `;
 
 export const Body = styled.div`
-  width: 1024px;
+  width: 1440px;
 `;
 
 export const Header2 = styled.div`
