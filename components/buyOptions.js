@@ -287,7 +287,7 @@ const DarkText = styled.div`
   font-family:RobotoCondensed;
   font-weight:400;
   color:rgba(255,255,255,1);
-  opacity:0.8;
+  opacity:0.6;
 `;
 
 const VerticalLine = styled.div`
