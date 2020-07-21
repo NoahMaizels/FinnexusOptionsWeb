@@ -27,7 +27,7 @@ import {
 import { wanTokenAddress, fnxTokenAddress, additionalFee } from "../conf/config";
 import { Label } from "bizcharts";
 
-import { renderSelectWalletModal, Center, Body, Header2, Space, ConnectWalletSub, TabButtonSub, InALineBetween, InALineLeft } from '../components';
+import { renderSelectWalletModal, Center, Body, Header2, Space, ConnectWalletSub, TabButtonSub, InALineBetween, InALineLeft, SingleLine } from '../components';
 import BuyOptions from "../components/buyOptions";
 
 
@@ -191,6 +191,7 @@ class IndexPage extends Component {
               </InALineLeft>
             </InALineBetween>
           </Header2>
+          <SingleLine/>
           {
             this.state.tabSelect1
               ? <BuyOptions title="Choose and buy the options" baseToken="BTC" />
@@ -230,6 +231,7 @@ const SubTitle = styled.div`
   font-weight: 700;
   line-height: 15px;
   margin-left: 10px;
+  font-size:18px;
 `;
 
 

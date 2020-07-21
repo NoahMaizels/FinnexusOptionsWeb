@@ -70,7 +70,7 @@ export const TabButton = styled.div`
   font-size:16px;
   color: ${props => props.select ? 'rgba(255,255,255,1)' : 'rgba(255,255,255,0.3)'};
   line-height:17px;
-  height: 72px;
+  height: 73px;
   padding: 6px 20px 6px 20px;
   background: ${props => props.select ? 'rgb(48, 46, 96)' : 'transparent'};
   border: none;
@@ -112,9 +112,20 @@ export const Body = styled.div`
 `;
 
 export const Header2 = styled.div`
-  height: 60px;
+  height: 52px;
   width: auto;
   /* background: blue; */
+  background-color: #1A1C2B;
+
+`;
+
+export const SingleLine = styled.div`
+  width:1440px;
+  height:1px;
+  background:rgba(31,43,82,1);
+  border: none;
+  border-top: 1px solid rgba(255,255,255,1);
+  opacity:0.18;
 `;
 
 
@@ -128,6 +139,7 @@ export const InALineBetween = styled(InALine)`
 
 export const TabButtonSub = styled(TabButton)`
   margin: 0px;
+  height: 52px;
 `;
 
 export const ConnectWalletSub = styled(ConnectWallet)`
@@ -137,4 +149,15 @@ export const ConnectWalletSub = styled(ConnectWallet)`
 export const Space = styled.div`
   height: 60px;
   width: 100%;
+`;
+
+export const BuyBlock = styled.div`
+  width:360px;
+  height:620px;
+  background:rgba(31,32,52,1);
+  border-radius:6px;
+  margin: 0px;
+  padding: 20px;
+  font-family:HelveticaNeue;
+  font-weight:400;
 `;
