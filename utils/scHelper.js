@@ -20,6 +20,16 @@ let prices = {
   rawFNX:0,
 };
 
+let collateral = {
+  sharePrice: 0,
+  totalSupply: 0,
+  totalValue: 0,
+  usedValue: 0,
+  lowestPercent: 0,
+  balance: 0,
+  userPayUsd: 0,
+}
+
 const defaultStartBlock = 7000000;
 
 const initWeb3 = async () => {
@@ -45,28 +55,43 @@ export const initSmartContract = async () => {
   scs.opPrice = new web3.eth.Contract(require('./abi/OptionsPrice.json'), contractInfo.OptionsPrice.address);
 }
 
-
 export const updateCoinPrices = async () => {
   let web3 = await initWeb3();
   await initSmartContract();
 
   let batch = new web3.BatchRequest();
   batch.add(scs.oracle.methods.getPriceDetail('0x0000000000000000000000000000000000000000').call.request({}, (err, ret) => {
+    if (err || !ret) {
+      console.log(err, ret);
+      return;
+    }
     prices.WAN = priceConvert(ret[0], ret[1]);
     prices.rawWAN = ret[0];
   }));
 
   batch.add(scs.oracle.methods.getPriceDetail('0x0000000000000000000000000000000000000001').call.request({}, (err, ret) => {
+    if (err || !ret) {
+      console.log(err, ret);
+      return;
+    }
     prices.BTC = priceConvert(ret[0], ret[1]);
     prices.rawBTC = ret[0];
   }));
 
   batch.add(scs.oracle.methods.getPriceDetail('0x0000000000000000000000000000000000000002').call.request({}, (err, ret) => {
+    if (err || !ret) {
+      console.log(err, ret);
+      return;
+    }
     prices.ETH = priceConvert(ret[0], ret[1]);
     prices.rawETH = ret[0];
   }));
 
   batch.add(scs.oracle.methods.getPriceDetail(fnxTokenAddress).call.request({}, (err, ret) => {
+    if (err || !ret) {
+      console.log(err, ret);
+      return;
+    }
     prices.FNX = priceConvert(ret[0], ret[1]);
     prices.rawFNX = ret[0];
   }));
@@ -83,7 +108,11 @@ function priceRevert(price) {
 }
 
 function priceConvert(price, time) {
-  if (Number(price) / decimals > 1e30 || (Date.now()/1000 - time) > 600) {
+  if (Number(price) / decimals > 1e30) {
+    return " Timeout";
+  }
+
+  if (time && (Date.now()/1000 - time) > 600) {
     return " Timeout";
   }
   return Number((Number(price) / decimals).toFixed(8));
@@ -105,6 +134,115 @@ export const getOptionsPrice = async (currentPrice, strikePrice, expiration, und
   let ret = await scs.opPrice.methods.getOptionsPrice((currentPrice), priceRevert(strikePrice), expiration, underlying, optType).call();
   console.log('getOptionsPrice', ret);
   return priceConvert(ret);
+}
+
+export const updateCollateralInfo = async (address) => {
+  let web3 = await initWeb3();
+  await initSmartContract();
+
+  let batch = new web3.BatchRequest();
+
+  batch.add(scs.opManager.methods.getTokenNetworth().call.request({}, (err, ret) => {
+    if (err || !ret) {
+      console.log(err, ret);
+      return;
+    }
+    console.log('getTokenNetworth', ret);
+    collateral.sharePrice = priceConvert(ret);
+  }));
+
+  batch.add(scs.opManager.methods.totalSupply().call.request({}, (err, ret) => {
+    if (err || !ret) {
+      console.log(err, ret);
+      return;
+    }
+    console.log('totalSupply', ret);
+    collateral.totalSupply = web3.utils.fromWei(ret);
+  }));
+
+  batch.add(scs.opManager.methods.getTotalCollateral().call.request({}, (err, ret) => {
+    if (err || !ret) {
+      console.log(err, ret);
+      return;
+    }
+    console.log('getTotalCollateral', ret);
+    let value = web3.utils.fromWei(ret);
+    if (value > 1e30) {
+      console.log('getTotalCollateral value invalid', value);
+      return;
+    }
+    collateral.totalValue = value;
+  }));
+
+  batch.add(scs.opManager.methods.getOccupiedCollateral().call.request({}, (err, ret) => {
+    if (err || !ret) {
+      console.log(err, ret);
+      return;
+    }
+    console.log('getOccupiedCollateral', ret);
+    let value = web3.utils.fromWei(ret);
+    if (value > 1e30) {
+      console.log('getOccupiedCollateral value invalid', value);
+      return;
+    }
+    collateral.usedValue = ret;
+  }));
+
+  batch.add(scs.opManager.methods.getCollateralRate().call.request({}, (err, ret) => {
+    if (err || !ret) {
+      console.log(err, ret);
+      return;
+    }
+    console.log('getCollateralRate', ret);
+    collateral.lowestPercent = beautyNumber(ret[0]**ret[1] * 100, 2);
+  }));
+
+  if (address) {
+    batch.add(scs.opManager.methods.balanceOf(address).call.request({}, (err, ret) => {
+      if (err || !ret) {
+        console.log(err, ret);
+        return;
+      }
+      console.log('balanceOf', ret);
+      collateral.balance = web3.utils.fromWei(ret);
+    }));
+
+    batch.add(scs.opManager.methods.getUserPayingUsd(address).call.request({}, (err, ret) => {
+      if (err || !ret) {
+        console.log(err, ret);
+        return;
+      }
+      console.log('getUserPayingUsd', ret);
+      collateral.userPayUsd = web3.utils.fromWei(ret);
+    }));
+  }
+
+  batch.execute();
+}
+
+export const getCollateralInfo = () => {
+  return collateral;
+}
+
+export const deposit = async (chainType, amount) => {
+
+}
+
+export const getBalance = async (tokenAddress, address) => {
+  let balance = 0;
+  try {
+    if (tokenAddress === '0x0000000000000000000000000000000000000000') {
+      balance = await getWeb3().eth.getBalance(address);
+    } else {
+      let web3 = getWeb3();
+      let token = new web3.eth.Contract(abiErc20, tokenAddress);
+      balance = await token.methods.balanceOf(address).call();
+    }
+  } catch (err) {
+    console.log(err);
+  }
+
+  return Number(getWeb3().utils.fromWei(balance.toString()));
 }
 
 //// V1 code -----

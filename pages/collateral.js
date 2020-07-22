@@ -51,12 +51,12 @@ class Collateral extends Component {
           <SingleLine/>
           {
             this.state.tabSelect1
-              ? <CollateralInfo chain='wan' />
+              ? <CollateralInfo chainType='wan' />
               : null
           }
           {
             this.state.tabSelect2
-              ? <CollateralInfo chain='eth' />
+              ? <CollateralInfo chainType='eth' />
               : null
           }
 

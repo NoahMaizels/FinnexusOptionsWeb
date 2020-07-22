@@ -14,7 +14,7 @@ import { networkId, nodeUrl } from '../conf/config.js';
 import { getNodeUrl, isSwitchFinish } from '../utils/web3switch.js';
 import sleep from 'ko-sleep';
 import { TabButton, WalletBt, InALine, WalletTitle, ConnectWallet, renderSelectWalletModal, InALineLeft, InALineBetween, HeaderLine } from '../components';
-import { updateCoinPrices} from '../utils/scHelper.js';
+import { updateCoinPrices, updateCollateralInfo} from '../utils/scHelper.js';
 
 const networkLogo = networkId == 1 ? require('../img/mainnet.svg') : require('../img/testnet.svg');
 
@@ -35,16 +35,45 @@ class Layout extends Component {
       }
       await sleep(100);
     }
+
+    
     updateCoinPrices();
     this.priceTimer = setInterval(updateCoinPrices, 10000);
 
+    this.updateInfo();
+
     this.setState({});
+  }
+
+  updateInfo = async () => {
+    let timer = 0;
+    while (this.props.selectedAccount === null) {
+      if (timer > 10) {
+        message.info('account not found');
+        break;
+      }
+      await sleep(500);
+      timer++;
+    }
+    
+    let wanAddress;
+    if (this.props.selectedAccount) {
+      wanAddress = this.props.selectedAccount.get('address');
+    }
+
+    updateCollateralInfo(wanAddress);
+    this.collateralTimer = setInterval(this.updateInfo, 30000);
   }
 
   componentWillUnmount() {
     if (this.priceTimer) {
       clearInterval(this.priceTimer);
       this.priceTimer = undefined;
+    }
+
+    if (this.collateralTimer) {
+      clearInterval(this.collateralTimer);
+      this.collateralTimer = undefined;
     }
   }
 

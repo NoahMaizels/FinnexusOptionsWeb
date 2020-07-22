@@ -2,7 +2,9 @@ import styled from 'styled-components';
 import { Component } from 'react';
 import { Row, Col, Input, Radio, Select, InputNumber, Slider, Spin } from 'antd';
 import MyChart from './chart.js';
-import { ConnectWallet, BuyBlock, InALineLeft, InALine, VerticalLine, BigTitle } from './index';
+import { ConnectWallet, BuyBlock, InALineLeft, InALine, VerticalLine, 
+  BigTitle, RadioGroup, RadioButton, CenterAlign, RadioButtonSmall,
+  YellowText, AdjustInput, DarkText, SmallSpace, checkNumber } from './index';
 import { getCoinPrices, beautyNumber, getOptionsPrice } from "../utils/scHelper.js";
 
 const { Option } = Select;
@@ -36,18 +38,10 @@ export default class BuyOptions extends Component {
       return;
     }
 
-    await this.setState({ strikePrice: prices[this.props.baseToken] });
+    this.setState({ strikePrice: prices[this.props.baseToken] });
   }
 
-  checkNumber = e => {
-    const { value } = e.target;
-    const reg = /^[+]?\d*(\.\d*)?$/;
-    if ((!isNaN(value) && reg.test(value) && Number(value) >= 0) || value === '') {
-      return true;
-    }
 
-    return false;
-  }
 
   updateOptionsPrice = async () => {
     try {
@@ -87,7 +81,7 @@ export default class BuyOptions extends Component {
                 } placeholder={"Enter " + this.props.baseToken + " amount"}
                   value={this.state.amount}
                   onChange={e => {
-                    if (this.checkNumber(e)) {
+                    if (checkNumber(e)) {
                       this.setState({ amount: e.target.value });
                     }
                   }}
@@ -102,7 +96,7 @@ export default class BuyOptions extends Component {
                 } placeholder={"Enter a price"}
                   value={Number(this.state.strikePrice.toFixed(1))}
                   onChange={e => {
-                    if (this.checkNumber(e)) {
+                    if (checkNumber(e)) {
                       this.setState({ strikePrice: e.target.value });
                     }
                   }}
@@ -197,51 +191,9 @@ const BuyButton = styled(ConnectWallet)`
   border-radius:4px;
 `;
 
-const CenterAlign = styled.div`
-  text-align: left;
-  margin: auto;
-  padding: 20px;
-  h2 {
-    text-align: center;
-    width: 100%;
-    margin: 10px 0px 20px 0px;
-  }
 
-  p {
-    text-align: left;
-    margin: 0px;
-    font-size:14px;
-    font-family:Helvetica Neue;
-    font-weight:400;
-    color:rgba(172,181,227,1);
-    width: 100%;
-  }
-`;
 
-const AdjustInput = styled(Input)`
-  margin: 12px 0px 12px 0px;
-  width:230px;
-  height:40px;
-  background:rgba(48,49,71,1);
-  border-radius:2px;
-  font-size:14px;
-  text-align: center;
-  input.ant-input {
-    text-align: center;
-    font-size:14px;
-    font-family:HelveticaNeue;
-    font-weight:400;
-    color:rgba(255,255,255,1);
-    padding: 5px;
-  }
-`;
 
-const YellowText = styled.div`
-  font-size:14px;
-  font-family:HelveticaNeue;
-  font-weight:400;
-  color:rgba(255,186,0,1);
-`;
 
 const ModifyButton = styled.button`
   width:40px;
@@ -281,41 +233,8 @@ const DaySelect = styled(Select)`
   }
 `;
 
-const RadioButton = styled(Radio.Button)`
-  width:160px;
-  height:35px;
-  background:transparent;
-  border-radius:2px;
-  margin: 0px;
-  font-size:16px;
-  font-family:Helvetica Neue;
-  font-weight:400;
-  color:rgba(255,255,255,1);
-  opacity:0.5;
-  text-align: center;
-  border: none;
-  padding: 4px;
-`;
 
-const RadioGroup = styled(Radio.Group)`
-  width:320px;
-  height:35px;
-  background:rgba(26,27,44,1);
-  border-radius:2px;
-  padding: 0px;
-  margin: 12px 0px 12px 0px;
-  .ant-radio-button-wrapper-checked:not([class*=' ant-radio-button-wrapper-disabled']).ant-radio-button-wrapper {
-    background:linear-gradient(90deg,rgba(99,125,255,1) 0%,rgba(99,176,255,1) 100%);
-    border-radius:2px;
-    color: white;
-    opacity: 1;
-  }
-`;
 
-const RadioButtonSmall = styled(RadioButton)`
-  width: 106px;
-  font-size:14px;
-`;
 
 const Amount = styled.div`
   margin: 5px 0px 15px 0px;
@@ -333,18 +252,8 @@ const AmountSuffix = styled.div`
   color:rgba(255,255,255,1);
 `;
 
-const SmallSpace = styled.div`
-  width: 100%;
-  height: 5px;
-`;
 
-const DarkText = styled.div`
-  font-size:12px;
-  font-family:RobotoCondensed;
-  font-weight:400;
-  color:rgba(255,255,255,1);
-  opacity:0.6;
-`;
+
 
 
 

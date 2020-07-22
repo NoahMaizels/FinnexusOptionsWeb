@@ -49,6 +49,7 @@ class IndexPage extends Component {
   }
 
   async componentDidMount() {
+
   }
 
   // TODO: eth and wan both update
