@@ -2,7 +2,7 @@ import { Component } from 'react';
 import { LineChart, Line, Point } from 'bizcharts';
 import { Statistic, Row, Col } from 'antd';
 import styled from 'styled-components';
-import { Header2, Space, ConnectWalletSub, Center, DarkContainer, InALineLeft, VerticalLine, BigTitle } from './index';
+import { Header2, Space, ConnectWalletSub, Center, DarkContainer, InALineLeft, VerticalLine, BigTitle, SingleLine } from './index';
 
 
 
@@ -83,13 +83,13 @@ class CollateralInfo extends Component {
           <BigTitle>Pool Value</BigTitle>
         </InALineLeft>
         <LineChart
-          padding={[10, 20, 50, 40]}
+          padding={[30, 60, 50, 60]}
           autoFit
-          height={300}
+          height={320}
           data={this.props.chain === 'wan' ? this.dataWan : this.dataEth}
           xField='date'
           yField='amount'
-          smooth={true}
+          smooth={false}
         >
           {/* <Line position="price*profit" />
             <Point position="8000*-30" /> */}
@@ -107,7 +107,7 @@ class CollateralInfo extends Component {
           <Col span={6}><Box><MyStatistic title="APR in this month" value={'20'} suffix="%" /><ShortLine/></Box></Col>
           <Col span={6}><Box><MyStatistic title="APR in this year" value={'25'} suffix="%" /><ShortLine/></Box></Col>
         </Row>
-        
+        <SingleLine/>
         <Header2>
           <InALineLeft>
             <Title>My Pool</Title>
@@ -115,25 +115,35 @@ class CollateralInfo extends Component {
             <MyButton onClick={() => { }}>Withdraw</MyButton>
           </InALineLeft>
         </Header2>
+        <SingleLine/>
+        <SmallSpace />
         <Row gutter={[24, 40]}>
           <Col span={6}><Box><MyStatistic title="My shares token" value={'2.123456'} /><ShortLine coldColor/></Box></Col>
           <Col span={6}><Box><MyStatistic title="Percentage of the pool" value={'1.1'} suffix="%" /><ShortLine coldColor/></Box></Col>
           <Col span={6}><Box><MyStatistic title="Current value" value={'20.3413'} suffix="$" /><ShortLine coldColor/></Box></Col>
           <Col span={6}><Box><MyStatistic title="Total return" value={'32.1234'} suffix="$" /><ShortLine coldColor/></Box></Col>
         </Row>
-        <Space/>
       </div>
     );
   }
 }
 
-const Title = styled.div`
-  font-size: 16px;
-  margin: 10px 40px 10px 10px;
-  font-weight: 700;
+const SmallSpace = styled(Space)`
+  height: 40px;
 `;
 
-const MyButton = styled(ConnectWalletSub)``;
+const Title = styled.div`
+  margin: 20px 40px 10px 10px;
+  font-weight: 700;
+  font-size:18px;
+  font-family:Helvetica Neue;
+  color:rgba(255,255,255,1);
+  line-height:15px;
+`;
+
+const MyButton = styled(ConnectWalletSub)`
+  margin-top: 12px;
+`;
 
 const MyStatistic = styled(Statistic)`
   .ant-statistic-title {
