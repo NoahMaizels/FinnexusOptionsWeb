@@ -2,22 +2,17 @@
 
 ## Getting Started
 
-Step 1: Install umi.
-```
-yarn global add umi@2.13.4
-```
-
-Step 2: Install dependencies.
+Install dependencies.
 ```
 yarn
 ```
 
 Start dev server:
 ```
-umi dev
+yarn dev
 ```
 
 Build Dist:
 ```
-umi build
+yarn build
 ```
