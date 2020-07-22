@@ -1,0 +1,25 @@
+{
+  "CompoundOracle":{
+    "address":"0x6E51eB7234a9fb2D7610255db478B27aa521Dc6D",
+    "fileName":"../contracts/CompoundOracle.json"
+  },
+  "ImportVolatility":{
+    "address":"0xEdac2C1764aF7887A896402254E9Ee5Fb1312E8F",
+    "fileName":"../contracts/ImpliedVolatility.json"
+  },
+  "OptionsPrice":{
+    "address":"0x72327E1FC15049caBD2f978c240a5E9561E85894",
+    "fileName":"../contracts/OptionsPool.json"
+  },
+  "OptionsPool":{
+    "address":"0xFb7c05DCDaf148FBC765a8d3a005cE6378127561",
+    "fileName":"../contracts/OptionsPool.json"
+  },
+  "OptionsMangerV2":{
+    "address":"0x92e5D2D3413BC60F0C6967183B375a3BD2c97DbF",
+    "fileName":"../contracts/OptionsMangerV2.json"
+  },
+  "IERC20":{
+    "fileName":"../contracts/IERC20.json"
+  }
+}

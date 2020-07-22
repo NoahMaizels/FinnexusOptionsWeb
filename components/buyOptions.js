@@ -1,8 +1,9 @@
 import styled from 'styled-components';
 import { Component } from 'react';
-import { Row, Col, Input, Radio, Select, InputNumber, Slider, Button } from 'antd';
+import { Row, Col, Input, Radio, Select, InputNumber, Slider, Spin } from 'antd';
 import MyChart from './chart.js';
 import { ConnectWallet, BuyBlock, InALineLeft, InALine, VerticalLine, BigTitle } from './index';
+import { getCoinPrices, beautyNumber, getOptionsPrice } from "../utils/scHelper.js";
 
 const { Option } = Select;
 
@@ -11,21 +12,69 @@ export default class BuyOptions extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      expiration: "7 days"
+      expiration: "7 days",
+      amount: 1,
+      strikePrice: 0,
+      optType: "0",
+      loading: false,
+      amountToPay: '0$ / 0',
+      currencyToPay: "0"
     };
+
+    this.needUpdate = true;
+  }
+
+  componentDidMount() {
+    this.getInitPrice();
+  }
+
+  getInitPrice = async () => {
+    let prices = getCoinPrices();
+    console.log('prices', prices);
+    if (prices.WAN === 0) {
+      setTimeout(this.getInitPrice, 1000);
+      return;
+    }
+
+    await this.setState({ strikePrice: prices[this.props.baseToken] });
   }
 
   checkNumber = e => {
     const { value } = e.target;
-    const reg = /^-?\d*(\.\d*)?$/;
-    if ((!isNaN(value) && reg.test(value)) || value === '' || value === '-') {
+    const reg = /^[+]?\d*(\.\d*)?$/;
+    if ((!isNaN(value) && reg.test(value) && Number(value) >= 0) || value === '') {
       return true;
     }
 
     return false;
   }
 
+  updateOptionsPrice = async () => {
+    try {
+      let expiration = this.state.expiration.split(' ')[0];
+      expiration = expiration * (3600 * 24);
+      let prices = getCoinPrices();
+      let ret = await getOptionsPrice(prices["raw" + this.props.baseToken], this.state.strikePrice, expiration, this.props.baseToken === "BTC" ? 1 : 2, this.state.optType );
+      console.log(ret);
+      let currencyToPay = this.state.currencyToPay === "2" ? "WAN":"FNX";
+      let value = ret * this.state.amount;
+      let payAmount = value/prices[currencyToPay];
+      this.needUpdate = false;
+      this.setState({amountToPay: beautyNumber(value, 4) + "$ / " + beautyNumber(payAmount, 4)});
+      console.log(value + "$ / " + payAmount);
+      return ret;
+    } catch (e) {
+      console.log(e);
+      return 0;
+    }
+  }
+
   render() {
+    if (this.needUpdate) {
+      this.updateOptionsPrice();
+    } else {
+      this.needUpdate = true;
+    }
     return (
       <CenterAlign style={{ background: "#1A1B2F" }}>
         <Row>
@@ -43,23 +92,23 @@ export default class BuyOptions extends Component {
                     }
                   }}
                 />
-                <ModifyButton><img src={require('../img/add.png')} /></ModifyButton>
-                <ModifyButton><img src={require('../img/sub.png')} /></ModifyButton>
+                <ModifyButton onClick={() => { this.setState({ amount: beautyNumber(this.state.amount + 0.1) }); }}><img src={require('../img/add.png')} /></ModifyButton>
+                <ModifyButton onClick={() => { this.setState({ amount: beautyNumber(this.state.amount - 0.1 > 0 ? this.state.amount - 0.1 : 0) }); }}><img src={require('../img/sub.png')} /></ModifyButton>
               </Row>
               <Row>
                 <p>Strike Price</p>
                 <AdjustInput suffix={
                   <YellowText>USD</YellowText>
                 } placeholder={"Enter a price"}
-                  value={this.state.strikePrice}
+                  value={Number(this.state.strikePrice.toFixed(1))}
                   onChange={e => {
                     if (this.checkNumber(e)) {
                       this.setState({ strikePrice: e.target.value });
                     }
                   }}
                 />
-                <ModifyButton><img src={require('../img/add.png')} /></ModifyButton>
-                <ModifyButton><img src={require('../img/sub.png')} /></ModifyButton>
+                <ModifyButton onClick={() => { this.setState({ strikePrice: beautyNumber(this.state.strikePrice + 100) }); }}><img src={require('../img/add.png')} /></ModifyButton>
+                <ModifyButton onClick={() => { this.setState({ strikePrice: beautyNumber(this.state.strikePrice - 100) }); }}><img src={require('../img/sub.png')} /></ModifyButton>
               </Row>
               <Row>
                 <p>Expiration</p>
@@ -67,7 +116,7 @@ export default class BuyOptions extends Component {
                   value={this.state.expiration}
                   readOnly={true}
                 />
-                <DaySelect value={this.state.expiration} onChange={e => this.setState({ expiration: e })}>
+                <DaySelect value={this.state.expiration} onChange={e => {this.setState({ expiration: e }); }}>
                   <Option value="1 day">1 day</Option>
                   <Option value="3 days">3 days</Option>
                   <Option value="7 days">7 days</Option>
@@ -79,27 +128,34 @@ export default class BuyOptions extends Component {
               </Row>
               <Row>
                 <p>Options Type</p>
-                <RadioGroup defaultValue="put" buttonStyle="solid">
-                  <RadioButton value="put">Put</RadioButton>
-                  <RadioButton value="call">Call</RadioButton>
+                <RadioGroup value={this.state.optType} onChange={(e) => { this.setState({ optType: e.target.value }); }} buttonStyle="solid">
+                  <RadioButton value="0">Call</RadioButton>
+                  <RadioButton value="1">Put</RadioButton>
                 </RadioGroup>
               </Row>
               <Row>
                 <p>Currency to Pay</p>
-                <RadioGroup defaultValue="fnxWrc20" buttonStyle="solid">
-                  <RadioButtonSmall value="fnxWrc20"><InALine>FNX<DarkText>(WRC20)</DarkText></InALine></RadioButtonSmall>
-                  <RadioButtonSmall value="fnxErc20"><InALine>FNX<DarkText>(ERC20)</DarkText></InALine></RadioButtonSmall>
-                  <RadioButtonSmall value="wan">WAN</RadioButtonSmall>
+                <RadioGroup value={this.state.currencyToPay} onChange={(e) => { this.setState({ currencyToPay: e.target.value }); }} buttonStyle="solid">
+                  <RadioButtonSmall value="0"><InALine>FNX<DarkText>(WRC20)</DarkText></InALine></RadioButtonSmall>
+                  <RadioButtonSmall value="1"><InALine>FNX<DarkText>(ERC20)</DarkText></InALine></RadioButtonSmall>
+                  <RadioButtonSmall value="2">WAN</RadioButtonSmall>
                 </RadioGroup>
               </Row>
               <Row>
                 <SmallSpace />
                 <p>Amount to Pay</p>
-                <InALineLeft>
-                  <Amount>100$ / 2000</Amount>
-                  <AmountSuffix>FNX</AmountSuffix>
-                </InALineLeft>
-
+                <Spin spinning={this.state.loading}>
+                  <InALineLeft>
+                    <Amount>{this.state.amountToPay}</Amount>
+                    <AmountSuffix>
+                      {
+                        this.state.currencyToPay === "2" 
+                        ? "WAN"
+                        : "FNX"
+                      }
+                    </AmountSuffix>
+                  </InALineLeft>
+                </Spin>
               </Row>
               <Row>
                 <BuyButton>Buy Now</BuyButton>

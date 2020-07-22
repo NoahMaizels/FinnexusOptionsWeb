@@ -1,11 +1,8 @@
-const mainnetSCAddr = '';//mainnet
-const testnetSCAddr = '0x7962dd9d8af81ec0c2f24efcaffd7a47d05a212f';//testnet 
-
 
 // change networkId to switch network
 export const networkId = 3; //1:mainnet, 3:testnet;
 
-export const smartContractAddress = networkId == 1 ? mainnetSCAddr : testnetSCAddr;
+export const contractInfo = require('../utils/abi/contractInfo.json');
 
 export const decimals = 1e8; // Price from oracle div decimals
 

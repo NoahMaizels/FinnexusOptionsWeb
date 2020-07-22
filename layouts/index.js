@@ -14,7 +14,7 @@ import { networkId, nodeUrl } from '../conf/config.js';
 import { getNodeUrl, isSwitchFinish } from '../utils/web3switch.js';
 import sleep from 'ko-sleep';
 import { TabButton, WalletBt, InALine, WalletTitle, ConnectWallet, renderSelectWalletModal, InALineLeft, InALineBetween, HeaderLine } from '../components';
-
+import { updateCoinPrices} from '../utils/scHelper.js';
 
 const networkLogo = networkId == 1 ? require('../img/mainnet.svg') : require('../img/testnet.svg');
 
@@ -35,8 +35,17 @@ class Layout extends Component {
       }
       await sleep(100);
     }
+    updateCoinPrices();
+    this.priceTimer = setInterval(updateCoinPrices, 10000);
 
     this.setState({});
+  }
+
+  componentWillUnmount() {
+    if (this.priceTimer) {
+      clearInterval(this.priceTimer);
+      this.priceTimer = undefined;
+    }
   }
 
   showGameRule = () => {

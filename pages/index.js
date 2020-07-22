@@ -10,19 +10,19 @@ import styled from 'styled-components';
 import styles from './style.less';
 import "wan-dex-sdk-wallet/index.css";
 
-import {
-  getOptionsInfo,
-  getBalance,
-  generateBuyOptionsTokenData,
-  generateTx,
-  watchTransactionStatus,
-  sendTransaction,
-  approve,
-  getWeb3Obj,
-  getBuyOptionsOrderAmount,
-  sellOptionsToken,
-  startEventScan
-} from '../utils/scHelper';
+// import {
+//   getOptionsInfo,
+//   getBalance,
+//   generateBuyOptionsTokenData,
+//   generateTx,
+//   watchTransactionStatus,
+//   sendTransaction,
+//   approve,
+//   getWeb3Obj,
+//   getBuyOptionsOrderAmount,
+//   sellOptionsToken,
+//   startEventScan
+// } from '../utils/scHelper';
 
 import { wanTokenAddress, fnxTokenAddress, additionalFee } from "../conf/config";
 import { Label } from "bizcharts";
@@ -34,7 +34,7 @@ import BuyOptions from "../components/buyOptions";
 const { confirm } = Modal;
 const { Panel } = Collapse;
 
-let web3 = getWeb3Obj();
+// let web3 = getWeb3Obj();
 
 class IndexPage extends Component {
   constructor(props) {
