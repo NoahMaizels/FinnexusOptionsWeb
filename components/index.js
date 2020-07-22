@@ -270,7 +270,7 @@ export const ShortLine = styled.div`
   height:2px;
   background: ${props => props.coldColor ? 'linear-gradient(90deg,rgba(99,125,255,1) 0%,rgba(99,176,255,1) 100%);':'linear-gradient(90deg,rgba(255,174,58,1) 1%,rgba(212,161,107,1) 100%);'};
   position: relative;
-  top: 42px;
+  top: 36px;
   left: 158px;
 `;
 
