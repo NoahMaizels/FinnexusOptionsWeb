@@ -1,8 +1,8 @@
 import { Component } from 'react';
-import { LineChart, Line, Point } from 'bizcharts';
+import { LineChart, Line, Point, AreaChart } from 'bizcharts';
 import { Statistic, Row, Col } from 'antd';
 import styled from 'styled-components';
-import { Header2, Space, ConnectWalletSub, Center, DarkContainer, InALineLeft, VerticalLine, BigTitle, SingleLine } from './index';
+import { Header2, Space, ConnectWalletSub, MyStatistic, Box, ShortLine, InALineLeft, VerticalLine, BigTitle, SingleLine } from './index';
 
 
 
@@ -41,7 +41,20 @@ class CollateralInfo extends Component {
     {
       date: "2020-07-17",
       amount: 80,
+    },
+    {
+      date: "2020-07-18",
+      amount: 83,
+    },
+    {
+      date: "2020-07-19",
+      amount: 85,
+    },
+    {
+      date: "2020-07-20",
+      amount: 82,
     }
+
   ];
 
   dataEth = [
@@ -72,6 +85,18 @@ class CollateralInfo extends Component {
     {
       date: "2020-07-17",
       amount: 210,
+    },
+    {
+      date: "2020-07-18",
+      amount: 80,
+    },
+    {
+      date: "2020-07-19",
+      amount: 85,
+    },
+    {
+      date: "2020-07-20",
+      amount: 81,
     }
   ];
 
@@ -82,7 +107,7 @@ class CollateralInfo extends Component {
           <VerticalLine style={{marginLeft:"20px"}}/>
           <BigTitle>Pool Value</BigTitle>
         </InALineLeft>
-        <LineChart
+        <AreaChart
           padding={[30, 60, 50, 60]}
           autoFit
           height={320}
@@ -93,7 +118,7 @@ class CollateralInfo extends Component {
         >
           {/* <Line position="price*profit" />
             <Point position="8000*-30" /> */}
-        </LineChart>
+        </AreaChart>
         <Space />
         <Row gutter={[24, 40]}>
           <Col span={6}><Box><MyStatistic coldColor title="Bottom of collateral coverage" value={'350'} suffix="%" /><ShortLine coldColor/></Box></Col>
@@ -145,41 +170,7 @@ const MyButton = styled(ConnectWalletSub)`
   margin-top: 12px;
 `;
 
-const MyStatistic = styled(Statistic)`
-  .ant-statistic-title {
-    position: relative;
-    top: 70px;
-    font-size:14px;
-    font-family:HelveticaNeue;
-    font-weight:400;
-    color: ${props => props.coldColor ? '#A8B7FF' : '#C58A70'}
-  }
 
-  .ant-statistic-content {
-    font-size:36px;
-    font-family:HelveticaNeue;
-    font-weight:300;
-    color:rgba(255,255,255,1);
-    line-height:46px;
-  }
-`;
-
-const Box = styled.div`
-  width:335px;
-  height:120px;
-  background:rgba(31,32,52,1);
-  border-radius:4px;
-  text-align:center;
-`;
-
-const ShortLine = styled.div`
-  width:16px;
-  height:2px;
-  background: ${props => props.coldColor ? 'linear-gradient(90deg,rgba(99,125,255,1) 0%,rgba(99,176,255,1) 100%);':'linear-gradient(90deg,rgba(255,174,58,1) 1%,rgba(212,161,107,1) 100%);'};
-  position: relative;
-  top: 42px;
-  left: 158px;
-`;
 
 
 

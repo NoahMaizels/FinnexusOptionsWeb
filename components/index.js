@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { Modal, Table } from 'antd';
+import { Modal, Table, Statistic } from 'antd';
 import {  WalletButton, WalletButtonLong } from "wan-dex-sdk-wallet";
 import {  WalletButton as EthWalletButton } from 'eth-sdk-wallet';
 import "eth-sdk-wallet/index.css";
@@ -108,6 +108,7 @@ export const Center = styled.div`
 
 export const Body = styled.div`
   width: 1440px;
+  background-color: #1C1A2F;
 `;
 
 export const Header2 = styled.div`
@@ -134,6 +135,10 @@ export const InALineLeft = styled(InALine)`
 
 export const InALineBetween = styled(InALine)`
   justify-content: space-between;
+`;
+
+export const InALineAround = styled(InALine)`
+  justify-content: space-around;
 `;
 
 export const TabButtonSub = styled(TabButton)`
@@ -219,10 +224,6 @@ export const BigTitle = styled.div`
 
 `;
 
-export const DarkContainer = styled(Center)`
-  background-color: #1A1C2B
-`;
-
 export const MiddleLine = styled.div`
   width:40px;
   height:2px;
@@ -237,3 +238,42 @@ export const HeaderLine = styled(MiddleLine)`
   height:2px;
 `;
 
+export const MyStatistic = styled(Statistic)`
+  .ant-statistic-title {
+    position: relative;
+    top: 70px;
+    font-size:14px;
+    font-family:HelveticaNeue;
+    font-weight:400;
+    color: ${props => props.coldColor ? '#A8B7FF' : '#C58A70'}
+  }
+
+  .ant-statistic-content {
+    font-size:36px;
+    font-family:HelveticaNeue;
+    font-weight:300;
+    color:rgba(255,255,255,1);
+    line-height:46px;
+  }
+`;
+
+export const Box = styled.div`
+  width:335px;
+  height:120px;
+  background:rgba(31,32,52,1);
+  border-radius:4px;
+  text-align:center;
+`;
+
+export const ShortLine = styled.div`
+  width:16px;
+  height:2px;
+  background: ${props => props.coldColor ? 'linear-gradient(90deg,rgba(99,125,255,1) 0%,rgba(99,176,255,1) 100%);':'linear-gradient(90deg,rgba(255,174,58,1) 1%,rgba(212,161,107,1) 100%);'};
+  position: relative;
+  top: 42px;
+  left: 158px;
+`;
+
+export const DarkContainer = styled(Center)`
+  background-color: #1A1C2B;
+`;
