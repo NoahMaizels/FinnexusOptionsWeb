@@ -244,7 +244,7 @@ class CollateralInfo extends Component {
         </AreaChart>
         <Space />
         <Row gutter={[24, 24]}>
-          <Col span={6}><Box><MyStatistic coldColor title="Collateral occupied percent" value={this.state.totalSupply > 0 ? beautyNumber(this.state.usedValue / this.state.totalSupply * 100, 2) : 0} suffix="%" /><ShortLine coldColor /></Box></Col>
+          <Col span={6}><Box><MyStatistic coldColor title="Collateral occupied percent" value={this.state.totalSupply > 0 ? beautyNumber(this.state.usedValue * 3 / this.state.totalValue * 100, 2) : 0} suffix="%" /><ShortLine coldColor /></Box></Col>
           <Col span={6}><Box><MyStatistic coldColor title="Lowest collateral percent" value={this.state.lowestPercent} suffix="%" /><ShortLine coldColor /></Box></Col>
           <Col span={6}><Box><MyStatistic coldColor title="Net value for total shares" value={beautyNumber(this.state.totalValue, 4)} suffix="$" /><ShortLine coldColor /></Box></Col>
           <Col span={6}><Box><MyStatistic coldColor title="Net value for each share" value={beautyNumber(this.state.sharePrice, 4)} suffix="$" /><ShortLine coldColor /></Box></Col>
