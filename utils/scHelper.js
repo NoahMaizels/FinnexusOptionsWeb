@@ -251,7 +251,7 @@ export const updateCollateralInfo = async (address) => {
       console.log('getOccupiedCollateral value invalid', value);
       return;
     }
-    collateral.usedValue = ret;
+    collateral.usedValue = priceConvert(value);
   }));
 
   batch.add(scs.opManager.methods.getCollateralRate().call.request({}, (err, ret) => {
