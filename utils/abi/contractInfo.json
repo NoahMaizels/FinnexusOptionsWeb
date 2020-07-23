@@ -8,15 +8,15 @@
     "fileName":"../contracts/ImpliedVolatility.json"
   },
   "OptionsPrice":{
-    "address":"0x72327E1FC15049caBD2f978c240a5E9561E85894",
+    "address":"0x96324Ac9293A1F35BE9146800a13714db8d65135",
     "fileName":"../contracts/OptionsPool.json"
   },
   "OptionsPool":{
-    "address":"0xFb7c05DCDaf148FBC765a8d3a005cE6378127561",
+    "address":"0x8a6E5056986d0Fa80E144B983d0aA71fbeAB95d6",
     "fileName":"../contracts/OptionsPool.json"
   },
   "OptionsMangerV2":{
-    "address":"0x92e5D2D3413BC60F0C6967183B375a3BD2c97DbF",
+    "address":"0xea6ca106373842a09c83459A4a977136E278e9F9",
     "fileName":"../contracts/OptionsMangerV2.json"
   },
   "IERC20":{

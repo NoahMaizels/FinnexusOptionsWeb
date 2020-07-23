@@ -1,11 +1,13 @@
 import { Component } from 'react';
 import { LineChart, Line, Point, AreaChart } from 'bizcharts';
-import { Statistic, Row, Col } from 'antd';
+import { Statistic, Row, Col, message } from 'antd';
 import styled from 'styled-components';
-import { Header2, Space, ConnectWalletSub, MyStatistic, 
-  Box, ShortLine, InALineLeft, VerticalLine, BigTitle, 
-  SingleLine, renderDepositModal, checkNumber } from './index';
-import { getCollateralInfo, beautyNumber, getBalance } from "../utils/scHelper.js";
+import {
+  Header2, Space, ConnectWalletSub, MyStatistic,
+  Box, ShortLine, InALineLeft, VerticalLine, BigTitle,
+  SingleLine, renderDepositModal, checkNumber, renderWithdrawModal
+} from './index';
+import { getCollateralInfo, beautyNumber, getBalance, deposit, withdraw } from "../utils/scHelper.js";
 import withRouter from 'umi/withRouter';
 import { Wallet, getSelectedAccount, WalletButton, WalletButtonLong, getSelectedAccountWallet, getTransactionReceipt } from "wan-dex-sdk-wallet";
 import { connect } from 'react-redux';
@@ -24,9 +26,11 @@ class CollateralInfo extends Component {
       balance: 0,
       userPayUsd: 0,
       depositVisible: false,
-      amountToPay: 0,
+      withdrawVisible: false,
+      amountToPay: '',
       currencyToPay: "0",
       currencyBalance: 0,
+      loading: false,
     };
   }
 
@@ -43,7 +47,7 @@ class CollateralInfo extends Component {
 
   updateInfo = () => {
     let info = getCollateralInfo();
-    console.log('info:', info);
+    // console.log('info:', info);
     this.setState({
       sharePrice: info.sharePrice,
       totalSupply: info.totalSupply,
@@ -143,11 +147,68 @@ class CollateralInfo extends Component {
   ];
 
   depositCancel = () => {
-    this.setState({depositVisible: false});
+    this.setState({ depositVisible: false, amountToPay: '' });
   }
 
+  withdrawCancel = () => {
+    this.setState({ withdrawVisible: false, amountToPay: '' });
+  }
+
+
+
   depositOk = () => {
-    this.setState({depositVisible: false});
+    if (Number(this.state.amountToPay) >= Number(this.state.currencyBalance)) {
+      message.warn("Balance not enough");
+      return;
+    }
+
+    if (this.state.amountToPay === 0) {
+      message.warn("Please fill amount");
+      return;
+    }
+
+    this.setState({ loading: true });
+    deposit(this.props.chainType, this.state.amountToPay, this.state.currencyToPay, this.props.selectedWallet, this.props.selectedAccount.get('address')).then((ret) => {
+      if (ret) {
+        this.setState({ depositVisible: false, loading: false, amountToPay: '' });
+        message.info("Deposit success");
+        this.updateInfo();
+      } else {
+        this.setState({ loading: false });
+      }
+    }).catch((e) => {
+      console.log(e);
+      message.warn("Sorry, deposit failed:" + e.message);
+      this.setState({ loading: false });
+    });
+  }
+
+  withdrawOk = () => {
+    if (Number(this.state.amountToPay) > Number(this.state.balance)) {
+      message.warn("Balance not enough");
+      console.log(this.state.amountToPay, this.state.balance);
+      return;
+    }
+
+    if (this.state.amountToPay === 0) {
+      message.warn("Please fill amount");
+      return;
+    }
+
+    this.setState({ loading: true });
+    withdraw(this.props.chainType, this.state.amountToPay, this.state.currencyToPay, this.props.selectedWallet, this.props.selectedAccount.get('address')).then((ret) => {
+      if (ret) {
+        this.setState({ withdrawVisible: false, loading: false, amountToPay: '' });
+        message.info("Withdraw success");
+        this.updateInfo();
+      } else {
+        this.setState({ loading: false });
+      }
+    }).catch((e) => {
+      console.log(e);
+      message.warn("Sorry, withdraw failed:" + e.message);
+      this.setState({ loading: false });
+    });
   }
 
   getBalance = () => {
@@ -155,18 +216,18 @@ class CollateralInfo extends Component {
       let address = this.props.selectedAccount.get('address');
       let token = this.state.currencyToPay === "0" ? "0x0000000000000000000000000000000000000000" : fnxTokenAddress;
       console.log('getBalance');
-      getBalance(token, address).then((ret)=>{
+      getBalance(token, address).then((ret) => {
         console.log('Balance', ret);
-        this.setState({currencyBalance: ret});
+        this.setState({ currencyBalance: ret });
       }).catch(console.log);
     }
   }
 
   render() {
     return (
-      <div style={{background:"#1A1C2B", padding: "20px"}}>
+      <div style={{ background: "#1A1C2B", padding: "20px" }}>
         <InALineLeft>
-          <VerticalLine style={{marginLeft:"20px"}}/>
+          <VerticalLine style={{ marginLeft: "20px" }} />
           <BigTitle>Pool Value</BigTitle>
         </InALineLeft>
         <AreaChart
@@ -183,35 +244,37 @@ class CollateralInfo extends Component {
         </AreaChart>
         <Space />
         <Row gutter={[24, 40]}>
-          <Col span={6}><Box><MyStatistic coldColor title="Collateral occupied percent" value={this.state.totalSupply > 0 ? beautyNumber(this.state.usedValue / this.state.totalSupply * 100, 2) : 0} suffix="%" /><ShortLine coldColor/></Box></Col>
-          <Col span={6}><Box><MyStatistic coldColor title="Lowest collateral percent" value={this.state.lowestPercent} suffix="%" /><ShortLine coldColor/></Box></Col>
-          <Col span={6}><Box><MyStatistic coldColor title="Net value for total shares" value={this.state.totalValue} suffix="$" /><ShortLine coldColor/></Box></Col>
-          <Col span={6}><Box><MyStatistic coldColor title="Net value for each share" value={this.state.sharePrice} suffix="$" /><ShortLine coldColor/></Box></Col>
+          <Col span={6}><Box><MyStatistic coldColor title="Collateral occupied percent" value={this.state.totalSupply > 0 ? beautyNumber(this.state.usedValue / this.state.totalSupply * 100, 2) : 0} suffix="%" /><ShortLine coldColor /></Box></Col>
+          <Col span={6}><Box><MyStatistic coldColor title="Lowest collateral percent" value={this.state.lowestPercent} suffix="%" /><ShortLine coldColor /></Box></Col>
+          <Col span={6}><Box><MyStatistic coldColor title="Net value for total shares" value={beautyNumber(this.state.totalValue, 4)} suffix="$" /><ShortLine coldColor /></Box></Col>
+          <Col span={6}><Box><MyStatistic coldColor title="Net value for each share" value={beautyNumber(this.state.sharePrice, 4)} suffix="$" /><ShortLine coldColor /></Box></Col>
         </Row>
         <Row gutter={[24, 40]}>
-          <Col span={6}><Box><MyStatistic title="Total amount of shares" value={this.state.totalSupply} /><ShortLine/></Box></Col>
-          <Col span={6}><Box><MyStatistic title="Return in this month" value={'0'} suffix="$" /><ShortLine/></Box></Col>
-          <Col span={6}><Box><MyStatistic title="APR in this month" value={'0'} suffix="%" /><ShortLine/></Box></Col>
-          <Col span={6}><Box><MyStatistic title="APR in this year" value={'0'} suffix="%" /><ShortLine/></Box></Col>
+          <Col span={6}><Box><MyStatistic title="Total amount of shares" value={beautyNumber(this.state.totalSupply, 4)} /><ShortLine /></Box></Col>
+          <Col span={6}><Box><MyStatistic title="Return in this month" value={'0'} suffix="$" /><ShortLine /></Box></Col>
+          <Col span={6}><Box><MyStatistic title="APR in this month" value={'0'} suffix="%" /><ShortLine /></Box></Col>
+          <Col span={6}><Box><MyStatistic title="APR in this year" value={'0'} suffix="%" /><ShortLine /></Box></Col>
         </Row>
-        <SingleLine/>
+        <SingleLine />
         <Header2>
           <InALineLeft>
             <Title>My Pool</Title>
-            <MyButton onClick={() => { 
+            <MyButton onClick={() => {
               this.getBalance();
-              this.setState({depositVisible: true});
+              this.setState({ depositVisible: true });
             }}>Deposit</MyButton>
-            <MyButton onClick={() => { }}>Withdraw</MyButton>
+            <MyButton onClick={() => {
+              this.setState({ withdrawVisible: true });
+            }}>Withdraw</MyButton>
           </InALineLeft>
         </Header2>
-        <SingleLine/>
+        <SingleLine />
         <SmallSpace />
         <Row gutter={[24, 40]}>
-          <Col span={6}><Box><MyStatistic title="My shares token" value={this.state.balance} /><ShortLine coldColor/></Box></Col>
-          <Col span={6}><Box><MyStatistic title="Percentage of the pool" value={this.state.totalSupply > 0? beautyNumber(this.state.balance/this.state.totalSupply, 4):0 } suffix="%" /><ShortLine coldColor/></Box></Col>
-          <Col span={6}><Box><MyStatistic title="Current value" value={beautyNumber(this.state.balance * this.state.sharePrice, 4)} suffix="$" /><ShortLine coldColor/></Box></Col>
-          <Col span={6}><Box><MyStatistic title="Total return" value={beautyNumber(this.state.balance * this.state.sharePrice - this.state.userPayUsd, 4)} suffix="$" /><ShortLine coldColor/></Box></Col>
+          <Col span={6}><Box><MyStatistic title="My shares token" value={beautyNumber(this.state.balance, 4)} /><ShortLine coldColor /></Box></Col>
+          <Col span={6}><Box><MyStatistic title="Percentage of the pool" value={this.state.totalSupply > 0 ? beautyNumber(this.state.balance / this.state.totalSupply * 100, 4) : 0} suffix="%" /><ShortLine coldColor /></Box></Col>
+          <Col span={6}><Box><MyStatistic title="Current value" value={beautyNumber(this.state.balance * this.state.sharePrice, 4)} suffix="$" /><ShortLine coldColor /></Box></Col>
+          <Col span={6}><Box><MyStatistic title="Total return" value={beautyNumber(this.state.balance * this.state.sharePrice - this.state.userPayUsd, 4)} suffix="$" /><ShortLine coldColor /></Box></Col>
         </Row>
         {
           renderDepositModal(this.props.chainType, this.state.depositVisible, this.depositCancel, this.depositOk,
@@ -220,10 +283,20 @@ class CollateralInfo extends Component {
                 this.setState({ amountToPay: e.target.value });
               }
             }, this.state.currencyToPay, (e) => {
-              this.setState({ currencyToPay: e.target.value}, () => {
+              this.setState({ currencyToPay: e.target.value }, () => {
                 this.getBalance();
               });
-            }, this.state.currencyBalance)
+            }, this.state.currencyBalance, this.state.loading)
+        }
+        {
+          renderWithdrawModal(this.props.chainType, this.state.withdrawVisible, this.withdrawCancel, this.withdrawOk,
+            this.state.amountToPay, (e) => {
+              if (checkNumber(e)) {
+                this.setState({ amountToPay: e.target.value });
+              }
+            }, this.state.currencyToPay, (e) => {
+              this.setState({ currencyToPay: e.target.value });
+            }, this.state.balance, this.state.loading)
         }
       </div>
     );

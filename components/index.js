@@ -399,8 +399,25 @@ export const checkNumber = e => {
   return false;
 }
 
+const ConfirmWalletButton = styled(WalletButtonLong)`
+  .WanchainSDK-button {
+    width: 320px!important;
+    font-size: 13px!important;
+    height: 40px!important;
+  }
+`;
+
+const WalletDiv = styled.div`
+  margin: 12px 0px 12px 0px;
+  button {
+    width: 320px!important;
+    font-size: 13px!important;
+    height: 40px!important;
+  }
+`;
+
 export const renderDepositModal = (chainType, visible, handleCancel, handleOk, 
-  amountToDeposit, amountChange, currencyToPay, currencyChange, balance) => {
+  amountToDeposit, amountChange, currencyToPay, currencyChange, balance, loading) => {
   let payToken = currencyToPay === "0" ? "WAN" : "FNX";
   return (
     <MyModal
@@ -408,10 +425,21 @@ export const renderDepositModal = (chainType, visible, handleCancel, handleOk,
       visible={visible}
       onOk={handleOk}
       onCancel={handleCancel}
+      confirmLoading={loading}
     >
       <CenterAlign>
         <Row>
-          <p>Currency to Pay</p>
+          <p>From address</p>
+          <WalletDiv>
+            {
+              chainType === 'wan'
+              ? <WalletButtonLong />
+              : <EthWalletButton />
+            }
+          </WalletDiv>
+        </Row>
+        <Row>
+          <p>Currency to pay</p>
           <RadioGroup 
           value={currencyToPay} 
           onChange={currencyChange} buttonStyle="solid">
@@ -425,7 +453,7 @@ export const renderDepositModal = (chainType, visible, handleCancel, handleOk,
         </Row>
         <Row>
           <SmallSpace />
-          <p>Amount to Deposit</p>
+          <p>Amount to deposit</p>
           <AmountInput suffix={
             <YellowText>{payToken}</YellowText>
           } placeholder={"Enter " + payToken + " amount"}
@@ -433,6 +461,58 @@ export const renderDepositModal = (chainType, visible, handleCancel, handleOk,
             onChange={amountChange}
           />
           <p style={{opacity: "0.6"}}>*Your balance is: {balance + " " + payToken} </p>
+        </Row>
+      </CenterAlign>
+    </MyModal>
+  );
+}
+
+export const renderWithdrawModal = (chainType, visible, handleCancel, handleOk, 
+  amountToDeposit, amountChange, currencyToPay, currencyChange, balance, loading) => {
+  let payToken = "Shares token";
+  return (
+    <MyModal
+      title="Withdraw"
+      visible={visible}
+      onOk={handleOk}
+      onCancel={handleCancel}
+      confirmLoading={loading}
+    >
+      <CenterAlign>
+        <Row>
+          <p>To address</p>
+          <WalletDiv>
+            {
+              chainType === 'wan'
+              ? <WalletButtonLong />
+              : <EthWalletButton />
+            }
+          </WalletDiv>
+        </Row>
+        <Row>
+          <p>Preference of currency</p>
+          <RadioGroup 
+          value={currencyToPay} 
+          onChange={currencyChange} buttonStyle="solid">
+            <RadioButton value="0">WAN</RadioButton>
+            {
+              chainType === 'wan'
+                ? <RadioButton value="1"><InALine>FNX<DarkText>(WRC20)</DarkText></InALine></RadioButton>
+                : <RadioButton value="2"><InALine>FNX<DarkText>(ERC20)</DarkText></InALine></RadioButton>
+            }
+          </RadioGroup>
+        </Row>
+        <Row>
+          <SmallSpace />
+          <p>Amount to withdraw</p>
+          <AmountInput suffix={
+             <YellowText>{payToken}</YellowText>
+            } 
+            placeholder={"Enter " + payToken + " amount"}
+            value={amountToDeposit}
+            onChange={amountChange}
+          />
+          <p style={{opacity: "0.6"}}>*Your shares token's balance is: {balance + " "} </p>
         </Row>
       </CenterAlign>
     </MyModal>

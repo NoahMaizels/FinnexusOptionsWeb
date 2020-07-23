@@ -513,40 +513,6 @@
     "constant": false,
     "inputs": [
       {
-        "name": "index",
-        "type": "uint256"
-      },
-      {
-        "name": "sharedBalances",
-        "type": "int256[]"
-      },
-      {
-        "name": "prices",
-        "type": "uint256[]"
-      },
-      {
-        "name": "firstOption",
-        "type": "uint256"
-      },
-      {
-        "name": "lastBlock",
-        "type": "uint256"
-      },
-      {
-        "name": "calTime",
-        "type": "uint256"
-      }
-    ],
-    "name": "setSharedPayment",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
         "name": "currency",
         "type": "address"
       }
@@ -575,7 +541,7 @@
     "constant": false,
     "inputs": [
       {
-        "name": "index",
+        "name": "calInfo",
         "type": "uint256"
       }
     ],
@@ -781,6 +747,36 @@
     ],
     "payable": false,
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "calInfo",
+        "type": "uint256"
+      },
+      {
+        "name": "sharedBalances",
+        "type": "int256[]"
+      },
+      {
+        "name": "prices",
+        "type": "uint256[]"
+      },
+      {
+        "name": "firstOption",
+        "type": "uint256"
+      },
+      {
+        "name": "calTime",
+        "type": "uint256"
+      }
+    ],
+    "name": "setSharedPayment",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -1099,6 +1095,33 @@
       }
     ],
     "name": "ExerciseOption",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "name": "value0",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "value1",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "value2",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "value3",
+        "type": "uint256"
+      }
+    ],
+    "name": "DebugEvent",
     "type": "event"
   },
   {

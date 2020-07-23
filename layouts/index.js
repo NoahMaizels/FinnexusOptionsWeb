@@ -62,7 +62,7 @@ class Layout extends Component {
     }
 
     updateCollateralInfo(wanAddress);
-    this.collateralTimer = setInterval(this.updateInfo, 30000);
+    this.collateralTimer = setTimeout(this.updateInfo, 30000);
   }
 
   componentWillUnmount() {
@@ -72,7 +72,7 @@ class Layout extends Component {
     }
 
     if (this.collateralTimer) {
-      clearInterval(this.collateralTimer);
+      clearTimeout(this.collateralTimer);
       this.collateralTimer = undefined;
     }
   }

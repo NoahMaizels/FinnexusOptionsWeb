@@ -122,7 +122,7 @@ export const beautyNumber = (n, d = 8) => {
   if (isNaN(n) || Number(n) === 0) {
     return 0;
   }
-  return Number(n.toFixed(d));
+  return Number(Number(n).toFixed(d));
 }
 
 export const getOptionsPrice = async (currentPrice, strikePrice, expiration, underlying, optType) => {
@@ -171,7 +171,7 @@ export const updateCollateralInfo = async (address) => {
       console.log('getTotalCollateral value invalid', value);
       return;
     }
-    collateral.totalValue = value;
+    collateral.totalValue = priceConvert(value);
   }));
 
   batch.add(scs.opManager.methods.getOccupiedCollateral().call.request({}, (err, ret) => {
@@ -213,7 +213,7 @@ export const updateCollateralInfo = async (address) => {
         return;
       }
       console.log('getUserPayingUsd', ret);
-      collateral.userPayUsd = web3.utils.fromWei(ret);
+      collateral.userPayUsd = priceConvert(web3.utils.fromWei(ret));
     }));
   }
 
@@ -224,8 +224,108 @@ export const getCollateralInfo = () => {
   return collateral;
 }
 
-export const deposit = async (chainType, amount) => {
+export const deposit = async (chainType, amountToPay, currencyToPay, selectedWallet, address) => {
+  if (!amountToPay || !selectedWallet || !address) {
+    message.error("Sorry, deposit input params error");
+    return false;
+  }
+  let ret = false;
+  console.log('deposit:', chainType, amountToPay, currencyToPay);
+  let web3 = getWeb3();
+  let txParam = {gasPrice: '0x3B9ACA00'};
+  if (chainType === 'wan') {
+    let token = "0x0000000000000000000000000000000000000000";
+    txParam.to = contractInfo.OptionsMangerV2.address;
+    if (currencyToPay != 0) {
+      token = fnxTokenAddress;
+      let apRet = await approve(token, amountToPay, selectedWallet);
+      if (!apRet) {
+        return false;
+      }
+      txParam.value = "0";
+    } else {
+      txParam.value = web3.utils.toWei(amountToPay.toString());
+    }
+    console.log('addCollateral:', token, web3.utils.toWei(amountToPay.toString()));
+    let gas = await scs.opManager.methods.addCollateral(token, web3.utils.toWei(amountToPay.toString())).estimateGas({gas: 1e7, from: address, value: txParam.value});
+    if (gas.toString() === "10000000") {
+      message.error("Sorry, gas estimate failed, Please check input params");
+      return false;
+    }
+    if (selectedWallet.type() === "EXTENSION") {
+      txParam.gas = gas;
+    } else {
+      txParam.gasLimit = gas;
+    }
 
+    let data = await scs.opManager.methods.addCollateral(token, web3.utils.toWei(amountToPay.toString())).encodeABI();
+    txParam.data = data;
+
+    let transactionID = await selectedWallet.sendTransaction(txParam);
+    console.log('sendTransaction:', transactionID);
+    message.info("Transaction Submitted, txHash:" + transactionID);
+    let timeout = 20;
+    while (timeout > 0) {
+      const txReceipt = await getTransactionReceipt(transactionID);
+      if (!txReceipt) {
+        await sleep(3000);
+      } else {
+        return txReceipt.status;
+      }
+      timeout--;
+    }
+  }
+
+  return ret;
+}
+
+export const withdraw = async (chainType, amountToPay, currencyToPay, selectedWallet, address) => {
+  if (!amountToPay || !selectedWallet || !address) {
+    message.error("Sorry, deposit input params error");
+    return false;
+  }
+  let ret = false;
+  console.log('deposit:', chainType, amountToPay, currencyToPay);
+  let web3 = getWeb3();
+  let txParam = {gasPrice: '0x3B9ACA00'};
+  if (chainType === 'wan') {
+    let token = "0x0000000000000000000000000000000000000000";
+    txParam.to = contractInfo.OptionsMangerV2.address;
+    if (currencyToPay != 0) {
+      token = fnxTokenAddress;
+    } 
+    txParam.value = "0";
+    console.log('addCollateral:', token, web3.utils.toWei(amountToPay.toString()));
+    let gas = await scs.opManager.methods.redeemCollateral(web3.utils.toWei(amountToPay.toString()), token).estimateGas({gas: 1e7, from: address, value: txParam.value});
+    if (gas.toString() === "10000000") {
+      message.error("Sorry, gas estimate failed, Please check input params");
+      return false;
+    }
+    if (selectedWallet.type() === "EXTENSION") {
+      txParam.gas = gas;
+    } else {
+      txParam.gasLimit = gas;
+    }
+
+    let data = await scs.opManager.methods.redeemCollateral(web3.utils.toWei(amountToPay.toString()), token).encodeABI();
+    txParam.data = data;
+
+    let transactionID = await selectedWallet.sendTransaction(txParam);
+    console.log('sendTransaction:', transactionID);
+    message.info("Transaction Submitted, txHash:" + transactionID);
+    let timeout = 20;
+    while (timeout > 0) {
+      const txReceipt = await getTransactionReceipt(transactionID);
+      if (!txReceipt) {
+        await sleep(3000);
+      } else {
+        return txReceipt.status;
+      }
+      timeout--;
+    }
+  }
+
+  return ret;
 }
 
 export const getBalance = async (tokenAddress, address) => {
@@ -244,6 +344,91 @@ export const getBalance = async (tokenAddress, address) => {
 
   return Number(getWeb3().utils.fromWei(balance.toString()));
 }
+
+export const approve = async (tokenAddr, amount, selectedWallet) => {
+  if (!tokenAddr || !amount || !selectedWallet) {
+    message.error("approve input params error");
+    return false;
+  }
+  console.log('approve', tokenAddr, amount);
+  if (tokenAddr !== '0x0000000000000000000000000000000000000000') {
+    // console.log('approve token', tokenAddr, amount);
+    let web3 = getWeb3();
+    let token = new web3.eth.Contract(abiErc20, tokenAddr);
+    let data = await token.methods.approve(contractInfo.OptionsMangerV2.address, getWeb3().utils.toWei(amount.toString())).encodeABI();
+    const params = {
+      to: tokenAddr,
+      data,
+      value: 0,
+      gasPrice: "0x3B9ACA00",
+      gasLimit: "0x989680", // 10,000,000
+    };
+    let txID = await sendTransaction(selectedWallet, params);
+    console.log('approve tx id: ', txID);
+    if (!txID) {
+      return false;
+    }
+    message.info('approve tx sent: ' + txID);
+    let watch = new Promise((resolve, reject) => {
+      watchTransactionStatus(txID, (status) => {
+        if (!status) {
+          message.error("token approve failed");
+          reject();
+        }
+        message.info("approve success: " + status);
+        resolve();
+      })
+    });
+
+    await watch;
+  }
+  return true;
+}
+
+export const getTransactionReceipt = async (txID) => {
+  try {
+    let txReceipt = await getWeb3().eth.getTransactionReceipt(txID);
+    return txReceipt;
+  } catch (error) {
+    message.error(error.toString());
+  }
+  return null;
+}
+
+export const sendTransaction = async (selectedWallet, params) => {
+  try {
+    // console.log('sendTransaction:', params);
+    let transactionID = await selectedWallet.sendTransaction(params);
+    console.log('sendTransaction:', transactionID);
+    return transactionID;
+  } catch (error) {
+    if (error.toString().indexOf('Unlock') !== -1) {
+      message.info("Please Unlock Your Wallet");
+    } else {
+      message.error('sendTransaction Failed');
+      console.log('sendTransaction Failed', error.toString());
+    }
+  }
+  return null;
+}
+
+export const watchTransactionStatus = (txID, callback) => {
+  if (!txID) {
+    console.log('watchTransactionStatus txID is null');
+    return;
+  }
+  const getTransactionStatus = async () => {
+    const txReceipt = await getTransactionReceipt(txID);
+    if (!txReceipt) {
+      setTimeout(() => getTransactionStatus(txID), 3000);
+    } else if (callback) {
+      callback(txReceipt.status);
+    } else {
+      message.info('success');
+    }
+  };
+  setTimeout(() => getTransactionStatus(txID), 3000);
+};
 
 //// V1 code -----
 

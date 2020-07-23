@@ -1,26 +1,37 @@
 [
   {
     "constant": true,
-    "inputs": [],
-    "name": "lastCalBlock_share",
-    "outputs": [
+    "inputs": [
       {
-        "name": "",
+        "name": "from",
+        "type": "uint256"
+      },
+      {
+        "name": "size",
         "type": "uint256"
       }
     ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "lastCallOption",
+    "name": "getOptionInfoList",
     "outputs": [
       {
         "name": "",
-        "type": "uint256"
+        "type": "address[]"
+      },
+      {
+        "name": "",
+        "type": "uint256[]"
+      },
+      {
+        "name": "",
+        "type": "uint256[]"
+      },
+      {
+        "name": "",
+        "type": "uint256[]"
+      },
+      {
+        "name": "",
+        "type": "uint256[]"
       }
     ],
     "payable": false,
@@ -57,6 +68,41 @@
   },
   {
     "constant": true,
+    "inputs": [
+      {
+        "name": "ids",
+        "type": "uint256[]"
+      }
+    ],
+    "name": "getOptionInfoListFromID",
+    "outputs": [
+      {
+        "name": "",
+        "type": "address[]"
+      },
+      {
+        "name": "",
+        "type": "uint256[]"
+      },
+      {
+        "name": "",
+        "type": "uint256[]"
+      },
+      {
+        "name": "",
+        "type": "uint256[]"
+      },
+      {
+        "name": "",
+        "type": "uint256[]"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
     "inputs": [],
     "name": "getUnderlyingAssets",
     "outputs": [
@@ -65,6 +111,24 @@
         "type": "uint32[]"
       }
     ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "expiration",
+        "type": "uint256"
+      },
+      {
+        "name": "underlying",
+        "type": "uint32"
+      }
+    ],
+    "name": "buyOptionCheck",
+    "outputs": [],
     "payable": false,
     "stateMutability": "view",
     "type": "function"
@@ -115,6 +179,87 @@
       {
         "name": "",
         "type": "address"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "getLatestOption",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "name": "",
+        "type": "address"
+      },
+      {
+        "name": "",
+        "type": "uint8"
+      },
+      {
+        "name": "",
+        "type": "uint32"
+      },
+      {
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "optionsId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getOptionsById",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "name": "",
+        "type": "address"
+      },
+      {
+        "name": "",
+        "type": "uint8"
+      },
+      {
+        "name": "",
+        "type": "uint32"
+      },
+      {
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "name": "",
+        "type": "uint256"
       }
     ],
     "payable": false,
@@ -174,8 +319,17 @@
   },
   {
     "constant": true,
-    "inputs": [],
-    "name": "firstOption_share",
+    "inputs": [
+      {
+        "name": "optionsId",
+        "type": "uint256"
+      },
+      {
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "getExerciseWorth",
     "outputs": [
       {
         "name": "",
@@ -197,16 +351,49 @@
   },
   {
     "constant": true,
-    "inputs": [],
-    "name": "lastCalBlock",
-    "outputs": [
+    "inputs": [
       {
-        "name": "",
+        "name": "expiration",
         "type": "uint256"
       }
     ],
+    "name": "checkExpiration",
+    "outputs": [],
     "payable": false,
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "expiration",
+        "type": "uint256"
+      }
+    ],
+    "name": "addExpiration",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "removeExpiration",
+        "type": "uint256"
+      }
+    ],
+    "name": "removeExpirationList",
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -281,6 +468,73 @@
     "type": "function"
   },
   {
+    "constant": true,
+    "inputs": [],
+    "name": "getExpirationList",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256[]"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "from",
+        "type": "address"
+      },
+      {
+        "name": "settlement",
+        "type": "address"
+      },
+      {
+        "name": "type_ly_exp",
+        "type": "uint256"
+      },
+      {
+        "name": "strikePrice",
+        "type": "uint256"
+      },
+      {
+        "name": "optionPrice",
+        "type": "uint256"
+      },
+      {
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "createOptions",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "expiration",
+        "type": "uint256"
+      }
+    ],
+    "name": "isEligibleExpiration",
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "constant": false,
     "inputs": [
       {
@@ -292,33 +546,6 @@
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      },
-      {
-        "name": "",
-        "type": "uint256"
-      },
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "burnBlockOptions",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -343,6 +570,20 @@
       {
         "name": "",
         "type": "address"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "getOptionInfoLength",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
       }
     ],
     "payable": false,
@@ -423,6 +664,25 @@
       {
         "name": "",
         "type": "bool"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address"
+      }
+    ],
+    "name": "getUserOptionsID",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256[]"
       }
     ],
     "payable": false,
@@ -581,17 +841,20 @@
   },
   {
     "constant": true,
-    "inputs": [
-      {
-        "name": "user",
-        "type": "address"
-      }
-    ],
-    "name": "getUserOptionsID",
+    "inputs": [],
+    "name": "getOptionPhaseCalRange",
     "outputs": [
       {
         "name": "",
-        "type": "uint256[]"
+        "type": "uint256"
+      },
+      {
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "name": "",
+        "type": "uint256"
       }
     ],
     "payable": false,
@@ -601,111 +864,11 @@
   {
     "constant": true,
     "inputs": [],
-    "name": "getOptionInfoLength",
+    "name": "getsharedPhaseCalRange",
     "outputs": [
       {
         "name": "",
         "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "name": "from",
-        "type": "uint256"
-      },
-      {
-        "name": "size",
-        "type": "uint256"
-      }
-    ],
-    "name": "getOptionInfoList",
-    "outputs": [
-      {
-        "name": "",
-        "type": "address[]"
-      },
-      {
-        "name": "",
-        "type": "uint256[]"
-      },
-      {
-        "name": "",
-        "type": "uint256[]"
-      },
-      {
-        "name": "",
-        "type": "uint256[]"
-      },
-      {
-        "name": "",
-        "type": "uint256[]"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "name": "ids",
-        "type": "uint256[]"
-      }
-    ],
-    "name": "getOptionInfoListFromID",
-    "outputs": [
-      {
-        "name": "",
-        "type": "address[]"
-      },
-      {
-        "name": "",
-        "type": "uint256[]"
-      },
-      {
-        "name": "",
-        "type": "uint256[]"
-      },
-      {
-        "name": "",
-        "type": "uint256[]"
-      },
-      {
-        "name": "",
-        "type": "uint256[]"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "getLatestOption",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      },
-      {
-        "name": "",
-        "type": "address"
-      },
-      {
-        "name": "",
-        "type": "uint8"
-      },
-      {
-        "name": "",
-        "type": "uint32"
       },
       {
         "name": "",
@@ -728,11 +891,11 @@
     "constant": true,
     "inputs": [
       {
-        "name": "optionsId",
+        "name": "index",
         "type": "uint256"
       }
     ],
-    "name": "getOptionsById",
+    "name": "getsharedPhaseCalInfo",
     "outputs": [
       {
         "name": "",
@@ -740,27 +903,7 @@
       },
       {
         "name": "",
-        "type": "address"
-      },
-      {
-        "name": "",
-        "type": "uint8"
-      },
-      {
-        "name": "",
-        "type": "uint32"
-      },
-      {
-        "name": "",
-        "type": "uint256"
-      },
-      {
-        "name": "",
-        "type": "uint256"
-      },
-      {
-        "name": "",
-        "type": "uint256"
+        "type": "uint256[]"
       }
     ],
     "payable": false,
@@ -771,7 +914,7 @@
     "constant": false,
     "inputs": [
       {
-        "name": "index",
+        "name": "calInfo",
         "type": "uint256"
       }
     ],
@@ -785,7 +928,7 @@
     "constant": false,
     "inputs": [
       {
-        "name": "index",
+        "name": "calInfo",
         "type": "uint256"
       },
       {
@@ -794,14 +937,6 @@
       },
       {
         "name": "beginOption",
-        "type": "uint256"
-      },
-      {
-        "name": "lastOption",
-        "type": "uint256"
-      },
-      {
-        "name": "lastBlock",
         "type": "uint256"
       }
     ],
@@ -815,7 +950,7 @@
     "constant": true,
     "inputs": [
       {
-        "name": "index",
+        "name": "calInfo",
         "type": "uint256"
       }
     ],
@@ -831,11 +966,7 @@
       },
       {
         "name": "",
-        "type": "uint256"
-      },
-      {
-        "name": "",
-        "type": "uint256"
+        "type": "bool"
       }
     ],
     "payable": false,
@@ -846,20 +977,16 @@
     "constant": false,
     "inputs": [
       {
-        "name": "index",
+        "name": "calInfo",
         "type": "uint256"
       },
       {
-        "name": "_firstOption",
+        "name": "firstOption",
         "type": "uint256"
       },
       {
         "name": "prices",
         "type": "uint256[]"
-      },
-      {
-        "name": "lastBlock",
-        "type": "uint256"
       },
       {
         "name": "calTime",
@@ -876,7 +1003,7 @@
     "constant": true,
     "inputs": [
       {
-        "name": "index",
+        "name": "calInfo",
         "type": "uint256"
       },
       {
@@ -896,7 +1023,7 @@
       },
       {
         "name": "",
-        "type": "uint256"
+        "type": "bool"
       }
     ],
     "payable": false,
@@ -907,15 +1034,15 @@
     "constant": true,
     "inputs": [
       {
-        "name": "index",
+        "name": "calInfo",
         "type": "uint256"
       },
       {
-        "name": "beginOption",
+        "name": "begin",
         "type": "uint256"
       },
       {
-        "name": "lastOption",
+        "name": "end",
         "type": "uint256"
       },
       {
@@ -935,7 +1062,7 @@
       },
       {
         "name": "",
-        "type": "uint256"
+        "type": "bool"
       }
     ],
     "payable": false,
@@ -955,6 +1082,10 @@
       },
       {
         "name": "preTime",
+        "type": "uint256"
+      },
+      {
+        "name": "lastburn",
         "type": "uint256"
       },
       {
@@ -981,7 +1112,7 @@
     "constant": true,
     "inputs": [
       {
-        "name": "index",
+        "name": "calInfo",
         "type": "uint256"
       },
       {
@@ -1002,44 +1133,6 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "from",
-        "type": "address"
-      },
-      {
-        "name": "optType",
-        "type": "uint8"
-      },
-      {
-        "name": "underlying",
-        "type": "uint32"
-      },
-      {
-        "name": "expiration",
-        "type": "uint256"
-      },
-      {
-        "name": "strikePrice",
-        "type": "uint256"
-      },
-      {
-        "name": "amount",
-        "type": "uint256"
-      },
-      {
-        "name": "settlement",
-        "type": "address"
-      }
-    ],
-    "name": "createOptions",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -1076,127 +1169,6 @@
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "name": "optionsId",
-        "type": "uint256"
-      },
-      {
-        "name": "amount",
-        "type": "uint256"
-      }
-    ],
-    "name": "getExerciseWorth",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "name": "expiration",
-        "type": "uint256"
-      },
-      {
-        "name": "underlying",
-        "type": "uint32"
-      }
-    ],
-    "name": "buyOptionCheck",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "expiration",
-        "type": "uint256"
-      }
-    ],
-    "name": "addExpiration",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "removeExpiration",
-        "type": "uint256"
-      }
-    ],
-    "name": "removeExpirationList",
-    "outputs": [
-      {
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "getExpirationList",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256[]"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "name": "expiration",
-        "type": "uint256"
-      }
-    ],
-    "name": "isEligibleExpiration",
-    "outputs": [
-      {
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "name": "expiration",
-        "type": "uint256"
-      }
-    ],
-    "name": "checkExpiration",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "view",
     "type": "function"
   }
 ]
