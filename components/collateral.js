@@ -7,7 +7,7 @@ import {
   Box, ShortLine, InALineLeft, VerticalLine, BigTitle,
   SingleLine, renderDepositModal, checkNumber, renderWithdrawModal
 } from './index';
-import { getCollateralInfo, beautyNumber, getBalance, deposit, withdraw } from "../utils/scHelper.js";
+import { getCollateralInfo, beautyNumber, getBalance, deposit, withdraw, getFee } from "../utils/scHelper.js";
 import withRouter from 'umi/withRouter';
 import { Wallet, getSelectedAccount, WalletButton, WalletButtonLong, getSelectedAccountWallet, getTransactionReceipt } from "wan-dex-sdk-wallet";
 import { connect } from 'react-redux';
@@ -243,13 +243,13 @@ class CollateralInfo extends Component {
             <Point position="8000*-30" /> */}
         </AreaChart>
         <Space />
-        <Row gutter={[24, 40]}>
+        <Row gutter={[24, 24]}>
           <Col span={6}><Box><MyStatistic coldColor title="Collateral occupied percent" value={this.state.totalSupply > 0 ? beautyNumber(this.state.usedValue / this.state.totalSupply * 100, 2) : 0} suffix="%" /><ShortLine coldColor /></Box></Col>
           <Col span={6}><Box><MyStatistic coldColor title="Lowest collateral percent" value={this.state.lowestPercent} suffix="%" /><ShortLine coldColor /></Box></Col>
           <Col span={6}><Box><MyStatistic coldColor title="Net value for total shares" value={beautyNumber(this.state.totalValue, 4)} suffix="$" /><ShortLine coldColor /></Box></Col>
           <Col span={6}><Box><MyStatistic coldColor title="Net value for each share" value={beautyNumber(this.state.sharePrice, 4)} suffix="$" /><ShortLine coldColor /></Box></Col>
         </Row>
-        <Row gutter={[24, 40]}>
+        <Row gutter={[24, 24]}>
           <Col span={6}><Box><MyStatistic title="Total amount of shares" value={beautyNumber(this.state.totalSupply, 4)} /><ShortLine /></Box></Col>
           <Col span={6}><Box><MyStatistic title="Return in this month" value={'0'} suffix="$" /><ShortLine /></Box></Col>
           <Col span={6}><Box><MyStatistic title="APR in this month" value={'0'} suffix="%" /><ShortLine /></Box></Col>
@@ -286,7 +286,8 @@ class CollateralInfo extends Component {
               this.setState({ currencyToPay: e.target.value }, () => {
                 this.getBalance();
               });
-            }, this.state.currencyBalance, this.state.loading)
+            }, this.state.currencyBalance, this.state.loading, getFee(),
+            this.props.selectedAccount ? this.props.selectedAccount.get("isLocked"):false)
         }
         {
           renderWithdrawModal(this.props.chainType, this.state.withdrawVisible, this.withdrawCancel, this.withdrawOk,
@@ -296,7 +297,8 @@ class CollateralInfo extends Component {
               }
             }, this.state.currencyToPay, (e) => {
               this.setState({ currencyToPay: e.target.value });
-            }, this.state.balance, this.state.loading)
+            }, this.state.balance, this.state.loading, getFee(),
+            this.props.selectedAccount ? this.props.selectedAccount.get("isLocked"):false)
         }
       </div>
     );
@@ -319,10 +321,6 @@ const Title = styled.div`
 const MyButton = styled(ConnectWalletSub)`
   margin-top: 12px;
 `;
-
-
-
-
 
 
 export default withRouter(connect(state => {

@@ -1,16 +1,20 @@
 import styled from 'styled-components';
 import { Component } from 'react';
-import { Row, Col, Input, Radio, Select, InputNumber, Slider, Spin } from 'antd';
+import { Row, Col, Input, Radio, Select, InputNumber, Slider, Spin, message } from 'antd';
 import MyChart from './chart.js';
 import { ConnectWallet, BuyBlock, InALineLeft, InALine, VerticalLine, 
   BigTitle, RadioGroup, RadioButton, CenterAlign, RadioButtonSmall,
-  YellowText, AdjustInput, DarkText, SmallSpace, checkNumber } from './index';
-import { getCoinPrices, beautyNumber, getOptionsPrice } from "../utils/scHelper.js";
+  YellowText, AdjustInput, DarkText, SmallSpace, checkNumber, renderBuyOptionsModal } from './index';
+import { getCoinPrices, beautyNumber, getOptionsPrice, getFee, getBalance, buyOptions } from "../utils/scHelper.js";
+import withRouter from 'umi/withRouter';
+import { Wallet, getSelectedAccount, WalletButton, WalletButtonLong, getSelectedAccountWallet, getTransactionReceipt } from "wan-dex-sdk-wallet";
+import { connect } from 'react-redux';
+import { fnxTokenAddress } from '../conf/config.js';
 
 const { Option } = Select;
 
 
-export default class BuyOptions extends Component {
+class BuyOptions extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -20,7 +24,10 @@ export default class BuyOptions extends Component {
       optType: "0",
       loading: false,
       amountToPay: '0$ / 0',
-      currencyToPay: "0"
+      currencyToPay: "0",
+      buyModalVisible: false,
+      buyLoading: false,
+      balance: 0,
     };
 
     this.needUpdate = true;
@@ -41,8 +48,6 @@ export default class BuyOptions extends Component {
     this.setState({ strikePrice: prices[this.props.baseToken] });
   }
 
-
-
   updateOptionsPrice = async () => {
     try {
       let expiration = this.state.expiration.split(' ')[0];
@@ -51,11 +56,12 @@ export default class BuyOptions extends Component {
       let ret = await getOptionsPrice(prices["raw" + this.props.baseToken], this.state.strikePrice, expiration, this.props.baseToken === "BTC" ? 1 : 2, this.state.optType );
       console.log(ret);
       let currencyToPay = this.state.currencyToPay === "2" ? "WAN":"FNX";
-      let value = ret * this.state.amount;
+      let fee = getFee();
+      let value = ret * this.state.amount * (1 + Number(fee.buyFee));
       let payAmount = value/prices[currencyToPay];
       this.needUpdate = false;
       this.setState({amountToPay: beautyNumber(value, 4) + "$ / " + beautyNumber(payAmount, 4)});
-      console.log(value + "$ / " + payAmount);
+      // console.log(value + "$ / " + payAmount);
       return ret;
     } catch (e) {
       console.log(e);
@@ -63,8 +69,67 @@ export default class BuyOptions extends Component {
     }
   }
 
+  buyOptions = () => {
+    let expiration = this.state.expiration.split(' ')[0];
+    expiration = expiration * (3600 * 24);
+    let prices = getCoinPrices();
+    this.setState({buyLoading: true});
+    getOptionsPrice(prices["raw" + this.props.baseToken], this.state.strikePrice, expiration, this.props.baseToken === "BTC" ? 1 : 2, this.state.optType ).then((ret) => {
+      console.log(ret);
+      let currencyToPay = this.state.currencyToPay === "2" ? "WAN":"FNX";
+      let fee = getFee();
+      let value = ret * this.state.amount * (1 + Number(fee.buyFee) + 0.01);
+      let payAmount = value/prices[currencyToPay];
+      let chainType = this.state.currencyToPay === "1" ? "eth" : "wan";
+      if (!this.props.selectedAccount) {
+        message.warn("Please select address");
+        this.setState({buyLoading: false});
+        return;
+      }
+
+      let address = this.props.selectedAccount.get('address');
+
+      buyOptions(chainType, 
+        this.state.currencyToPay, payAmount, this.state.strikePrice, 
+        this.props.baseToken === "BTC" ? 1 : 2, 
+        expiration, this.state.amount, this.state.optType, this.props.selectedWallet, address).then((ret)=>{
+          if (ret) {
+            message.info("Buy success");
+            this.setState({buyLoading: false, buyModalVisible: false});
+          } else {
+            message.info("Sorry, buy failed");
+            this.setState({buyLoading: false});
+          }
+        }).catch((e) => {
+          console.log(e);
+          message.error("Sorry, buy failed. " + e.message);
+          this.setState({buyLoading: false});
+        });
+  
+    }).catch((e)=>{
+      console.log(e);
+      message.error("Sorry, get price failed. " + e.message);
+      this.setState({buyLoading: false});
+    });
+    
+  }
+
+  getBalance = () => {
+    if (this.props.selectedAccount) {
+      let address = this.props.selectedAccount.get('address');
+      // TODO:ETH
+      let token = this.state.currencyToPay === "2" ? "0x0000000000000000000000000000000000000000" : fnxTokenAddress;
+      console.log('getBalance');
+      getBalance(token, address).then((ret) => {
+        console.log('Balance', ret);
+        this.setState({ balance: ret });
+      }).catch(console.log);
+    }
+  }
+
   render() {
     if (this.needUpdate) {
+      console.log('render', (new Date()).toLocaleTimeString());
       this.updateOptionsPrice();
     } else {
       this.needUpdate = true;
@@ -94,7 +159,7 @@ export default class BuyOptions extends Component {
                 <AdjustInput suffix={
                   <YellowText>USD</YellowText>
                 } placeholder={"Enter a price"}
-                  value={Number(this.state.strikePrice.toFixed(1))}
+                  value={beautyNumber(this.state.strikePrice, 1)}
                   onChange={e => {
                     if (checkNumber(e)) {
                       this.setState({ strikePrice: e.target.value });
@@ -152,7 +217,10 @@ export default class BuyOptions extends Component {
                 </Spin>
               </Row>
               <Row>
-                <BuyButton>Buy Now</BuyButton>
+                <BuyButton onClick={()=>{ 
+                    this.getBalance();
+                    this.setState({buyModalVisible: true});
+                  }}>Buy Now</BuyButton>
               </Row>
             </BuyBlock>
           </Col>
@@ -166,7 +234,7 @@ export default class BuyOptions extends Component {
             <Row>
               <SubLine>
                 <T1>Current {this.props.baseToken} Price:</T1>
-                <T1Number>8,200$</T1Number>
+                <T1Number>{getCoinPrices()[this.props.baseToken] + '$'}</T1Number>
                 <T2>Expected {this.props.baseToken} Price:</T2>
                 <T2Number>9,200$</T2Number>
                 <PriceSlider defaultValue={30} />
@@ -177,7 +245,14 @@ export default class BuyOptions extends Component {
             </Row>
           </Col>
         </Row>
-
+        {
+          renderBuyOptionsModal(this.state.buyModalVisible, () => {
+              this.setState({buyModalVisible: false});
+            }, this.buyOptions, 
+            this.state.amountToPay, this.state.currencyToPay, 
+            this.state.balance, this.state.buyLoading, getFee(),
+            this.props.selectedAccount ? this.props.selectedAccount.get("isLocked"):false)
+        }
 
       </CenterAlign>
     );
@@ -190,10 +265,6 @@ const BuyButton = styled(ConnectWallet)`
   background:linear-gradient(90deg,rgba(99,125,255,1) 0%,rgba(99,176,255,1) 100%);
   border-radius:4px;
 `;
-
-
-
-
 
 const ModifyButton = styled.button`
   width:40px;
@@ -233,9 +304,6 @@ const DaySelect = styled(Select)`
   }
 `;
 
-
-
-
 const Amount = styled.div`
   margin: 5px 0px 15px 0px;
   font-size:24px;
@@ -251,11 +319,6 @@ const AmountSuffix = styled.div`
   font-weight:500;
   color:rgba(255,255,255,1);
 `;
-
-
-
-
-
 
 const SubLine = styled(InALineLeft)`
   width:895px;
@@ -310,3 +373,13 @@ const PriceSlider = styled(Slider)`
     border: solid 2px rgba(75,147,255,1);
   }
 `;
+
+export default withRouter(connect(state => {
+  const selectedAccountID = state.WalletReducer.get('selectedAccountID');
+  return {
+    selectedAccount: getSelectedAccount(state),
+    selectedWallet: getSelectedAccountWallet(state),
+    networkId: state.WalletReducer.getIn(['accounts', selectedAccountID, 'networkId']),
+    selectedAccountID,
+  }
+})(BuyOptions));

@@ -39,7 +39,6 @@ export default class Assets extends Component {
       dataIndex: "operation",
       key: 'operation',
       render: (value) => {
-        console.log('value:', value);
         if (value === 0) {
           return (
             <InALine>

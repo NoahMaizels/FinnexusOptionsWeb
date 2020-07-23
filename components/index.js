@@ -2,9 +2,12 @@ import styled from 'styled-components';
 import { Modal, Table, Statistic, Radio, Row, Col, Input } from 'antd';
 import { WalletButton, WalletButtonLong } from "wan-dex-sdk-wallet";
 import { WalletButton as EthWalletButton } from 'eth-sdk-wallet';
+import { beautyNumber } from "../utils/scHelper.js";
 import "eth-sdk-wallet/index.css";
 import "wan-dex-sdk-wallet/index.css";
-
+import {
+  LockOutlined
+} from '@ant-design/icons';
 
 export const ConnectWallet = styled.button`
   font-family:HelveticaNeue;
@@ -399,14 +402,6 @@ export const checkNumber = e => {
   return false;
 }
 
-const ConfirmWalletButton = styled(WalletButtonLong)`
-  .WanchainSDK-button {
-    width: 320px!important;
-    font-size: 13px!important;
-    height: 40px!important;
-  }
-`;
-
 const WalletDiv = styled.div`
   margin: 12px 0px 12px 0px;
   button {
@@ -416,8 +411,15 @@ const WalletDiv = styled.div`
   }
 `;
 
+const Locked = styled(LockOutlined)`
+  position: relative;
+  top: -30px;
+  left: 10px;
+`;
+
 export const renderDepositModal = (chainType, visible, handleCancel, handleOk, 
-  amountToDeposit, amountChange, currencyToPay, currencyChange, balance, loading) => {
+  amountToDeposit, amountChange, currencyToPay, currencyChange, balance, loading, fee, locked) => {
+  // console.log('fee:', fee);
   let payToken = currencyToPay === "0" ? "WAN" : "FNX";
   return (
     <MyModal
@@ -435,6 +437,11 @@ export const renderDepositModal = (chainType, visible, handleCancel, handleOk,
               chainType === 'wan'
               ? <WalletButtonLong />
               : <EthWalletButton />
+            }
+            {
+              locked
+              ? <Locked />
+              : null
             }
           </WalletDiv>
         </Row>
@@ -460,7 +467,8 @@ export const renderDepositModal = (chainType, visible, handleCancel, handleOk,
             value={amountToDeposit}
             onChange={amountChange}
           />
-          <p style={{opacity: "0.6"}}>*Your balance is: {balance + " " + payToken} </p>
+          <p style={{opacity: "0.6"}}>* Your balance is: {balance + " " + payToken} </p>
+          <p style={{opacity: "0.6"}}>* Contains {fee.addColFee*100 + "%"} fee. </p>
         </Row>
       </CenterAlign>
     </MyModal>
@@ -468,7 +476,7 @@ export const renderDepositModal = (chainType, visible, handleCancel, handleOk,
 }
 
 export const renderWithdrawModal = (chainType, visible, handleCancel, handleOk, 
-  amountToDeposit, amountChange, currencyToPay, currencyChange, balance, loading) => {
+  amountToDeposit, amountChange, currencyToPay, currencyChange, balance, loading, fee, locked) => {
   let payToken = "Shares token";
   return (
     <MyModal
@@ -486,6 +494,11 @@ export const renderWithdrawModal = (chainType, visible, handleCancel, handleOk,
               chainType === 'wan'
               ? <WalletButtonLong />
               : <EthWalletButton />
+            }
+            {
+              locked
+              ? <Locked />
+              : null
             }
           </WalletDiv>
         </Row>
@@ -512,9 +525,63 @@ export const renderWithdrawModal = (chainType, visible, handleCancel, handleOk,
             value={amountToDeposit}
             onChange={amountChange}
           />
-          <p style={{opacity: "0.6"}}>*Your shares token's balance is: {balance + " "} </p>
+          <p style={{opacity: "0.6"}}>* Your shares token balance is: {beautyNumber(balance, 8) + " "} </p>
+          <p style={{opacity: "0.6"}}>* Contains {fee.redeemColFee*100 + "%"} fee.</p>
         </Row>
       </CenterAlign>
     </MyModal>
   );
 }
+
+export const renderBuyOptionsModal = (visible, handleCancel, handleOk, 
+  amountToPay, currencyToPay, balance, loading, fee, locked) => {
+  let payToken = "WAN";
+  let payAmount = amountToPay.split('/ ')[1];
+  switch (currencyToPay) {
+    case "0": payToken = "FNX (WRC20)"; break;
+    case "1": payToken = "FNX (ERC20)"; break;
+    case "2": payToken = "WAN"; break;
+    default: payToken = "WAN"; break;
+  }
+
+  return (
+    <MyModal
+      title="Buy Now"
+      visible={visible}
+      onOk={handleOk}
+      onCancel={handleCancel}
+      confirmLoading={loading}
+    >
+      <CenterAlign>
+        <Row>
+          <p>From address</p>
+          <WalletDiv>
+            {
+              currencyToPay !== '1'
+              ? <WalletButtonLong />
+              : <EthWalletButton />
+            }
+            {
+              locked
+              ? <Locked />
+              : null
+            }
+          </WalletDiv>
+        </Row>
+        <Row>
+          <SmallSpace />
+          <p>Amount to pay</p>
+          <AmountInput suffix={
+            <YellowText>{payToken}</YellowText>
+          }
+            value={payAmount}
+            readOnly
+          />
+          <p style={{opacity: "0.6"}}>* Your balance is: {beautyNumber(balance,8) + " " + payToken} </p>
+          <p style={{opacity: "0.6"}}>* Contains {fee.buyFee*100 + "%"} fee.</p>
+        </Row>
+      </CenterAlign>
+    </MyModal>
+  );
+}
+
