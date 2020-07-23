@@ -379,11 +379,15 @@ class IndexPage extends Component {
     // console.log('getTableData:', this.state.hedgeInfo.expirationSelect, this.state.leverageInfo.expirationSelect);
     const hedgeData = this.state.optionTokenInfo.filter((v) => {
       return v.type === 'put'
-        && v.expiration === this.state.hedgeInfo.expiration.sort()[this.state.hedgeInfo.expirationSelect];
+        && v.expiration === this.state.hedgeInfo.expiration.sort((a, b)=>{
+          return (new Date(a))/1000 - (new Date(b))/1000;
+        })[this.state.hedgeInfo.expirationSelect];
     });
     const leverageData = this.state.optionTokenInfo.filter((v) => {
       return v.type === 'call'
-        && v.expiration === this.state.leverageInfo.expiration.sort()[this.state.leverageInfo.expirationSelect];
+        && v.expiration === this.state.leverageInfo.expiration.sort((a, b)=>{
+          return (new Date(a))/1000 - (new Date(b))/1000;
+        })[this.state.leverageInfo.expirationSelect];
     });
 
     let ret = { hedgeData: hedgeData.slice(), leverageData: leverageData.slice() };
