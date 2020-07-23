@@ -753,7 +753,9 @@ class IndexPage extends Component {
                   this.setState({ hedgeInfo });
                 }}>
                   {
-                    this.state.hedgeInfo.expiration.sort().map((v, i) => {
+                    this.state.hedgeInfo.expiration.sort((a, b)=>{
+                      return (new Date(a))/1000 - (new Date(b))/1000;
+                    }).map((v, i) => {
                       return (<Radio.Button value={i} key={i}>{v}</Radio.Button>);
                     })
                   }
@@ -836,7 +838,9 @@ class IndexPage extends Component {
                   this.setState({ leverageInfo });
                 }}>
                   {
-                    this.state.leverageInfo.expiration.sort().map((v, i) => {
+                    this.state.leverageInfo.expiration.sort((a, b)=>{
+                      return (new Date(a))/1000 - (new Date(b))/1000;
+                    }).map((v, i) => {
                       return (<Radio.Button value={i} key={i}>{v}</Radio.Button>);
                     })
                   }
