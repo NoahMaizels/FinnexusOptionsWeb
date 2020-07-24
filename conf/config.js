@@ -10,3 +10,5 @@ export const fnxTokenAddress = "0xdf228001e053641fad2bd84986413af3bed03e0b";
 export const wanTokenAddress = "0x0000000000000000000000000000000000000000";
 
 export const additionalFee = 0.01;
+
+export const priceTimeout = 60000000; //600;

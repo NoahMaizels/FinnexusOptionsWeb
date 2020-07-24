@@ -1,7 +1,7 @@
 
 import abiErc20 from './abi/IERC20.json';
 import { message } from 'antd';
-import { contractInfo, decimals, fnxTokenAddress, wanTokenAddress } from '../conf/config';
+import { contractInfo, decimals, fnxTokenAddress, wanTokenAddress, priceTimeout } from '../conf/config';
 import sleep from 'ko-sleep';
 
 import { getWeb3, isSwitchFinish } from './web3switch.js';
@@ -29,6 +29,8 @@ let collateral = {
   balance: 0,
   userPayUsd: 0,
 }
+
+let options = [];
 
 const buyFee = 0;
 const sellFee = 1;
@@ -166,6 +168,7 @@ export const updateCoinPrices = async () => {
 }
 
 export const getCoinPrices = () => {
+  console.log('prices', prices);
   return prices;
 }
 
@@ -178,7 +181,7 @@ function priceConvert(price, time) {
     return " Timeout";
   }
 
-  if (time && (Date.now()/1000 - time) > 600) {
+  if (time && (Date.now()/1000 - time) > priceTimeout) {
     return " Timeout";
   }
   return Number((Number(price) / decimals).toFixed(8));
@@ -559,6 +562,53 @@ export const watchTransactionStatus = (txID, callback) => {
   setTimeout(() => getTransactionStatus(txID), 3000);
   console.log('waiting...');
 };
+
+export const updateUserOptions = async (address, chainType) => {
+  options = [];
+  if (chainType === 'wan') {
+    await initSmartContract();
+    let web3 = getWeb3();
+    let optionsIDs = await scs.opPool.methods.getUserOptionsID(address).call();
+    // console.log('getUserOptions, id', optionsIDs);
+    if (optionsIDs.length > 0) {
+      let batch = new web3.BatchRequest();
+      for (let i=0; i<optionsIDs.length; i++) {
+        batch.add(scs.opPool.methods.getOptionsById(optionsIDs[i]).call.request({}, (err, ret) => {
+          if (err || !ret) {
+            console.log(err, ret);
+            return;
+          }
+  
+          // console.log('getOptionsById', optionsIDs[i], ret);
+          if (ret[1].toLowerCase() != address.toLowerCase()) {
+            console.log('getOptionsById information address mismatch');
+          }
+  
+          let info = {
+            id: ret[0],
+            optType: ret[2] === '0' ? 'Call' : 'Put',
+            underlying: ret[3] === '1' ? 'BTC' : 'ETH',
+            expiration: ret[4],
+            strikePrice: priceConvert(ret[5]),
+            amount: web3.utils.fromWei(ret[6]),
+          }
+
+          let expirationWithYear = (new Date(info.expiration * 1000)).toDateString().split(' ').slice(1, 4).join(' ');
+
+          info.name = info.underlying + " " + info.optType + ", " + expirationWithYear + ", $"+info.strikePrice + " @Wanchain";
+  
+          options.push(info);
+        }));
+      }
+
+      batch.execute();
+    }
+  }
+}
+
+export const getUserOptions = () => {
+  return options.sort((a,b)=>{return b.id - a.id});
+}
 
 //// V1 code -----
 

@@ -14,7 +14,7 @@ import { networkId, nodeUrl } from '../conf/config.js';
 import { getNodeUrl, isSwitchFinish } from '../utils/web3switch.js';
 import sleep from 'ko-sleep';
 import { TabButton, WalletBt, InALine, WalletTitle, ConnectWallet, renderSelectWalletModal, InALineLeft, InALineBetween, HeaderLine } from '../components';
-import { updateCoinPrices, updateCollateralInfo} from '../utils/scHelper.js';
+import { updateCoinPrices, updateCollateralInfo, updateUserOptions} from '../utils/scHelper.js';
 
 const networkLogo = networkId == 1 ? require('../img/mainnet.svg') : require('../img/testnet.svg');
 
@@ -38,7 +38,7 @@ class Layout extends Component {
 
     
     updateCoinPrices();
-    this.priceTimer = setInterval(updateCoinPrices, 10000);
+    this.priceTimer = setInterval(updateCoinPrices, 20000);
 
     this.updateInfo();
 
@@ -62,6 +62,7 @@ class Layout extends Component {
     }
 
     updateCollateralInfo(wanAddress);
+    updateUserOptions(wanAddress, 'wan');
     this.collateralTimer = setTimeout(this.updateInfo, 30000);
   }
 
