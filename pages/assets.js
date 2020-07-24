@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { Body, Center, Space, ConnectWalletSub, InALine, Box, VerticalLine, InALineLeft, BigTitle, MyStatistic, InALineAround, HistoryTable } from '../components';
 import { Row, Col, Statistic, } from 'antd';
 import { Component } from 'react';
-import { getBalance, getCoinPrices, getCollateralInfo, beautyNumber, getUserOptions } from '../utils/scHelper';
+import { getBalance, getCoinPrices, getCollateralInfo, beautyNumber, getUserOptions, getOptionsPrices } from '../utils/scHelper';
 import withRouter from 'umi/withRouter';
 import { Wallet, getSelectedAccount, WalletButton, WalletButtonLong, getSelectedAccountWallet, getTransactionReceipt } from "wan-dex-sdk-wallet";
 import { connect } from 'react-redux';
@@ -184,16 +184,22 @@ class Assets extends Component {
   }
 
   setOptions = (optionsInfo) => {
+    // console.log('setOptions', optionsInfo);
     let options = [];
     for (let i = 0; i < optionsInfo.length; i++) {
-      options.push({
+      let op = {
         assets: optionsInfo[i].name,
         balance: optionsInfo[i].amount,
         usd: "$ --",
         currentReturn: "--",
         expiration: this.getLeftTimeStr(optionsInfo[i].expiration),
         operation: 1
-      });
+      };
+
+      if (optionsInfo[i].price) {
+        op.usd = '$' + beautyNumber(optionsInfo[i].price * optionsInfo[i].amount, 4);
+      }
+      options.push(op);
     }
 
     this.setState({ options });
@@ -222,6 +228,11 @@ class Assets extends Component {
     }).catch(e => console.log(e));
 
     this.setOptions(options);
+
+    getOptionsPrices().then(()=>{
+      let optionsWithPrice = getUserOptions();
+      this.setOptions(optionsWithPrice);
+    }).catch(e=>console.log(e));
 
     this.timer = setTimeout(this.updateInfo, 30000);
   }

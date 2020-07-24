@@ -30,7 +30,11 @@ let collateral = {
   userPayUsd: 0,
 }
 
+let optionsIDs = [];
+
 let options = [];
+
+let optionsLatest = [];
 
 const buyFee = 0;
 const sellFee = 1;
@@ -564,11 +568,10 @@ export const watchTransactionStatus = (txID, callback) => {
 };
 
 export const updateUserOptions = async (address, chainType) => {
-  options = [];
   if (chainType === 'wan') {
     await initSmartContract();
     let web3 = getWeb3();
-    let optionsIDs = await scs.opPool.methods.getUserOptionsID(address).call();
+    optionsIDs = await scs.opPool.methods.getUserOptionsID(address).call();
     // console.log('getUserOptions, id', optionsIDs);
     if (optionsIDs.length > 0) {
       let batch = new web3.BatchRequest();
@@ -591,23 +594,64 @@ export const updateUserOptions = async (address, chainType) => {
             expiration: ret[4],
             strikePrice: priceConvert(ret[5]),
             amount: web3.utils.fromWei(ret[6]),
-          }
+            ret
+          };
 
           let expirationWithYear = (new Date(info.expiration * 1000)).toDateString().split(' ').slice(1, 4).join(' ');
 
           info.name = info.underlying + " " + info.optType + ", " + expirationWithYear + ", $"+info.strikePrice + " @Wanchain";
-  
-          options.push(info);
+          optionsLatest.push(info);
         }));
       }
 
+      optionsLatest = [];
       batch.execute();
     }
   }
 }
 
 export const getUserOptions = () => {
+  if (optionsLatest.length > 0) {
+    options = optionsLatest.slice();
+  }
   return options.sort((a,b)=>{return b.id - a.id});
+}
+
+export const getOptionsPrices = async () => {
+  while(optionsIDs === 0 || optionsIDs.length !== options.length) {
+    await sleep(1000);
+  }
+
+  let web3 = getWeb3()
+  let batch = new web3.BatchRequest();
+  let finish = false;
+
+  for (let i=0; i<options.length; i++) {
+    if (options[i].expiration <= Date.now()/1000) {
+      continue;
+    }
+    let ptrOptions = options[i];
+    batch.add(scs.opPrice.methods.getOptionsPrice(prices['raw'+options[i].underlying], 
+      options[i].ret[5], options[i].expiration - parseInt(Date.now()/1000, 10), 
+      options[i].ret[3], options[i].ret[2]).call.request({}, 
+      (err, ret) => {
+        if (err || !ret) {
+          console.log(err, ret);
+          return;
+        }
+        // console.log('getOptionsPrice', ret);
+        ptrOptions.price = priceConvert(ret);
+        finish = true;
+    }));
+  }
+
+  batch.execute();
+
+  while(!finish) {
+    await sleep(1000);
+  }
+
+  // console.log('getOptionsPrices finish', options);
 }
 
 //// V1 code -----
