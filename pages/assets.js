@@ -2,7 +2,7 @@ import { Table } from 'antd';
 import styles from './assets.css';
 import styled from 'styled-components';
 import { Body, Center, Space, ConnectWalletSub, InALine, Box, VerticalLine, InALineLeft, BigTitle, MyStatistic, InALineAround, HistoryTable } from '../components';
-import { Row, Col, Statistic, } from 'antd';
+import { Row, Col, Spin } from 'antd';
 import { Component } from 'react';
 import { getBalance, getCoinPrices, getCollateralInfo, beautyNumber, getUserOptions, getOptionsPrices } from '../utils/scHelper';
 import withRouter from 'umi/withRouter';
@@ -15,6 +15,7 @@ class Assets extends Component {
     super(props);
 
     this.state = {
+      loading: false,
       assets: [
         {
           assets: "ETH",
@@ -122,7 +123,7 @@ class Assets extends Component {
   ]
 
   componentDidMount() {
-    this.updateInfo();
+    this.updateInfo(true);
   }
 
   componentWillUnmount() {
@@ -205,7 +206,11 @@ class Assets extends Component {
     this.setState({ options });
   }
 
-  updateInfo = () => {
+  updateInfo = (loading) => {
+    if (loading) {
+      this.setState({loading: loading});
+    }
+
     let prices = getCoinPrices();
     let options = getUserOptions();
     if (Number(prices.WAN) === 0 || !this.props.selectedAccount || options.length === 0) {
@@ -229,10 +234,11 @@ class Assets extends Component {
 
     this.setOptions(options);
 
-    getOptionsPrices().then(()=>{
+    getOptionsPrices().then(() => {
       let optionsWithPrice = getUserOptions();
       this.setOptions(optionsWithPrice);
-    }).catch(e=>console.log(e));
+      this.setState({loading: false});
+    }).catch(e => console.log(e));
 
     this.timer = setTimeout(this.updateInfo, 30000);
   }
@@ -241,73 +247,75 @@ class Assets extends Component {
   render() {
     return (
       <Center>
-        <Body>
-          <Space2 />
-          <Row style={{ marginLeft: '20px' }}>
-            <Col span={12}>
-              <Box2>
-                <Row>
-                  <InALineLeft>
-                    <VerticalLine />
-                    <SmallTitle>FNX</SmallTitle>
-                    <SmallTitle dark>(ERC20)</SmallTitle>
-                  </InALineLeft>
-                </Row>
-                <Row>
-                  <InALineAround style={{ width: "100%" }}>
-                    <div>
-                      <MyStatistic style={{ position: "relative", left: "34px" }} coldColor value={this.getPanelData()[0].usd} suffix="$" title={"Value"} />
-                    </div>
-                    <VLine />
-                    <div>
-                      <MyStatistic style={{ position: "relative", left: "-38px" }} value={this.getPanelData()[0].balance} title={"Balance"} />
-                    </div>
-                  </InALineAround>
-                </Row>
-                <Row><HLine /></Row>
-                <Row>
-                  <InALineAround style={{ width: "100%" }}>
-                    <MyButton><img src={require('../img/buy.png')} style={{ marginRight: "10px" }} />Buy</MyButton>
-                    <MyButton><img src={require('../img/sell.png')} style={{ marginRight: "10px" }} />Sell</MyButton>
-                    <MyButton><img src={require('../img/transfer.png')} style={{ marginRight: "10px" }} />Transfer</MyButton>
-                  </InALineAround>
-                </Row>
-              </Box2>
-            </Col>
-            <Col span={12}>
-              <Box2>
-                <Row>
-                  <InALineLeft>
-                    <VerticalLine />
-                    <SmallTitle>FNX</SmallTitle>
-                    <SmallTitle dark>(WRC20)</SmallTitle>
-                  </InALineLeft>
-                </Row>
-                <Row>
-                  <InALineAround style={{ width: "100%" }}>
-                    <div>
-                      <MyStatistic style={{ position: "relative", left: "34px" }} coldColor value={this.getPanelData()[1].usd.replace('$', '')} suffix="$" title={"Value"} />
-                    </div>
-                    <VLine />
-                    <div>
-                      <MyStatistic style={{ position: "relative", left: "-38px" }} value={this.getPanelData()[1].balance} title={"Balance"} />
-                    </div>
-                  </InALineAround>
-                </Row>
-                <Row><HLine /></Row>
-                <Row>
-                  <InALineAround style={{ width: "100%" }}>
-                    <MyButton><img src={require('../img/buy.png')} style={{ marginRight: "10px" }} />Buy</MyButton>
-                    <MyButton><img src={require('../img/sell.png')} style={{ marginRight: "10px" }} />Sell</MyButton>
-                    <MyButton><img src={require('../img/transfer.png')} style={{ marginRight: "10px" }} />Transfer</MyButton>
-                  </InALineAround>
-                </Row>
-              </Box2>
-            </Col>
-          </Row>
-          <Space2 />
-          <AssetsTable columns={this.column} dataSource={this.getTableData()} />
-        </Body>
+        <Spin spinning={this.state.loading} size="large">
+          <Body>
+            <Space2 />
+            <Row style={{ marginLeft: '20px' }}>
+              <Col span={12}>
+                <Box2>
+                  <Row>
+                    <InALineLeft>
+                      <VerticalLine />
+                      <SmallTitle>FNX</SmallTitle>
+                      <SmallTitle dark>(ERC20)</SmallTitle>
+                    </InALineLeft>
+                  </Row>
+                  <Row>
+                    <InALineAround style={{ width: "100%" }}>
+                      <div>
+                        <MyStatistic style={{ position: "relative", left: "34px" }} coldColor value={this.getPanelData()[0].usd} suffix="$" title={"Value"} />
+                      </div>
+                      <VLine />
+                      <div>
+                        <MyStatistic style={{ position: "relative", left: "-38px" }} value={this.getPanelData()[0].balance} title={"Balance"} />
+                      </div>
+                    </InALineAround>
+                  </Row>
+                  <Row><HLine /></Row>
+                  <Row>
+                    <InALineAround style={{ width: "100%" }}>
+                      <MyButton><img src={require('../img/buy.png')} style={{ marginRight: "10px" }} />Buy</MyButton>
+                      <MyButton><img src={require('../img/sell.png')} style={{ marginRight: "10px" }} />Sell</MyButton>
+                      <MyButton><img src={require('../img/transfer.png')} style={{ marginRight: "10px" }} />Transfer</MyButton>
+                    </InALineAround>
+                  </Row>
+                </Box2>
+              </Col>
+              <Col span={12}>
+                <Box2>
+                  <Row>
+                    <InALineLeft>
+                      <VerticalLine />
+                      <SmallTitle>FNX</SmallTitle>
+                      <SmallTitle dark>(WRC20)</SmallTitle>
+                    </InALineLeft>
+                  </Row>
+                  <Row>
+                    <InALineAround style={{ width: "100%" }}>
+                      <div>
+                        <MyStatistic style={{ position: "relative", left: "34px" }} coldColor value={this.getPanelData()[1].usd.replace('$', '')} suffix="$" title={"Value"} />
+                      </div>
+                      <VLine />
+                      <div>
+                        <MyStatistic style={{ position: "relative", left: "-38px" }} value={this.getPanelData()[1].balance} title={"Balance"} />
+                      </div>
+                    </InALineAround>
+                  </Row>
+                  <Row><HLine /></Row>
+                  <Row>
+                    <InALineAround style={{ width: "100%" }}>
+                      <MyButton><img src={require('../img/buy.png')} style={{ marginRight: "10px" }} />Buy</MyButton>
+                      <MyButton><img src={require('../img/sell.png')} style={{ marginRight: "10px" }} />Sell</MyButton>
+                      <MyButton><img src={require('../img/transfer.png')} style={{ marginRight: "10px" }} />Transfer</MyButton>
+                    </InALineAround>
+                  </Row>
+                </Box2>
+              </Col>
+            </Row>
+            <Space2 />
+            <AssetsTable columns={this.column} dataSource={this.getTableData()} />
+          </Body>
+        </Spin>
       </Center>
     );
   }

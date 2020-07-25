@@ -138,7 +138,7 @@ export const updateCoinPrices = async () => {
       return;
     }
     prices.WAN = priceConvert(ret);
-    prices.rawWAN = ret[0];
+    prices.rawWAN = ret;
   }));
 
   batch.add(scs.oracle.methods.getPrice('0x0000000000000000000000000000000000000001').call.request({}, (err, ret) => {
@@ -147,7 +147,7 @@ export const updateCoinPrices = async () => {
       return;
     }
     prices.BTC = priceConvert(ret);
-    prices.rawBTC = ret[0];
+    prices.rawBTC = ret;
   }));
 
   batch.add(scs.oracle.methods.getPrice('0x0000000000000000000000000000000000000002').call.request({}, (err, ret) => {
@@ -156,7 +156,7 @@ export const updateCoinPrices = async () => {
       return;
     }
     prices.ETH = priceConvert(ret);
-    prices.rawETH = ret[0];
+    prices.rawETH = ret;
   }));
 
   batch.add(scs.oracle.methods.getPrice(fnxTokenAddress).call.request({}, (err, ret) => {
@@ -165,7 +165,7 @@ export const updateCoinPrices = async () => {
       return;
     }
     prices.FNX = priceConvert(ret);
-    prices.rawFNX = ret[0];
+    prices.rawFNX = ret;
   }));
 
   batch.execute();
