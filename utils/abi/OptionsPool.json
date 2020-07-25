@@ -422,7 +422,7 @@
     "outputs": [
       {
         "name": "optionID",
-        "type": "uint256"
+        "type": "uint64"
       },
       {
         "name": "owner",
@@ -501,7 +501,7 @@
         "type": "uint256"
       },
       {
-        "name": "optionPrice",
+        "name": "underlyingPrice",
         "type": "uint256"
       },
       {
@@ -574,6 +574,20 @@
     ],
     "payable": false,
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "operator",
+        "type": "address"
+      }
+    ],
+    "name": "setOperator",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -683,6 +697,20 @@
       {
         "name": "",
         "type": "uint256[]"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "getOperator",
+    "outputs": [
+      {
+        "name": "",
+        "type": "address"
       }
     ],
     "payable": false,
@@ -1063,45 +1091,6 @@
       {
         "name": "",
         "type": "bool"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "name": "beginIndex",
-        "type": "uint256"
-      },
-      {
-        "name": "endIndex",
-        "type": "uint256"
-      },
-      {
-        "name": "preTime",
-        "type": "uint256"
-      },
-      {
-        "name": "lastburn",
-        "type": "uint256"
-      },
-      {
-        "name": "whiteList",
-        "type": "address[]"
-      },
-      {
-        "name": "totalSharedPayment",
-        "type": "uint256[]"
-      }
-    ],
-    "name": "_calBurnedSharePrice",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256[]"
       }
     ],
     "payable": false,

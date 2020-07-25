@@ -132,39 +132,39 @@ export const updateCoinPrices = async () => {
   await initSmartContract();
 
   let batch = new web3.BatchRequest();
-  batch.add(scs.oracle.methods.getPriceDetail('0x0000000000000000000000000000000000000000').call.request({}, (err, ret) => {
+  batch.add(scs.oracle.methods.getPrice('0x0000000000000000000000000000000000000000').call.request({}, (err, ret) => {
     if (err || !ret) {
       console.log(err, ret);
       return;
     }
-    prices.WAN = priceConvert(ret[0], ret[1]);
+    prices.WAN = priceConvert(ret);
     prices.rawWAN = ret[0];
   }));
 
-  batch.add(scs.oracle.methods.getPriceDetail('0x0000000000000000000000000000000000000001').call.request({}, (err, ret) => {
+  batch.add(scs.oracle.methods.getPrice('0x0000000000000000000000000000000000000001').call.request({}, (err, ret) => {
     if (err || !ret) {
       console.log(err, ret);
       return;
     }
-    prices.BTC = priceConvert(ret[0], ret[1]);
+    prices.BTC = priceConvert(ret);
     prices.rawBTC = ret[0];
   }));
 
-  batch.add(scs.oracle.methods.getPriceDetail('0x0000000000000000000000000000000000000002').call.request({}, (err, ret) => {
+  batch.add(scs.oracle.methods.getPrice('0x0000000000000000000000000000000000000002').call.request({}, (err, ret) => {
     if (err || !ret) {
       console.log(err, ret);
       return;
     }
-    prices.ETH = priceConvert(ret[0], ret[1]);
+    prices.ETH = priceConvert(ret);
     prices.rawETH = ret[0];
   }));
 
-  batch.add(scs.oracle.methods.getPriceDetail(fnxTokenAddress).call.request({}, (err, ret) => {
+  batch.add(scs.oracle.methods.getPrice(fnxTokenAddress).call.request({}, (err, ret) => {
     if (err || !ret) {
       console.log(err, ret);
       return;
     }
-    prices.FNX = priceConvert(ret[0], ret[1]);
+    prices.FNX = priceConvert(ret);
     prices.rawFNX = ret[0];
   }));
 
