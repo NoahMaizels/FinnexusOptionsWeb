@@ -539,6 +539,13 @@ class IndexPage extends Component {
       },
     });
   }
+
+  onCurrencyChange = (e) => {
+    // console.log(e.target.value);
+    this.setState({ currencySelect: e.target.value });
+    this.updateHedgeCurrencyData(e.target.value);
+    this.updateLeverageCurrencyData(e.target.value);
+  }
   
   getSellInfo = (info) => {
     const updateSellAmount = (e) => {
@@ -568,7 +575,15 @@ class IndexPage extends Component {
       </Row>
       <Row gutter={[16, 8]}>
         <Col span={8}><h4>Currency:</h4></Col>
-        <Col span={16}><h4>{['WAN', 'FNX'][this.state.currencySelect]}</h4></Col>
+        <Col span={16}>
+        <Radio.Group defaultValue={1} buttonStyle="solid" onChange={this.onCurrencyChange}>
+          {
+            this.state.hedgeInfo.currency.map((v, i) => {
+              return (<Radio.Button value={i} key={i}>{v}</Radio.Button>);
+            })
+          }
+        </Radio.Group>
+        </Col>
       </Row>
       <Row gutter={[16, 8]}>
         <Col span={8}><h4>Sell Amount:</h4></Col>
@@ -631,7 +646,15 @@ class IndexPage extends Component {
     }
     info.amount = record.amount;
     info.tradeFee = this.state.optionsInfo.transactionFee;
+    let e={};
+    e.target={};
+    e.target.value=1;
+    this.onCurrencyChange(e);
 
+    this.showSellConfirm(info);
+  }
+
+  showSellConfirm = (info) => {
     confirm({
       title: 'Sell Options Token',
       content: this.getSellInfo(info),
@@ -766,11 +789,7 @@ class IndexPage extends Component {
                 </Radio.Group>
               </Col>
               <Col span={3}>
-                <Radio.Group defaultValue={0} buttonStyle="solid" value={this.state.currencySelect} onChange={(e) => {
-                  this.setState({ currencySelect: e.target.value });
-                  this.updateHedgeCurrencyData(e.target.value);
-                  this.updateLeverageCurrencyData(e.target.value);
-                }}>
+                <Radio.Group defaultValue={0} buttonStyle="solid" value={this.state.currencySelect} onChange={this.onCurrencyChange}>
                   {
                     this.state.hedgeInfo.currency.map((v, i) => {
                       return (<Radio.Button value={i} key={i}>{v}</Radio.Button>);
@@ -851,11 +870,7 @@ class IndexPage extends Component {
                 </Radio.Group>
               </Col>
               <Col span={3}>
-                <Radio.Group defaultValue={0} buttonStyle="solid" value={this.state.currencySelect} onChange={(e) => {
-                  this.setState({ currencySelect: e.target.value });
-                  this.updateLeverageCurrencyData(e.target.value);
-                  this.updateHedgeCurrencyData(e.target.value);
-                }}>
+                <Radio.Group defaultValue={0} buttonStyle="solid" value={this.state.currencySelect} onChange={this.onCurrencyChange}>
                   {
                     this.state.leverageInfo.currency.map((v, i) => {
                       return (<Radio.Button value={i} key={i}>{v}</Radio.Button>);
