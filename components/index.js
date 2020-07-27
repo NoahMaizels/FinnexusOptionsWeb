@@ -187,6 +187,7 @@ export const HistoryTable = styled(Table)`
     font-weight:bold;
     color:rgba(255,255,255,1);
     opacity:0.3;
+    /* text-align: center; */
   }
   .ant-table-tbody {
     background: #1F2034;
@@ -392,6 +393,10 @@ const AmountInput = styled(AdjustInput)`
   width: 320px;
 `;
 
+const AmountShow = styled(AmountInput)`
+  font-size: 13px;
+`;
+
 export const checkNumber = e => {
   const { value } = e.target;
   const reg = /^[+]?\d*(\.\d*)?$/;
@@ -473,7 +478,7 @@ export const renderDepositModal = (chainType, visible, handleCancel, handleOk,
       </CenterAlign>
     </MyModal>
   );
-}
+};
 
 export const renderWithdrawModal = (chainType, visible, handleCancel, handleOk, 
   amountToDeposit, amountChange, currencyToPay, currencyChange, balance, loading, fee, locked) => {
@@ -531,7 +536,7 @@ export const renderWithdrawModal = (chainType, visible, handleCancel, handleOk,
       </CenterAlign>
     </MyModal>
   );
-}
+};
 
 export const renderBuyOptionsModal = (visible, handleCancel, handleOk, 
   amountToPay, currencyToPay, balance, loading, fee, locked) => {
@@ -583,5 +588,54 @@ export const renderBuyOptionsModal = (visible, handleCancel, handleOk,
       </CenterAlign>
     </MyModal>
   );
-}
+};
 
+export const renderSellOptionsModal = (chainType, visible, name, amountToSell, amountChange, handleOk, handleCancel, loading, balance, fee, locked) => {
+  let payToken = "Options";
+  return (
+    <MyModal
+      title="Sell Options"
+      visible={visible}
+      onOk={handleOk}
+      onCancel={handleCancel}
+      confirmLoading={loading}
+    >
+      <CenterAlign>
+        <Row>
+          <p>From address</p>
+          <WalletDiv>
+            {
+              chainType === 'wan'
+              ? <WalletButtonLong />
+              : <EthWalletButton />
+            }
+            {
+              locked
+              ? <Locked />
+              : null
+            }
+          </WalletDiv>
+        </Row>
+        <Row>
+          <p>Options name</p>
+          <AmountShow
+            value={name}
+            readOnly
+          />
+          
+        </Row>
+        <Row>
+          <SmallSpace />
+          <p>Amount to sell</p>
+          <AmountInput
+            placeholder={"Enter sell amount"}
+            value={amountToSell}
+            onChange={amountChange}
+          />
+          <p style={{opacity: "0.6"}}>* Your options balance is: {beautyNumber(balance, 8) + " "} </p>
+          <p style={{opacity: "0.6"}}>* Sell fee is {fee.sellFee*100 + "%"}.</p>
+        </Row>
+      </CenterAlign>
+    </MyModal>
+  );
+};

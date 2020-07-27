@@ -3,7 +3,6 @@ import abiErc20 from './abi/IERC20.json';
 import { message } from 'antd';
 import { contractInfo, decimals, fnxTokenAddress, wanTokenAddress, priceTimeout } from '../conf/config';
 import sleep from 'ko-sleep';
-
 import { getWeb3, isSwitchFinish } from './web3switch.js';
 
 // All smart contract instance
@@ -69,7 +68,7 @@ export const initSmartContract = async () => {
   }
 
   let web3 = await initWeb3();
-  scs.opManager = new web3.eth.Contract(require('./abi/OptionsMangerV2.json'), contractInfo.OptionsMangerV2.address);
+  scs.opManager = new web3.eth.Contract(require('./abi/OptionsManagerV2.json'), contractInfo.OptionsManagerV2.address);
   scs.oracle = new web3.eth.Contract(require('./abi/CompoundOracle.json'), contractInfo.CompoundOracle.address);
   scs.opPool = new web3.eth.Contract(require('./abi/OptionsPool.json'), contractInfo.OptionsPool.address);
   scs.opPrice = new web3.eth.Contract(require('./abi/OptionsPrice.json'), contractInfo.OptionsPrice.address);
@@ -308,7 +307,7 @@ export const deposit = async (chainType, amountToPay, currencyToPay, selectedWal
   let txParam = {gasPrice: '0x3B9ACA00'};
   if (chainType === 'wan') {
     let token = "0x0000000000000000000000000000000000000000";
-    txParam.to = contractInfo.OptionsMangerV2.address;
+    txParam.to = contractInfo.OptionsManagerV2.address;
     if (currencyToPay != 0) {
       token = fnxTokenAddress;
       let apRet = await approve(token, amountToPay, selectedWallet);
@@ -364,7 +363,7 @@ export const withdraw = async (chainType, amountToPay, currencyToPay, selectedWa
   let txParam = {gasPrice: '0x3B9ACA00'};
   if (chainType === 'wan') {
     let token = "0x0000000000000000000000000000000000000000";
-    txParam.to = contractInfo.OptionsMangerV2.address;
+    txParam.to = contractInfo.OptionsManagerV2.address;
     if (currencyToPay != 0) {
       token = fnxTokenAddress;
     } 
@@ -414,7 +413,7 @@ export const buyOptions = async (chainType, currencyToPay, amountToPay, strikePr
   if (chainType === 'wan') {
     let web3 = getWeb3();
     let token = "0x0000000000000000000000000000000000000000";
-    txParam.to = contractInfo.OptionsMangerV2.address;
+    txParam.to = contractInfo.OptionsManagerV2.address;
     if (currencyToPay != 2) {
       token = fnxTokenAddress;
       let apRet = await approve(token, amountToPay, selectedWallet);
@@ -490,7 +489,7 @@ export const approve = async (tokenAddr, amount, selectedWallet) => {
     // console.log('approve token', tokenAddr, amount);
     let web3 = getWeb3();
     let token = new web3.eth.Contract(abiErc20, tokenAddr);
-    let data = await token.methods.approve(contractInfo.OptionsMangerV2.address, getWeb3().utils.toWei(amount.toString())).encodeABI();
+    let data = await token.methods.approve(contractInfo.OptionsManagerV2.address, getWeb3().utils.toWei(amount.toString())).encodeABI();
     const params = {
       to: tokenAddr,
       data,
@@ -589,6 +588,7 @@ export const updateUserOptions = async (address, chainType) => {
   
           let info = {
             id: ret[0],
+            key: ret[0],
             optType: ret[2] === '0' ? 'Call' : 'Put',
             underlying: ret[3] === '1' ? 'BTC' : 'ETH',
             expiration: ret[4],
@@ -614,12 +614,18 @@ export const getUserOptions = () => {
   if (optionsLatest.length > 0) {
     options = optionsLatest.slice();
   }
+  console.log('optionsLatest', optionsLatest);
   return options.sort((a,b)=>{return b.id - a.id});
 }
 
 export const getOptionsPrices = async () => {
-  while(optionsIDs === 0 || optionsIDs.length !== options.length) {
+  let timeout = 5;
+  while(optionsIDs.length === 0 || optionsIDs.length !== options.length) {
     await sleep(1000);
+    console.log('timeout', timeout);
+    if(timeout-- < 0 && optionsIDs.length === 0 ) {
+      return [];
+    }
   }
 
   let web3 = getWeb3()
@@ -652,6 +658,102 @@ export const getOptionsPrices = async () => {
   }
 
   // console.log('getOptionsPrices finish', options);
+}
+
+export const sellOptions = async (chainType, id, amount, selectedWallet, address) => {
+  if ( !amount ) {
+    message.error("Sorry, deposit input params error");
+    return false;
+  }
+  let ret = false;
+  console.log('sellOptions:', chainType, id, amount);
+  let txParam = {gasPrice: '0x3B9ACA00'};
+  if (chainType === 'wan') {
+    let web3 = getWeb3();
+    txParam.to = contractInfo.OptionsManagerV2.address;
+    txParam.value = "0";
+
+    let gas = await scs.opManager.methods.sellOption(id, 
+      web3.utils.toWei(amount.toString())).estimateGas({gas: 1e7, from: address, value: txParam.value});
+    if (gas.toString() === "10000000") {
+      message.error("Sorry, gas estimate failed, Please check input params");
+      return false;
+    }
+    if (selectedWallet.type() === "EXTENSION") {
+      txParam.gas = gas;
+    } else {
+      txParam.gasLimit = gas;
+    }
+
+    let data = await scs.opManager.methods.sellOption(id, 
+      web3.utils.toWei(amount.toString())).encodeABI();
+    txParam.data = data;
+
+    let transactionID = await selectedWallet.sendTransaction(txParam);
+    console.log('sendTransaction:', transactionID);
+    message.info("Transaction Submitted, txHash:" + transactionID);
+    let timeout = 20;
+    while (timeout > 0) {
+      const txReceipt = await getTransactionReceipt(transactionID);
+      if (!txReceipt) {
+        await sleep(3000);
+        console.log('waiting...');
+      } else {
+        return txReceipt.status;
+      }
+      timeout--;
+    }
+  }
+
+  return ret;
+}
+
+export const exerciseOptions = async (chainType, id, amount) => {
+  if ( !amount ) {
+    message.error("Sorry, deposit input params error");
+    return false;
+  }
+  let ret = false;
+  console.log('exerciseOptions:', chainType, id, amount);
+  let txParam = {gasPrice: '0x3B9ACA00'};
+  if (chainType === 'wan') {
+    let web3 = getWeb3();
+    txParam.to = contractInfo.OptionsManagerV2.address;
+    txParam.value = "0";
+
+    let gas = await scs.opManager.methods.exerciseOption(id, 
+      web3.utils.toWei(amount.toString())).estimateGas({gas: 1e7, from: address, value: txParam.value});
+    if (gas.toString() === "10000000") {
+      message.error("Sorry, gas estimate failed, Please check input params");
+      return false;
+    }
+    if (selectedWallet.type() === "EXTENSION") {
+      txParam.gas = gas;
+    } else {
+      txParam.gasLimit = gas;
+    }
+
+    let data = await scs.opManager.methods.exerciseOption(id, 
+      web3.utils.toWei(amount.toString())).encodeABI();
+    txParam.data = data;
+
+    let transactionID = await selectedWallet.sendTransaction(txParam);
+    console.log('sendTransaction:', transactionID);
+    message.info("Transaction Submitted, txHash:" + transactionID);
+    let timeout = 20;
+    while (timeout > 0) {
+      const txReceipt = await getTransactionReceipt(transactionID);
+      if (!txReceipt) {
+        await sleep(3000);
+        console.log('waiting...');
+      } else {
+        return txReceipt.status;
+      }
+      timeout--;
+    }
+  }
+
+  return ret;
 }
 
 //// V1 code -----

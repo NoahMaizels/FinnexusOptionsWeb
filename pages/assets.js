@@ -1,14 +1,16 @@
 import { Table } from 'antd';
 import styles from './assets.css';
 import styled from 'styled-components';
-import { Body, Center, Space, ConnectWalletSub, InALine, Box, VerticalLine, InALineLeft, BigTitle, MyStatistic, InALineAround, HistoryTable } from '../components';
-import { Row, Col, Spin } from 'antd';
+import { Body, Center, Space, ConnectWalletSub, InALine, Box, VerticalLine, 
+  InALineLeft, BigTitle, MyStatistic, InALineAround, HistoryTable, renderSellOptionsModal, checkNumber } from '../components';
+import { Row, Col, Spin, message } from 'antd';
 import { Component } from 'react';
-import { getBalance, getCoinPrices, getCollateralInfo, beautyNumber, getUserOptions, getOptionsPrices } from '../utils/scHelper';
+import { getBalance, getCoinPrices, getCollateralInfo, beautyNumber, getUserOptions, getOptionsPrices, getFee, sellOptions } from '../utils/scHelper';
 import withRouter from 'umi/withRouter';
 import { Wallet, getSelectedAccount, WalletButton, WalletButtonLong, getSelectedAccountWallet, getTransactionReceipt } from "wan-dex-sdk-wallet";
 import { connect } from 'react-redux';
 import { fnxTokenAddress, contractInfo } from '../conf/config';
+import router from 'umi/router';
 
 class Assets extends Component {
   constructor(props) {
@@ -16,6 +18,15 @@ class Assets extends Component {
 
     this.state = {
       loading: false,
+      optionsOperateLoading: false,
+      sellOptionsModalVisible: false,
+      exerciseOptionsModalVisible: false,
+      transferModalVisible: false,
+      optionsID: -1,
+      optionsName: "",
+      optionsAmount: "",
+      chainType: "",
+      optionsBalance: 0,
       assets: [
         {
           assets: "ETH",
@@ -23,7 +34,8 @@ class Assets extends Component {
           usd: "$ 0",
           currentReturn: "--",
           expiration: '--',
-          operation: 0
+          operation: 0,
+          key: 'eth'
         },
         {
           assets: "WAN",
@@ -31,7 +43,8 @@ class Assets extends Component {
           usd: "$ 0",
           currentReturn: "--",
           expiration: '--',
-          operation: 0
+          operation: 0,
+          key: 'wan'
         },
         {
           assets: "Shares token @Wanchain",
@@ -39,7 +52,8 @@ class Assets extends Component {
           usd: "$ 0",
           currentReturn: "--",
           expiration: '--',
-          operation: 0
+          operation: 0,
+          key: 'Shares token @Wanchain'
         },
         {
           assets: "Shares token @Ethereum",
@@ -47,7 +61,8 @@ class Assets extends Component {
           usd: "$ 0",
           currentReturn: "--",
           expiration: '--',
-          operation: 0
+          operation: 0,
+          key: "Shares token @Ethereum"
         },
         {
           assets: "FNX @Ethereum",
@@ -55,7 +70,8 @@ class Assets extends Component {
           usd: "$ 0",
           currentReturn: "--",
           expiration: '--',
-          operation: 0
+          operation: 0,
+          key: "FNX @Ethereum",
         },
         {
           assets: "FNX @Wanchain",
@@ -63,7 +79,8 @@ class Assets extends Component {
           usd: "$ 0",
           currentReturn: "--",
           expiration: '--',
-          operation: 0
+          operation: 0,
+          key: "FNX @Wanchain",
         },
       ],
       options: []
@@ -100,7 +117,7 @@ class Assets extends Component {
       title: 'Operation',
       dataIndex: "operation",
       key: 'operation',
-      render: (value) => {
+      render: (value, row) => {
         if (value === 0) {
           return (
             <InALine>
@@ -112,8 +129,8 @@ class Assets extends Component {
         } else {
           return (
             <InALine>
-              <SmallButton><img src={require('../img/buy.png')} style={{ marginRight: "10px" }} />Buy</SmallButton>
-              <SmallButton><img src={require('../img/sell.png')} style={{ marginRight: "10px" }} />Sell</SmallButton>
+              <SmallButton onClick={()=>{router.push('/');}}><img src={require('../img/buy.png')} style={{ marginRight: "10px" }} />Buy</SmallButton>
+              <SmallButton onClick={()=>{this.onSellOptions(row)}}><img src={require('../img/sell.png')} style={{ marginRight: "10px" }} />Sell</SmallButton>
               <SmallButton disable><img src={require('../img/transfer.png')} style={{ marginRight: "10px" }} />Exercise</SmallButton>
             </InALine>
           );
@@ -131,6 +148,50 @@ class Assets extends Component {
       clearTimeout(this.timer);
       this.timer = undefined;
     }
+  }
+
+  onSellOptions = (info) => {
+    console.log('onSellOptions', info);
+    let id = this.getOptionsIdByName(info.assets);
+    if (id === -1) {
+      message.error("Sorry, can't find options id by name");
+    }
+    let chainType = info.assets.includes('Wanchain') ? 'wan' : 'eth';
+    this.setState({optionsID: id, chainType, optionsName: info.assets, optionsBalance: info.balance, sellOptionsModalVisible: true});
+  }
+
+  onSellOptionsOk = () => {
+    if (Number(this.state.optionsBalance) < Number(this.state.optionsAmount)) {
+      message.warn("Sorry, balance is not enough");
+      return;
+    }
+
+    if (!this.props.selectedAccount) {
+      message.warn("Please connect wallet first");
+      return;
+    }
+
+    let address = this.props.selectedAccount.get("address");
+
+    this.setState({optionsOperateLoading: true});
+
+    sellOptions(this.state.chainType, this.state.optionsID, this.state.optionsAmount, this.props.selectedWallet, address).then((ret)=>{
+      if (ret) {
+        message.info("Sell options success");
+        this.setState({optionsID: -1, sellOptionsModalVisible: false, optionsAmount: '', optionsName: '', optionsOperateLoading: false});
+      } else {
+        message.error("Sell options failed");
+        this.setState({ optionsOperateLoading: false});
+      }
+    }).catch(e=>{
+      console.log(e);
+      message.error(e.message);
+      this.setState({ optionsOperateLoading: false});
+    });
+  }
+
+  onSellOptionsCancel = () => {
+    this.setState({optionsID: -1, sellOptionsModalVisible: false, optionsAmount: '', optionsName: ''});
   }
 
   getTableData = () => {
@@ -206,14 +267,26 @@ class Assets extends Component {
     this.setState({ options });
   }
 
+  getOptionsIdByName = (name) => {
+    let options = getUserOptions();
+    for(let i=0; i < options.length; i++) {
+      if (name === options[i].name)
+      {
+        return options[i].id;
+      }
+    }
+
+    return -1;
+  }
+
   updateInfo = (loading) => {
     if (loading) {
       this.setState({loading: loading});
-    }
+    } 
 
     let prices = getCoinPrices();
     let options = getUserOptions();
-    if (Number(prices.WAN) === 0 || !this.props.selectedAccount || options.length === 0) {
+    if (Number(prices.WAN) === 0 || !this.props.selectedAccount) {
       this.timer = setTimeout(this.updateInfo, 3000);
       return;
     }
@@ -228,7 +301,7 @@ class Assets extends Component {
       this.setInfo('FNX @Wanchain', ret, ret * prices.FNX);
     }).catch(e => console.log(e));
 
-    getBalance(contractInfo.OptionsMangerV2.address, address).then((ret) => {
+    getBalance(contractInfo.OptionsManagerV2.address, address).then((ret) => {
       this.setInfo('Shares token @Wanchain', ret, ret * colInfo.sharePrice);
     }).catch(e => console.log(e));
 
@@ -316,6 +389,19 @@ class Assets extends Component {
             <AssetsTable columns={this.column} dataSource={this.getTableData()} />
           </Body>
         </Spin>
+        {
+          this.state.sellOptionsModalVisible
+          ? renderSellOptionsModal(this.state.chainType, this.state.sellOptionsModalVisible, this.state.optionsName,
+              this.state.optionsAmount,
+              (e) => {
+                if (checkNumber(e)) {
+                  this.setState({ optionsAmount: e.target.value });
+                }
+              }, 
+              this.onSellOptionsOk, this.onSellOptionsCancel, this.state.optionsOperateLoading, this.state.optionsBalance, getFee(),
+              this.props.selectedAccount.get("isLocked"))
+          : null
+        }
       </Center>
     );
   }
