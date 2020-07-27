@@ -708,7 +708,7 @@ export const sellOptions = async (chainType, id, amount, selectedWallet, address
   return ret;
 }
 
-export const exerciseOptions = async (chainType, id, amount) => {
+export const exerciseOptions = async (chainType, id, amount, selectedWallet, address) => {
   if ( !amount ) {
     message.error("Sorry, deposit input params error");
     return false;

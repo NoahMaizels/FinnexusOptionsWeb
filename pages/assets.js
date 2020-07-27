@@ -2,10 +2,12 @@ import { Table } from 'antd';
 import styles from './assets.css';
 import styled from 'styled-components';
 import { Body, Center, Space, ConnectWalletSub, InALine, Box, VerticalLine, 
-  InALineLeft, BigTitle, MyStatistic, InALineAround, HistoryTable, renderSellOptionsModal, checkNumber } from '../components';
+  InALineLeft, BigTitle, MyStatistic, InALineAround, HistoryTable, 
+  renderSellOptionsModal, checkNumber, renderExerciseModal } from '../components';
 import { Row, Col, Spin, message } from 'antd';
 import { Component } from 'react';
-import { getBalance, getCoinPrices, getCollateralInfo, beautyNumber, getUserOptions, getOptionsPrices, getFee, sellOptions } from '../utils/scHelper';
+import { getBalance, getCoinPrices, getCollateralInfo, beautyNumber, getUserOptions, 
+  getOptionsPrices, getFee, sellOptions, exerciseOptions } from '../utils/scHelper';
 import withRouter from 'umi/withRouter';
 import { Wallet, getSelectedAccount, WalletButton, WalletButtonLong, getSelectedAccountWallet, getTransactionReceipt } from "wan-dex-sdk-wallet";
 import { connect } from 'react-redux';
@@ -131,7 +133,7 @@ class Assets extends Component {
             <InALine>
               <SmallButton onClick={()=>{router.push('/');}}><img src={require('../img/buy.png')} style={{ marginRight: "10px" }} />Buy</SmallButton>
               <SmallButton onClick={()=>{this.onSellOptions(row)}}><img src={require('../img/sell.png')} style={{ marginRight: "10px" }} />Sell</SmallButton>
-              <SmallButton disable><img src={require('../img/transfer.png')} style={{ marginRight: "10px" }} />Exercise</SmallButton>
+              <SmallButton onClick={()=>{this.onExerciseOptions(row)}}><img src={require('../img/transfer.png')} style={{ marginRight: "10px" }} />Exercise</SmallButton>
             </InALine>
           );
         }
@@ -192,6 +194,50 @@ class Assets extends Component {
 
   onSellOptionsCancel = () => {
     this.setState({optionsID: -1, sellOptionsModalVisible: false, optionsAmount: '', optionsName: ''});
+  }
+
+  onExerciseOptions = (info) => {
+    console.log('onExerciseOptions', info);
+    let id = this.getOptionsIdByName(info.assets);
+    if (id === -1) {
+      message.error("Sorry, can't find options id by name");
+    }
+    let chainType = info.assets.includes('Wanchain') ? 'wan' : 'eth';
+    this.setState({optionsID: id, chainType, optionsName: info.assets, optionsBalance: info.balance, exerciseOptionsModalVisible: true});
+  }
+
+  onExerciseOk = () => {
+    if (Number(this.state.optionsBalance) < Number(this.state.optionsAmount)) {
+      message.warn("Sorry, balance is not enough");
+      return;
+    }
+
+    if (!this.props.selectedAccount) {
+      message.warn("Please connect wallet first");
+      return;
+    }
+
+    let address = this.props.selectedAccount.get("address");
+
+    this.setState({optionsOperateLoading: true});
+
+    exerciseOptions(this.state.chainType, this.state.optionsID, this.state.optionsAmount, this.props.selectedWallet, address).then((ret)=>{
+      if (ret) {
+        message.info("Exercise options success");
+        this.setState({optionsID: -1, exerciseOptionsModalVisible: false, optionsAmount: '', optionsName: '', optionsOperateLoading: false});
+      } else {
+        message.error("Exercise options failed");
+        this.setState({ optionsOperateLoading: false});
+      }
+    }).catch(e=>{
+      console.log(e);
+      message.error(e.message);
+      this.setState({ optionsOperateLoading: false});
+    });
+  }
+
+  onExerciseCancel = () => {
+    this.setState({optionsID: -1, exerciseOptionsModalVisible: false, optionsAmount: '', optionsName: ''});
   }
 
   getTableData = () => {
@@ -399,6 +445,19 @@ class Assets extends Component {
                 }
               }, 
               this.onSellOptionsOk, this.onSellOptionsCancel, this.state.optionsOperateLoading, this.state.optionsBalance, getFee(),
+              this.props.selectedAccount.get("isLocked"))
+          : null
+        }
+        {
+          this.state.exerciseOptionsModalVisible
+          ? renderExerciseModal(this.state.chainType, this.state.exerciseOptionsModalVisible, this.state.optionsName,
+              this.state.optionsAmount,
+              (e) => {
+                if (checkNumber(e)) {
+                  this.setState({ optionsAmount: e.target.value });
+                }
+              }, 
+              this.onExerciseOk, this.onExerciseCancel, this.state.optionsOperateLoading, this.state.optionsBalance, getFee(),
               this.props.selectedAccount.get("isLocked"))
           : null
         }

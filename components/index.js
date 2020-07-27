@@ -591,10 +591,9 @@ export const renderBuyOptionsModal = (visible, handleCancel, handleOk,
 };
 
 export const renderSellOptionsModal = (chainType, visible, name, amountToSell, amountChange, handleOk, handleCancel, loading, balance, fee, locked) => {
-  let payToken = "Options";
   return (
     <MyModal
-      title="Sell Options"
+      title="Options Sell"
       visible={visible}
       onOk={handleOk}
       onCancel={handleCancel}
@@ -634,6 +633,55 @@ export const renderSellOptionsModal = (chainType, visible, name, amountToSell, a
           />
           <p style={{opacity: "0.6"}}>* Your options balance is: {beautyNumber(balance, 8) + " "} </p>
           <p style={{opacity: "0.6"}}>* Sell fee is {fee.sellFee*100 + "%"}.</p>
+        </Row>
+      </CenterAlign>
+    </MyModal>
+  );
+};
+
+export const renderExerciseModal = (chainType, visible, name, amountToSell, amountChange, handleOk, handleCancel, loading, balance, fee, locked) => {
+  return (
+    <MyModal
+      title="Options Exercise"
+      visible={visible}
+      onOk={handleOk}
+      onCancel={handleCancel}
+      confirmLoading={loading}
+    >
+      <CenterAlign>
+        <Row>
+          <p>From address</p>
+          <WalletDiv>
+            {
+              chainType === 'wan'
+              ? <WalletButtonLong />
+              : <EthWalletButton />
+            }
+            {
+              locked
+              ? <Locked />
+              : null
+            }
+          </WalletDiv>
+        </Row>
+        <Row>
+          <p>Options name</p>
+          <AmountShow
+            value={name}
+            readOnly
+          />
+          
+        </Row>
+        <Row>
+          <SmallSpace />
+          <p>Amount to exercise</p>
+          <AmountInput
+            placeholder={"Enter exercise amount"}
+            value={amountToSell}
+            onChange={amountChange}
+          />
+          <p style={{opacity: "0.6"}}>* Your options balance is: {beautyNumber(balance, 8) + " "} </p>
+          <p style={{opacity: "0.6"}}>* Exercise fee is {fee.exerciseFee*100 + "%"}.</p>
         </Row>
       </CenterAlign>
     </MyModal>
