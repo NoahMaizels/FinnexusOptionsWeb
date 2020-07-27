@@ -661,7 +661,7 @@ export const getOptionsPrices = async () => {
 }
 
 export const sellOptions = async (chainType, id, amount, selectedWallet, address) => {
-  if ( !amount ) {
+  if ( !amount || !selectedWallet || !address ) {
     message.error("Sorry, deposit input params error");
     return false;
   }
@@ -709,7 +709,7 @@ export const sellOptions = async (chainType, id, amount, selectedWallet, address
 }
 
 export const exerciseOptions = async (chainType, id, amount, selectedWallet, address) => {
-  if ( !amount ) {
+  if ( !amount || !selectedWallet || !address) {
     message.error("Sorry, deposit input params error");
     return false;
   }
@@ -736,6 +736,76 @@ export const exerciseOptions = async (chainType, id, amount, selectedWallet, add
     let data = await scs.opManager.methods.exerciseOption(id, 
       web3.utils.toWei(amount.toString())).encodeABI();
     txParam.data = data;
+
+    let transactionID = await selectedWallet.sendTransaction(txParam);
+    console.log('sendTransaction:', transactionID);
+    message.info("Transaction Submitted, txHash:" + transactionID);
+    let timeout = 20;
+    while (timeout > 0) {
+      const txReceipt = await getTransactionReceipt(transactionID);
+      if (!txReceipt) {
+        await sleep(3000);
+        console.log('waiting...');
+      } else {
+        return txReceipt.status;
+      }
+      timeout--;
+    }
+  }
+
+  return ret;
+}
+
+export const transferToken = async (chainType, token, to, value, selectedWallet, address) => {
+  if ( !value || !selectedWallet || !address) {
+    message.error("Sorry, deposit input params error");
+    return false;
+  }
+  let ret = false;
+  console.log('transferToken:', chainType, token, to, value);
+  let txParam = {gasPrice: '0x3B9ACA00'};
+  if (chainType === 'wan') {
+    let web3 = getWeb3();
+
+    let wanAddr = "0x0000000000000000000000000000000000000000";
+    let gas = 0;
+    if (token === wanAddr) {
+      txParam.to = to;
+      txParam.value = '0x' + web3.utils.toBN(web3.utils.toWei(value.toString())).toString('hex');
+      gas = '0x' + web3.utils.toBN('21000').toString('hex');
+      if (selectedWallet.type() === "EXTENSION") {
+        txParam.gas = gas;
+      } else {
+        txParam.gasLimit = gas;
+      }
+
+      txParam.data = "0x";
+    } else {
+      txParam.to = token;
+      txParam.value = "0x0";
+      let erc20 = new web3.eth.Contract(abiErc20, token);
+      let gas = await erc20.methods.transfer(to, 
+        web3.utils.toWei(value.toString())).estimateGas({gas: 1e7, from: address, value: txParam.value});
+      if (gas.toString() === "10000000") {
+        message.error("Sorry, gas estimate failed, Please check input params");
+        return false;
+      }
+
+      if (selectedWallet.type() === "EXTENSION") {
+        txParam.gas = gas;
+      } else {
+        txParam.gasLimit = gas;
+      }
+  
+      let data = await erc20.methods.transfer(to, 
+        web3.utils.toWei(value.toString())).encodeABI();
+      txParam.data = data;
+    }
+
+
+
+
+
 
     let transactionID = await selectedWallet.sendTransaction(txParam);
     console.log('sendTransaction:', transactionID);
