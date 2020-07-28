@@ -382,10 +382,12 @@ const MyModal = styled(Modal)`
   .ant-modal-content {
     border-radius: 15px;
     width: 406px;
+    background:rgba(38,39,61,1);
   }
 
   .ant-modal-header {
     border-radius: 15px 15px 0 0;
+    background:rgba(38,39,61,1);
   }
 `;
 
@@ -682,6 +684,55 @@ export const renderExerciseModal = (chainType, visible, name, amountToSell, amou
           />
           <p style={{opacity: "0.6"}}>* Your options balance is: {beautyNumber(balance, 8) + " "} </p>
           <p style={{opacity: "0.6"}}>* Exercise fee is {fee.exerciseFee*100 + "%"}.</p>
+        </Row>
+      </CenterAlign>
+    </MyModal>
+  );
+};
+
+export const renderTransferModal = (chainType, visible, name, amount, amountChange, to, toChange, handleOk, handleCancel, loading, balance, locked) => {
+  return (
+    <MyModal
+      title={"Transfer " + name}
+      visible={visible}
+      onOk={handleOk}
+      onCancel={handleCancel}
+      confirmLoading={loading}
+    >
+      <CenterAlign>
+        <Row>
+          <p>From address</p>
+          <WalletDiv>
+            {
+              chainType === 'wan'
+              ? <WalletButtonLong />
+              : <EthWalletButton />
+            }
+            {
+              locked
+              ? <Locked />
+              : null
+            }
+          </WalletDiv>
+        </Row>
+        <Row>
+          <p>To address</p>
+          <AmountInput
+            placeholder={"Enter to address"}
+            value={to}
+            onChange={toChange}
+          />
+        </Row>
+        <Row>
+          <SmallSpace />
+          <p>Amount</p>
+          <AmountInput
+            placeholder={"Enter transfer amount"}
+            value={amount}
+            onChange={amountChange}
+            suffix={<YellowText>{name}</YellowText>}
+          />
+          <p style={{opacity: "0.6"}}>* Your balance is: {beautyNumber(balance, 8) + " "} </p>
         </Row>
       </CenterAlign>
     </MyModal>

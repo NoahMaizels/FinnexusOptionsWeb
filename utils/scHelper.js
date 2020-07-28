@@ -802,11 +802,6 @@ export const transferToken = async (chainType, token, to, value, selectedWallet,
       txParam.data = data;
     }
 
-
-
-
-
-
     let transactionID = await selectedWallet.sendTransaction(txParam);
     console.log('sendTransaction:', transactionID);
     message.info("Transaction Submitted, txHash:" + transactionID);

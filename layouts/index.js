@@ -28,6 +28,20 @@ class Layout extends Component {
     };
   }
 
+  componentDidUpdate(pre) {
+    if (!pre.selectedAccount) {
+      return;
+    }
+    let preAddr = pre.selectedAccount.get('address');
+    if (this.props.selectedAccount) {
+      let currentAddr = this.props.selectedAccount.get('address');
+      if (preAddr !== currentAddr) {
+        // this.setState({});
+        location.reload();
+      }
+    }
+  }
+
   async componentWillMount() {
     while (true) {
       if (isSwitchFinish()) {
@@ -148,7 +162,7 @@ class Layout extends Component {
         </InALine>
         {this.props.selectedAccountID === 'EXTENSION' && parseInt(this.props.networkId, 10) !== parseInt(networkId, 10) && (
           <div className="network-warning bg-warning text-white text-center" style={{ padding: 4, backgroundColor: "red", textAlign: "center" }}>
-            Please be noted that you are currently choosing the Testnet for WanMask and shall switch to Mainnet for playing Wandora.
+            Please be noted that you are currently choosing the Testnet for WanMask and shall switch to Mainnet for Use.
           </div>
         )}
         {this.props.children}

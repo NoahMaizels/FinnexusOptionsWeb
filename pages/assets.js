@@ -3,11 +3,11 @@ import styles from './assets.css';
 import styled from 'styled-components';
 import { Body, Center, Space, ConnectWalletSub, InALine, Box, VerticalLine, 
   InALineLeft, BigTitle, MyStatistic, InALineAround, HistoryTable, 
-  renderSellOptionsModal, checkNumber, renderExerciseModal } from '../components';
+  renderSellOptionsModal, checkNumber, renderExerciseModal, renderTransferModal } from '../components';
 import { Row, Col, Spin, message } from 'antd';
 import { Component } from 'react';
 import { getBalance, getCoinPrices, getCollateralInfo, beautyNumber, getUserOptions, 
-  getOptionsPrices, getFee, sellOptions, exerciseOptions } from '../utils/scHelper';
+  getOptionsPrices, getFee, sellOptions, exerciseOptions, transferToken } from '../utils/scHelper';
 import withRouter from 'umi/withRouter';
 import { Wallet, getSelectedAccount, WalletButton, WalletButtonLong, getSelectedAccountWallet, getTransactionReceipt } from "wan-dex-sdk-wallet";
 import { connect } from 'react-redux';
@@ -29,6 +29,11 @@ class Assets extends Component {
       optionsAmount: "",
       chainType: "",
       optionsBalance: 0,
+      transferName: "",
+      transferAmount: "",
+      transferTo: "",
+      transferBalance: "",
+      transferToken: "0x0000000000000000000000000000000000000000",
       assets: [
         {
           assets: "ETH",
@@ -125,7 +130,7 @@ class Assets extends Component {
             <InALine>
               <SmallButton><img src={require('../img/buy.png')} style={{ marginRight: "10px" }} />Buy</SmallButton>
               <SmallButton><img src={require('../img/sell.png')} style={{ marginRight: "10px" }} />Sell</SmallButton>
-              <SmallButton><img src={require('../img/transfer.png')} style={{ marginRight: "10px" }} />Transfer</SmallButton>
+              <SmallButton onClick={()=>{this.onTransfer(row.assets)}}><img src={require('../img/transfer.png')} style={{ marginRight: "10px" }} />Transfer</SmallButton>
             </InALine>
           );
         } else {
@@ -240,12 +245,52 @@ class Assets extends Component {
     this.setState({optionsID: -1, exerciseOptionsModalVisible: false, optionsAmount: '', optionsName: ''});
   }
 
+  onTransferOk = () => {
+    if (Number(this.state.transferBalance) < Number(this.state.transferAmount)) {
+      message.warn("Sorry, balance is not enough");
+      return;
+    }
+
+    if (!this.props.selectedAccount) {
+      message.warn("Please connect wallet first");
+      return;
+    }
+
+    let address = this.props.selectedAccount.get("address");
+
+    this.setState({optionsOperateLoading: true});
+
+    // chainType, token, to, value, selectedWallet, address
+    let token = '';
+    transferToken(this.state.chainType, this.state.transferToken, this.state.transferTo, this.state.transferAmount, this.props.selectedWallet, address).then((ret)=>{
+      if (ret) {
+        message.info("Transfer success");
+        this.setState({optionsID: -1, transferModalVisible: false, optionsAmount: '', optionsName: '', optionsOperateLoading: false});
+      } else {
+        message.error("Transfer failed");
+        this.setState({ optionsOperateLoading: false});
+      }
+    }).catch(e=>{
+      console.log(e);
+      message.error(e.message);
+      this.setState({ optionsOperateLoading: false});
+    });
+  }
+
+  onTransferCancel = () => {
+    this.setState({ transferModalVisible: false });
+  }
+
   getTableData = () => {
     let assets = this.state.assets.filter((v) => {
       return !v.assets.includes('FNX');
     });
 
-    return assets.concat(this.state.options);
+    let options = this.state.options.filter((v) => {
+      return Number(v.balance) !== 0;
+    })
+
+    return assets.concat(options);
   }
 
   getPanelData = () => {
@@ -362,6 +407,50 @@ class Assets extends Component {
     this.timer = setTimeout(this.updateInfo, 30000);
   }
 
+  onTransfer = (tokenName) => {
+    console.log('onTransfer', tokenName);
+    if (tokenName==='FNX(WRC20)') {
+      this.setState({
+        chainType: 'wan',
+        transferName: tokenName,
+        transferToken: fnxTokenAddress,
+        transferModalVisible: true,
+        transferBalance: this.getPanelData()[1].balance
+      });
+    }
+
+    if (tokenName==='FNX(ERC20)') {
+      
+    }
+
+    if (tokenName==='WAN') {
+      this.setState({
+        chainType: 'wan',
+        transferName: tokenName,
+        transferToken: '0x0000000000000000000000000000000000000000',
+        transferModalVisible: true,
+        transferBalance: this.getTableData()[1].balance
+      });
+    }
+
+    if (tokenName==='ETH') {
+      
+    }
+
+    if (tokenName==='Shares token @Wanchain') {
+      this.setState({
+        chainType: 'wan',
+        transferName: tokenName,
+        transferToken: contractInfo.OptionsManagerV2.address,
+        transferModalVisible: true,
+        transferBalance: this.getTableData()[2].balance
+      });
+    }
+
+    if (tokenName==='Shares token @Ethereum') {
+      
+    }
+  }
 
   render() {
     return (
@@ -425,7 +514,7 @@ class Assets extends Component {
                     <InALineAround style={{ width: "100%" }}>
                       <MyButton><img src={require('../img/buy.png')} style={{ marginRight: "10px" }} />Buy</MyButton>
                       <MyButton><img src={require('../img/sell.png')} style={{ marginRight: "10px" }} />Sell</MyButton>
-                      <MyButton><img src={require('../img/transfer.png')} style={{ marginRight: "10px" }} />Transfer</MyButton>
+                      <MyButton onClick={()=>{this.onTransfer('FNX(WRC20)')}}><img src={require('../img/transfer.png')} style={{ marginRight: "10px" }} />Transfer</MyButton>
                     </InALineAround>
                   </Row>
                 </Box2>
@@ -459,6 +548,23 @@ class Assets extends Component {
               }, 
               this.onExerciseOk, this.onExerciseCancel, this.state.optionsOperateLoading, this.state.optionsBalance, getFee(),
               this.props.selectedAccount.get("isLocked"))
+          : null
+        }
+        {
+          this.state.transferModalVisible
+          ? renderTransferModal(this.state.chainType, this.state.transferModalVisible, this.state.transferName,
+            this.state.transferAmount,
+            (e) => {
+              if (checkNumber(e)) {
+                this.setState({ transferAmount: e.target.value });
+              }
+            }, 
+            this.state.transferTo,
+            (e) => {
+              this.setState({ transferTo: e.target.value });
+            },
+            this.onTransferOk, this.onTransferCancel, this.state.optionsOperateLoading, this.state.transferBalance,
+            this.props.selectedAccount.get("isLocked"))
           : null
         }
       </Center>
