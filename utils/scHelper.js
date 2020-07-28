@@ -567,6 +567,10 @@ export const watchTransactionStatus = (txID, callback) => {
 };
 
 export const updateUserOptions = async (address, chainType) => {
+  if (!address) {
+    return;
+  }
+
   if (chainType === 'wan') {
     await initSmartContract();
     let web3 = getWeb3();
