@@ -310,7 +310,7 @@ export const deposit = async (chainType, amountToPay, currencyToPay, selectedWal
     txParam.to = contractInfo.OptionsManagerV2.address;
     if (currencyToPay != 0) {
       token = fnxTokenAddress;
-      let apRet = await approve(token, amountToPay, selectedWallet);
+      let apRet = await approve(token, amountToPay, address, selectedWallet);
       if (!apRet) {
         return false;
       }
@@ -358,7 +358,7 @@ export const withdraw = async (chainType, amountToPay, currencyToPay, selectedWa
     return false;
   }
   let ret = false;
-  console.log('deposit:', chainType, amountToPay, currencyToPay);
+  console.log('withdraw:', chainType, amountToPay, currencyToPay);
   let web3 = getWeb3();
   let txParam = {gasPrice: '0x3B9ACA00'};
   if (chainType === 'wan') {
@@ -368,7 +368,7 @@ export const withdraw = async (chainType, amountToPay, currencyToPay, selectedWa
       token = fnxTokenAddress;
     } 
     txParam.value = "0";
-    console.log('addCollateral:', token, web3.utils.toWei(amountToPay.toString()));
+    console.log('withdraw:', token, web3.utils.toWei(amountToPay.toString()));
     let gas = await scs.opManager.methods.redeemCollateral(web3.utils.toWei(amountToPay.toString()), token).estimateGas({gas: 1e7, from: address, value: txParam.value});
     if (gas.toString() === "10000000") {
       message.error("Sorry, gas estimate failed, Please check input params");
@@ -416,7 +416,7 @@ export const buyOptions = async (chainType, currencyToPay, amountToPay, strikePr
     txParam.to = contractInfo.OptionsManagerV2.address;
     if (currencyToPay != 2) {
       token = fnxTokenAddress;
-      let apRet = await approve(token, amountToPay, selectedWallet);
+      let apRet = await approve(token, amountToPay, address, selectedWallet);
       if (!apRet) {
         return false;
       }
@@ -479,7 +479,7 @@ export const getBalance = async (tokenAddress, address) => {
   return Number(getWeb3().utils.fromWei(balance.toString()));
 }
 
-export const approve = async (tokenAddr, amount, selectedWallet) => {
+export const approve = async (tokenAddr, amount, owner, selectedWallet) => {
   if (!tokenAddr || !amount || !selectedWallet) {
     message.error("approve input params error");
     return false;
@@ -489,6 +489,22 @@ export const approve = async (tokenAddr, amount, selectedWallet) => {
     // console.log('approve token', tokenAddr, amount);
     let web3 = getWeb3();
     let token = new web3.eth.Contract(abiErc20, tokenAddr);
+    let allowance = await token.methods.allowance(owner, contractInfo.OptionsManagerV2.address).call();
+    console.log('allowance', allowance);
+    if (Number(allowance) !== 0 && Number(amount) !== 0)
+    {
+      if (Number(web3.utils.fromWei(allowance.toString())) >= amount) {
+        return true;
+      }
+
+      let ret = await approve(tokenAddr, 0, owner, selectedWallet);
+      if (!ret) {
+        message.info('approve 0 failed');
+        return false;
+      }
+      message.info('approve 0 success');
+    }
+
     let data = await token.methods.approve(contractInfo.OptionsManagerV2.address, getWeb3().utils.toWei(amount.toString())).encodeABI();
     const params = {
       to: tokenAddr,
