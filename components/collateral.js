@@ -12,6 +12,7 @@ import withRouter from 'umi/withRouter';
 import { Wallet, getSelectedAccount, WalletButton, WalletButtonLong, getSelectedAccountWallet, getTransactionReceipt } from "wan-dex-sdk-wallet";
 import { connect } from 'react-redux';
 import { fnxTokenAddress } from '../conf/config.js';
+import axios from 'axios';
 
 
 class CollateralInfo extends Component {
@@ -31,10 +32,12 @@ class CollateralInfo extends Component {
       currencyToPay: "0",
       currencyBalance: 0,
       loading: false,
+      historyLine: [],
     };
   }
 
   componentDidMount() {
+    this.getHistoryLine();
     this.updateInfo();
     this.timer = setInterval(this.updateInfo, 5000);
   }
@@ -43,6 +46,32 @@ class CollateralInfo extends Component {
     if (this.timer) {
       clearInterval(this.timer);
     }
+  }
+
+  getHistoryLine = () => {
+    if (this.props.chain === 'wan') {
+      axios.get('https://wandora.finnexus.app/api/wan').then((resp) => {
+        let historyLine = resp.data.map((v)=>{
+          return {time: (new Date(v.time*1000)).toISOString(), value: v.value};
+          // return {time: (new Date(v.time*1000)).toLocaleDateString(), value: v.value};
+        });
+  
+        console.log('wan historyLine', historyLine);
+        this.setState({historyLine});
+      }).catch(e=>console.log(e));
+  
+    } else {
+      axios.get('https://wandora.finnexus.app/api/eth').then((resp) => {
+        let historyLine = resp.data.map((v)=>{
+          return {time: (new Date(v.time*1000)).toISOString(), value: v.value};
+          // return {time: (new Date(v.time*1000)).toLocaleDateString(), value: v.value};
+        });
+  
+        console.log('eth historyLine', historyLine);
+        this.setState({historyLine});
+      }).catch(e=>console.log(e));
+    }
+    
   }
 
   updateInfo = () => {
@@ -234,9 +263,9 @@ class CollateralInfo extends Component {
           padding={[30, 60, 50, 60]}
           autoFit
           height={320}
-          data={this.props.chain === 'wan' ? this.dataWan : this.dataEth}
-          xField='date'
-          yField='amount'
+          data={this.state.historyLine}
+          xField='time'
+          yField='value'
           smooth={false}
         >
           {/* <Line position="price*profit" />
