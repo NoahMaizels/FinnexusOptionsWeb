@@ -171,7 +171,7 @@ export const updateCoinPrices = async () => {
 }
 
 export const getCoinPrices = () => {
-  console.log('prices', prices);
+  // console.log('prices', prices);
   return prices;
 }
 

@@ -24,10 +24,12 @@ class BuyOptions extends Component {
       optType: "0",
       loading: false,
       amountToPay: '0$ / 0',
+      valueToPay: 0,
       currencyToPay: "0",
       buyModalVisible: false,
       buyLoading: false,
       balance: 0,
+      slider: 0,
     };
 
     this.needUpdate = true;
@@ -39,13 +41,37 @@ class BuyOptions extends Component {
 
   getInitPrice = async () => {
     let prices = getCoinPrices();
-    console.log('prices', prices);
+    // console.log('prices', prices);
     if (prices.WAN === 0) {
       setTimeout(this.getInitPrice, 1000);
       return;
     }
 
     this.setState({ strikePrice: prices[this.props.baseToken] });
+  }
+
+  calcLineData = (price, currentValue) => {
+    let amount = this.state.amount;
+    let optionsFee = -1 * currentValue;
+    console.log('optionsFee', optionsFee);
+    let data = [];
+    for (let i=0; i<100; i++) {
+      let linePrice = beautyNumber(price * (50 + i) / 100, 2);
+      
+      if (i<50) {
+        data.push({
+          profit: optionsFee,
+          price: linePrice,
+        });
+      } else {
+        data.push({
+          profit: beautyNumber(optionsFee + (amount * Math.abs(linePrice - price)), 4),
+          price: linePrice,
+        });
+      }
+    }
+    this.minValue = optionsFee - 1000;
+    return data;
   }
 
   updateOptionsPrice = async () => {
@@ -60,6 +86,8 @@ class BuyOptions extends Component {
       let value = ret * this.state.amount * (1 + Number(fee.buyFee));
       let payAmount = value/prices[currencyToPay];
       this.needUpdate = false;
+      this.lineData = this.calcLineData(prices[this.props.baseToken], beautyNumber(value, 4));
+
       this.setState({amountToPay: beautyNumber(value, 4) + "$ / " + beautyNumber(payAmount, 4)});
       // console.log(value + "$ / " + payAmount);
       return ret;
@@ -236,12 +264,20 @@ class BuyOptions extends Component {
                 <T1>Current {this.props.baseToken} Price:</T1>
                 <T1Number>{getCoinPrices()[this.props.baseToken] + '$'}</T1Number>
                 <T2>Expected {this.props.baseToken} Price:</T2>
-                <T2Number>9,200$</T2Number>
-                <PriceSlider defaultValue={30} />
+                <T2Number>{Number(getCoinPrices()[this.props.baseToken]*(100 + this.state.slider)/100).toFixed(2)}$</T2Number>
+                <PriceSlider 
+                  defaultValue={0} 
+                  max={50} min={-50} 
+                  tooltipVisible tipFormatter={(value)=>{return <div>{value>0?"+"+ value + "%":value + "%"}</div>}}
+                  onChange={(value)=>{
+                    this.needUpdate = false;
+                    this.setState({slider: value});
+                  }}
+                  />
               </SubLine>
             </Row>
             <Row>
-              <MyChart />
+              <MyChart lineData={this.lineData} slider={this.state.slider} optType={this.state.optType} minValue={this.minValue} />
             </Row>
           </Col>
         </Row>
@@ -359,7 +395,7 @@ const T2Number = styled(T2)`
 `;
 
 const PriceSlider = styled(Slider)`
-  width:330px;
+  width:280px;
   .ant-slider-rail {
     background: linear-gradient(0deg, #4B93FF 100%, #345EFF 100%);
   }

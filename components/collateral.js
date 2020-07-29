@@ -51,7 +51,7 @@ class CollateralInfo extends Component {
   }
 
   getHistoryLine = () => {
-    if (this.props.chain === 'wan') {
+    if (this.props.chainType === 'wan') {
       axios.get('https://wandora.finnexus.app/api/wan').then((resp) => {
         let historyLine = resp.data.map((v) => {
           return { time: (new Date(v.time * 1000)).toISOString(), value: v.value };

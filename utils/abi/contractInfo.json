@@ -1,22 +1,26 @@
 {
   "CompoundOracle":{
-    "address":"0xe92373B4Ed88fE02aD7119152F55940b6085101a",
+    "address":"0xA2566A5e5AD36DF36c97a389606081DD809e6c93",
     "fileName":"../contracts/CompoundOracle.json"
   },
   "imVolatility32":{
-    "address":"0x200C73403253AdB7BFCd789c203a5a5Bf6804E96",
+    "address":"0x2c2DaE8aBb8e911b47D123c8E574c2E834f894B7",
     "fileName":"../contracts/imVolatility32.json"
   },
+  "FNXMinePool":{
+    "address":"0x09C38cCfE7f4F42e828AFC5208C133f95C0fa130",
+    "fileName":"../contracts/FNXMinePool.json"
+  },
   "OptionsPrice":{
-    "address":"0x5739C4B63b8E949fB51Ee11A51Be2Ec9B73EbC64",
+    "address":"0xFCc7e4Ec338d4aBDEBBd5328af2a6Ffe31E923d5",
     "fileName":"../contracts/OptionsPool.json"
   },
   "OptionsPool":{
-    "address":"0xB48948ac717d7c431D169833575804e13aCEEC35",
+    "address":"0xD6596a1a35E3fe8940C7dbAf87a16bB8Adbb7681",
     "fileName":"../contracts/OptionsPool.json"
   },
   "OptionsManagerV2":{
-    "address":"0x3Cd0E5E8A8002c662658c3F14Cb355330F9f4F0B",
+    "address":"0x6c28Cc5C372e773fF2177836d669361a61623A12",
     "fileName":"../contracts/OptionsManagerV2.json"
   },
   "IERC20":{
