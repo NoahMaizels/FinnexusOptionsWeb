@@ -1,13 +1,13 @@
 import { Component } from 'react';
-import { LineChart, Line, Point, AreaChart } from 'bizcharts';
-import { Statistic, Row, Col, message } from 'antd';
+import { LineChart, Line, Point, AreaChart, Chart } from 'bizcharts';
+import { Statistic, Row, Col, message, Spin } from 'antd';
 import styled from 'styled-components';
 import {
   Header2, Space, ConnectWalletSub, MyStatistic,
   Box, ShortLine, InALineLeft, VerticalLine, BigTitle,
   SingleLine, renderDepositModal, checkNumber, renderWithdrawModal
 } from './index';
-import { getCollateralInfo, beautyNumber, getBalance, deposit, withdraw, getFee } from "../utils/scHelper.js";
+import { getCollateralInfo, beautyNumber, getBalance, deposit, withdraw, getFee, updateCollateralInfo } from "../utils/scHelper.js";
 import withRouter from 'umi/withRouter';
 import { Wallet, getSelectedAccount, WalletButton, WalletButtonLong, getSelectedAccountWallet, getTransactionReceipt } from "wan-dex-sdk-wallet";
 import { connect } from 'react-redux';
@@ -33,10 +33,12 @@ class CollateralInfo extends Component {
       currencyBalance: 0,
       loading: false,
       historyLine: [],
+      spinning: true,
     };
   }
 
   componentDidMount() {
+    this.firstLoad = true;
     this.getHistoryLine();
     this.updateInfo();
     this.timer = setInterval(this.updateInfo, 5000);
@@ -51,129 +53,87 @@ class CollateralInfo extends Component {
   getHistoryLine = () => {
     if (this.props.chain === 'wan') {
       axios.get('https://wandora.finnexus.app/api/wan').then((resp) => {
-        let historyLine = resp.data.map((v)=>{
-          return {time: (new Date(v.time*1000)).toISOString(), value: v.value};
+        let historyLine = resp.data.map((v) => {
+          return { time: (new Date(v.time * 1000)).toISOString(), value: v.value };
           // return {time: (new Date(v.time*1000)).toLocaleDateString(), value: v.value};
         });
-  
+
         console.log('wan historyLine', historyLine);
-        this.setState({historyLine});
-      }).catch(e=>console.log(e));
-  
+        let min=1e15, max=0;
+        for (let i=0; i<historyLine.length; i++) {
+          if (historyLine[i].value > max) {
+            max = historyLine[i].value;
+          }
+          if (historyLine[i].value < min) {
+            min = historyLine[i].value;
+          }
+        }
+        this.min = min / 1.1;
+        this.max = max * 1.1;
+
+        this.setState({ historyLine });
+      }).catch(e => console.log(e));
+
     } else {
       axios.get('https://wandora.finnexus.app/api/eth').then((resp) => {
-        let historyLine = resp.data.map((v)=>{
-          return {time: (new Date(v.time*1000)).toISOString(), value: v.value};
+        let historyLine = resp.data.map((v) => {
+          return { time: (new Date(v.time * 1000)).toISOString(), value: v.value };
           // return {time: (new Date(v.time*1000)).toLocaleDateString(), value: v.value};
         });
-  
+
         console.log('eth historyLine', historyLine);
-        this.setState({historyLine});
-      }).catch(e=>console.log(e));
+        let min=1e15, max=0;
+        for (let i=0; i<historyLine.length; i++) {
+          if (historyLine[i].value > max) {
+            max = historyLine[i].value;
+          }
+          if (historyLine[i].value < min) {
+            min = historyLine[i].value;
+          }
+        }
+        this.min = min / 1.1;
+        this.max = max * 1.1;
+
+        this.setState({ historyLine });
+      }).catch(e => console.log(e));
     }
-    
+
   }
 
   updateInfo = () => {
     let info = getCollateralInfo();
     // console.log('info:', info);
-    this.setState({
-      sharePrice: info.sharePrice,
-      totalSupply: info.totalSupply,
-      totalValue: info.totalValue,
-      usedValue: info.usedValue,
-      lowestPercent: info.lowestPercent,
-      balance: info.balance,
-      userPayUsd: info.userPayUsd,
+    if (info.lowestPercent > 0) {
+      this.setState({
+        sharePrice: info.sharePrice,
+        totalSupply: info.totalSupply,
+        totalValue: info.totalValue,
+        usedValue: info.usedValue,
+        lowestPercent: info.lowestPercent,
+        balance: info.balance,
+        userPayUsd: info.userPayUsd,
+      });
+
+      if (this.firstLoad) {
+        this.firstLoad = false;
+        this.setState({spinning: false});
+      }
+    }
+  }
+
+  updateNewInfo = () => {
+    console.log('updateNewInfo start');
+    this.setState({spinning: true});
+    updateCollateralInfo().then(() => {
+      this.updateInfo();
+      console.log('updateNewInfo success');
+      this.setState({spinning: false});
+    }).catch(e => {
+      console.log(e);
+      this.setState({spinning: false});
     });
   }
 
-  dataWan = [
-    {
-      date: "2020-07-11",
-      amount: 70,
-    },
-    {
-      date: "2020-07-12",
-      amount: 50,
-    },
-    {
-      date: "2020-07-13",
-      amount: 80,
-    },
-    {
-      date: "2020-07-14",
-      amount: 75,
-    },
-    {
-      date: "2020-07-15",
-      amount: 59,
-    },
-    {
-      date: "2020-07-16",
-      amount: 90,
-    },
-    {
-      date: "2020-07-17",
-      amount: 80,
-    },
-    {
-      date: "2020-07-18",
-      amount: 83,
-    },
-    {
-      date: "2020-07-19",
-      amount: 85,
-    },
-    {
-      date: "2020-07-20",
-      amount: 82,
-    }
-
-  ];
-
-  dataEth = [
-    {
-      date: "2020-07-11",
-      amount: 100,
-    },
-    {
-      date: "2020-07-12",
-      amount: 200,
-    },
-    {
-      date: "2020-07-13",
-      amount: 280,
-    },
-    {
-      date: "2020-07-14",
-      amount: 240,
-    },
-    {
-      date: "2020-07-15",
-      amount: 250,
-    },
-    {
-      date: "2020-07-16",
-      amount: 200,
-    },
-    {
-      date: "2020-07-17",
-      amount: 210,
-    },
-    {
-      date: "2020-07-18",
-      amount: 80,
-    },
-    {
-      date: "2020-07-19",
-      amount: 85,
-    },
-    {
-      date: "2020-07-20",
-      amount: 81,
-    }
-  ];
 
   depositCancel = () => {
     this.setState({ depositVisible: false, amountToPay: '' });
@@ -201,7 +161,7 @@ class CollateralInfo extends Component {
       if (ret) {
         this.setState({ depositVisible: false, loading: false, amountToPay: '' });
         message.info("Deposit success");
-        this.updateInfo();
+        this.updateNewInfo();
       } else {
         this.setState({ loading: false });
       }
@@ -229,7 +189,7 @@ class CollateralInfo extends Component {
       if (ret) {
         this.setState({ withdrawVisible: false, loading: false, amountToPay: '' });
         message.info("Withdraw success");
-        this.updateInfo();
+        this.updateNewInfo();
       } else {
         this.setState({ loading: false });
       }
@@ -266,45 +226,53 @@ class CollateralInfo extends Component {
           data={this.state.historyLine}
           xField='time'
           yField='value'
-          smooth={false}
+          smooth={true}
+          yAxis = {
+            {
+              visible: true,
+              min: this.min,
+            }
+          }
         >
-          {/* <Line position="price*profit" />
-            <Point position="8000*-30" /> */}
+          {/* <Line position="time*value" /> */}
+            {/* <Point position="8000*-30" /> */}
         </AreaChart>
         <Space />
-        <Row gutter={[24, 24]}>
-          <Col span={6}><Box><MyStatistic coldColor title="Collateral occupied percent" value={this.state.totalSupply > 0 ? beautyNumber(this.state.usedValue * 3 / this.state.totalValue * 100, 2) : 0} suffix="%" /><ShortLine coldColor /></Box></Col>
-          <Col span={6}><Box><MyStatistic coldColor title="Lowest collateral percent" value={this.state.lowestPercent} suffix="%" /><ShortLine coldColor /></Box></Col>
-          <Col span={6}><Box><MyStatistic coldColor title="Net value for total shares" value={beautyNumber(this.state.totalValue, 4)} suffix="$" /><ShortLine coldColor /></Box></Col>
-          <Col span={6}><Box><MyStatistic coldColor title="Net value for each share" value={beautyNumber(this.state.sharePrice, 4)} suffix="$" /><ShortLine coldColor /></Box></Col>
-        </Row>
-        <Row gutter={[24, 24]}>
-          <Col span={6}><Box><MyStatistic title="Total amount of shares" value={beautyNumber(this.state.totalSupply, 4)} /><ShortLine /></Box></Col>
-          <Col span={6}><Box><MyStatistic title="Return in this month" value={'0'} suffix="$" /><ShortLine /></Box></Col>
-          <Col span={6}><Box><MyStatistic title="APR in this month" value={'0'} suffix="%" /><ShortLine /></Box></Col>
-          <Col span={6}><Box><MyStatistic title="APR in this year" value={'0'} suffix="%" /><ShortLine /></Box></Col>
-        </Row>
-        <SingleLine />
-        <Header2>
-          <InALineLeft>
-            <Title>My Pool</Title>
-            <MyButton onClick={() => {
-              this.getBalance();
-              this.setState({ depositVisible: true });
-            }}>Deposit</MyButton>
-            <MyButton onClick={() => {
-              this.setState({ withdrawVisible: true });
-            }}>Withdraw</MyButton>
-          </InALineLeft>
-        </Header2>
-        <SingleLine />
-        <SmallSpace />
-        <Row gutter={[24, 40]}>
-          <Col span={6}><Box><MyStatistic title="My shares token" value={beautyNumber(this.state.balance, 4)} /><ShortLine coldColor /></Box></Col>
-          <Col span={6}><Box><MyStatistic title="Percentage of the pool" value={this.state.totalSupply > 0 ? beautyNumber(this.state.balance / this.state.totalSupply * 100, 4) : 0} suffix="%" /><ShortLine coldColor /></Box></Col>
-          <Col span={6}><Box><MyStatistic title="Current value" value={beautyNumber(this.state.balance * this.state.sharePrice, 4)} suffix="$" /><ShortLine coldColor /></Box></Col>
-          <Col span={6}><Box><MyStatistic title="Total return" value={beautyNumber(this.state.balance * this.state.sharePrice - this.state.userPayUsd, 4)} suffix="$" /><ShortLine coldColor /></Box></Col>
-        </Row>
+        <Spin spinning={this.state.spinning} size="large">
+          <Row gutter={[24, 24]}>
+            <Col span={6}><Box><MyStatistic coldColor title="Collateral occupied percent" value={this.state.totalSupply > 0 ? beautyNumber(this.state.usedValue * 3 / this.state.totalValue * 100, 2) : 0} suffix="%" /><ShortLine coldColor /></Box></Col>
+            <Col span={6}><Box><MyStatistic coldColor title="Lowest collateral percent" value={this.state.lowestPercent} suffix="%" /><ShortLine coldColor /></Box></Col>
+            <Col span={6}><Box><MyStatistic coldColor title="Net value for total shares" value={beautyNumber(this.state.totalValue, 4)} suffix="$" /><ShortLine coldColor /></Box></Col>
+            <Col span={6}><Box><MyStatistic coldColor title="Net value for each share" value={beautyNumber(this.state.sharePrice, 4)} suffix="$" /><ShortLine coldColor /></Box></Col>
+          </Row>
+          <Row gutter={[24, 24]}>
+            <Col span={6}><Box><MyStatistic title="Total amount of shares" value={beautyNumber(this.state.totalSupply, 4)} /><ShortLine /></Box></Col>
+            <Col span={6}><Box><MyStatistic title="Return in this month" value={'0'} suffix="$" /><ShortLine /></Box></Col>
+            <Col span={6}><Box><MyStatistic title="APR in this month" value={'0'} suffix="%" /><ShortLine /></Box></Col>
+            <Col span={6}><Box><MyStatistic title="APR in this year" value={'0'} suffix="%" /><ShortLine /></Box></Col>
+          </Row>
+          <SingleLine />
+          <Header2>
+            <InALineLeft>
+              <Title>My Pool</Title>
+              <MyButton onClick={() => {
+                this.getBalance();
+                this.setState({ depositVisible: true });
+              }}>Deposit</MyButton>
+              <MyButton onClick={() => {
+                this.setState({ withdrawVisible: true });
+              }}>Withdraw</MyButton>
+            </InALineLeft>
+          </Header2>
+          <SingleLine />
+          <SmallSpace />
+          <Row gutter={[24, 40]}>
+            <Col span={6}><Box><MyStatistic title="My shares token" value={beautyNumber(this.state.balance, 4)} /><ShortLine coldColor /></Box></Col>
+            <Col span={6}><Box><MyStatistic title="Percentage of the pool" value={this.state.totalSupply > 0 ? beautyNumber(this.state.balance / this.state.totalSupply * 100, 4) : 0} suffix="%" /><ShortLine coldColor /></Box></Col>
+            <Col span={6}><Box><MyStatistic title="Current value" value={beautyNumber(this.state.balance * this.state.sharePrice, 4)} suffix="$" /><ShortLine coldColor /></Box></Col>
+            <Col span={6}><Box><MyStatistic title="Total return" value={beautyNumber(this.state.balance * this.state.sharePrice - this.state.userPayUsd, 4)} suffix="$" /><ShortLine coldColor /></Box></Col>
+          </Row>
+        </Spin>
         {
           renderDepositModal(this.props.chainType, this.state.depositVisible, this.depositCancel, this.depositOk,
             this.state.amountToPay, (e) => {
@@ -316,7 +284,7 @@ class CollateralInfo extends Component {
                 this.getBalance();
               });
             }, this.state.currencyBalance, this.state.loading, getFee(),
-            this.props.selectedAccount ? this.props.selectedAccount.get("isLocked"):false)
+            this.props.selectedAccount ? this.props.selectedAccount.get("isLocked") : false)
         }
         {
           renderWithdrawModal(this.props.chainType, this.state.withdrawVisible, this.withdrawCancel, this.withdrawOk,
@@ -327,7 +295,7 @@ class CollateralInfo extends Component {
             }, this.state.currencyToPay, (e) => {
               this.setState({ currencyToPay: e.target.value });
             }, this.state.balance, this.state.loading, getFee(),
-            this.props.selectedAccount ? this.props.selectedAccount.get("isLocked"):false)
+            this.props.selectedAccount ? this.props.selectedAccount.get("isLocked") : false)
         }
       </div>
     );

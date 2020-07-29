@@ -214,6 +214,8 @@ export const updateCollateralInfo = async (address) => {
 
   let batch = new web3.BatchRequest();
 
+  let finish = false;
+
   batch.add(scs.opManager.methods.getTokenNetworth().call.request({}, (err, ret) => {
     if (err || !ret) {
       console.log(err, ret);
@@ -267,6 +269,10 @@ export const updateCollateralInfo = async (address) => {
     }
     console.log('getCollateralRate', ret);
     collateral.lowestPercent = beautyNumber(ret[0]**ret[1] * 100, 2);
+
+    if (!address) {
+      finish = true;
+    }
   }));
 
   if (address) {
@@ -277,6 +283,7 @@ export const updateCollateralInfo = async (address) => {
       }
       console.log('balanceOf', ret);
       collateral.balance = web3.utils.fromWei(ret);
+      finish = true;
     }));
 
     batch.add(scs.opManager.methods.getUserPayingUsd(address).call.request({}, (err, ret) => {
@@ -290,6 +297,12 @@ export const updateCollateralInfo = async (address) => {
   }
 
   batch.execute();
+
+  while(!finish) {
+    await sleep(500);
+  }
+  await sleep(5000);
+  console.log('update finish');
 }
 
 export const getCollateralInfo = () => {
