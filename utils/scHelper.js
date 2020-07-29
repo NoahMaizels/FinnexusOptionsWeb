@@ -470,7 +470,7 @@ export const approve = async (tokenAddr, owner, amount, selectedWallet) => {
     let allowance = await token.methods.allowance(owner, matchMakingTradingSCAddress);
     if (Number(allowance) !== 0 && Number(amount) !== 0)
     {
-      if (Number(web3.utils.fromWei(allowance)) >= amount) {
+      if (Number(web3.utils.fromWei(allowance.toString())) >= amount) {
         return true;
       }
 
