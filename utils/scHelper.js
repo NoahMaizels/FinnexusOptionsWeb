@@ -467,6 +467,18 @@ export const approve = async (tokenAddr, owner, amount, selectedWallet) => {
     // console.log('approve token', tokenAddr, amount);
     let web3 = getWeb3();
     let token = new web3.eth.Contract(abiErc20, tokenAddr);
+    let allowance = await token.methods.allowance(owner, matchMakingTradingSCAddress);
+    if (Number(allowance) !== 0 && Number(amount) !== 0)
+    {
+      if (Number(web3.utils.fromWei(allowance)) >= amount) {
+        return true;
+      }
+
+      let ret = await approve(tokenAddr, owner, 0, selectedWallet);
+      if (!ret) {
+        return false;
+      }
+    }
     let data = await token.methods.approve(matchMakingTradingSCAddress, getWeb3().utils.toWei(amount.toString())).encodeABI();
     const params = {
       to: tokenAddr,
