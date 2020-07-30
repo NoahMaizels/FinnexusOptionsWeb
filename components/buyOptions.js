@@ -2,14 +2,17 @@ import styled from 'styled-components';
 import { Component } from 'react';
 import { Row, Col, Input, Radio, Select, InputNumber, Slider, Spin, message } from 'antd';
 import MyChart from './chart.js';
-import { ConnectWallet, BuyBlock, InALineLeft, InALine, VerticalLine, 
+import {
+  ConnectWallet, BuyBlock, InALineLeft, InALine, VerticalLine,
   BigTitle, RadioGroup, RadioButton, CenterAlign, RadioButtonSmall,
-  YellowText, AdjustInput, DarkText, SmallSpace, checkNumber, renderBuyOptionsModal } from './index';
+  YellowText, AdjustInput, DarkText, SmallSpace, checkNumber, renderBuyOptionsModal
+} from './index';
 import { getCoinPrices, beautyNumber, getOptionsPrice, getFee, getBalance, buyOptions } from "../utils/scHelper.js";
 import withRouter from 'umi/withRouter';
 import { Wallet, getSelectedAccount, WalletButton, WalletButtonLong, getSelectedAccountWallet, getTransactionReceipt } from "wan-dex-sdk-wallet";
 import { connect } from 'react-redux';
 import { fnxTokenAddress } from '../conf/config.js';
+import { insertOrderHistory, updateOrderStatus } from './db';
 
 const { Option } = Select;
 
@@ -55,10 +58,10 @@ class BuyOptions extends Component {
     let optionsFee = -1 * currentValue;
     console.log('optionsFee', optionsFee);
     let data = [];
-    for (let i=0; i<100; i++) {
+    for (let i = 0; i < 100; i++) {
       let linePrice = beautyNumber(price * (50 + i) / 100, 2);
-      
-      if (i<50) {
+
+      if (i < 50) {
         data.push({
           profit: optionsFee,
           price: linePrice,
@@ -79,16 +82,16 @@ class BuyOptions extends Component {
       let expiration = this.state.expiration.split(' ')[0];
       expiration = expiration * (3600 * 24);
       let prices = getCoinPrices();
-      let ret = await getOptionsPrice(prices["raw" + this.props.baseToken], this.state.strikePrice, expiration, this.props.baseToken === "BTC" ? 1 : 2, this.state.optType );
+      let ret = await getOptionsPrice(prices["raw" + this.props.baseToken], this.state.strikePrice, expiration, this.props.baseToken === "BTC" ? 1 : 2, this.state.optType);
       console.log(ret);
-      let currencyToPay = this.state.currencyToPay === "2" ? "WAN":"FNX";
+      let currencyToPay = this.state.currencyToPay === "2" ? "WAN" : "FNX";
       let fee = getFee();
       let value = ret * this.state.amount * (1 + Number(fee.buyFee));
-      let payAmount = value/prices[currencyToPay];
+      let payAmount = value / prices[currencyToPay];
       this.needUpdate = false;
       this.lineData = this.calcLineData(prices[this.props.baseToken], beautyNumber(value, 4));
 
-      this.setState({amountToPay: beautyNumber(value, 4) + "$ / " + beautyNumber(payAmount, 4)});
+      this.setState({ amountToPay: beautyNumber(value, 4) + "$ / " + beautyNumber(payAmount, 4) });
       // console.log(value + "$ / " + payAmount);
       return ret;
     } catch (e) {
@@ -101,45 +104,56 @@ class BuyOptions extends Component {
     let expiration = this.state.expiration.split(' ')[0];
     expiration = expiration * (3600 * 24);
     let prices = getCoinPrices();
-    this.setState({buyLoading: true});
-    getOptionsPrice(prices["raw" + this.props.baseToken], this.state.strikePrice, expiration, this.props.baseToken === "BTC" ? 1 : 2, this.state.optType ).then((ret) => {
+    this.setState({ buyLoading: true });
+    getOptionsPrice(prices["raw" + this.props.baseToken], this.state.strikePrice, expiration, this.props.baseToken === "BTC" ? 1 : 2, this.state.optType).then((ret) => {
       console.log(ret);
-      let currencyToPay = this.state.currencyToPay === "2" ? "WAN":"FNX";
+      let currencyToPay = this.state.currencyToPay === "2" ? "WAN" : "FNX";
       let fee = getFee();
       let value = ret * this.state.amount * (1 + Number(fee.buyFee) + 0.01);
-      let payAmount = value/prices[currencyToPay];
+      let payAmount = value / prices[currencyToPay];
       let chainType = this.state.currencyToPay === "1" ? "eth" : "wan";
       if (!this.props.selectedAccount) {
         message.warn("Please select address");
-        this.setState({buyLoading: false});
+        this.setState({ buyLoading: false });
         return;
       }
 
       let address = this.props.selectedAccount.get('address');
+      let time = (new Date()).toLocaleString();
 
-      buyOptions(chainType, 
-        this.state.currencyToPay, payAmount, this.state.strikePrice, 
-        this.props.baseToken === "BTC" ? 1 : 2, 
-        expiration, this.state.amount, this.state.optType, this.props.selectedWallet, address).then((ret)=>{
+      let expirationWithYear = (new Date(Date.now() + expiration * 1000)).toDateString().split(' ').slice(1, 4).join(' ');
+
+      let name = this.props.baseToken + " " + (this.state.optType === '0' ? 'Call' : 'Put') + ", " + expirationWithYear + ", $" + this.state.strikePrice + (this.state.currencyToPay !== '1' ? " @Wanchain" : " @Ethereum");
+      console.log('name:', name);
+      buyOptions(chainType,
+        this.state.currencyToPay, payAmount, this.state.strikePrice,
+        this.props.baseToken === "BTC" ? 1 : 2,
+        expiration, this.state.amount, this.state.optType, this.props.selectedWallet, address).then((ret) => {
           if (ret) {
             message.info("Buy success");
-            this.setState({buyLoading: false, buyModalVisible: false});
+            // this.setState({ buyLoading: false, buyModalVisible: false });
+            updateOrderStatus(time, 'Success');
           } else {
             message.info("Sorry, buy failed");
-            this.setState({buyLoading: false});
+            // this.setState({ buyLoading: false });
+            updateOrderStatus(time, 'Failed');
           }
         }).catch((e) => {
           console.log(e);
           message.error("Sorry, buy failed. " + e.message);
-          this.setState({buyLoading: false});
+          // this.setState({ buyLoading: false });
+          updateOrderStatus(time, 'Failed');
         });
-  
-    }).catch((e)=>{
+
+      insertOrderHistory(address, time, name, this.state.amount, this.state.amountToPay+currencyToPay, 'Pending');
+      this.setState({ buyLoading: false, buyModalVisible: false });
+
+    }).catch((e) => {
       console.log(e);
       message.error("Sorry, get price failed. " + e.message);
-      this.setState({buyLoading: false});
+      this.setState({ buyLoading: false });
     });
-    
+
   }
 
   getBalance = () => {
@@ -203,7 +217,7 @@ class BuyOptions extends Component {
                   value={this.state.expiration}
                   readOnly={true}
                 />
-                <DaySelect value={this.state.expiration} onChange={e => {this.setState({ expiration: e }); }}>
+                <DaySelect value={this.state.expiration} onChange={e => { this.setState({ expiration: e }); }}>
                   <Option value="1 day">1 day</Option>
                   <Option value="3 days">3 days</Option>
                   <Option value="7 days">7 days</Option>
@@ -236,19 +250,19 @@ class BuyOptions extends Component {
                     <Amount>{this.state.amountToPay}</Amount>
                     <AmountSuffix>
                       {
-                        this.state.currencyToPay === "2" 
-                        ? "WAN"
-                        : "FNX"
+                        this.state.currencyToPay === "2"
+                          ? "WAN"
+                          : "FNX"
                       }
                     </AmountSuffix>
                   </InALineLeft>
                 </Spin>
               </Row>
               <Row>
-                <BuyButton onClick={()=>{ 
-                    this.getBalance();
-                    this.setState({buyModalVisible: true});
-                  }}>Buy Now</BuyButton>
+                <BuyButton onClick={() => {
+                  this.getBalance();
+                  this.setState({ buyModalVisible: true });
+                }}>Buy Now</BuyButton>
               </Row>
             </BuyBlock>
           </Col>
@@ -262,18 +276,18 @@ class BuyOptions extends Component {
             <Row>
               <SubLine>
                 <T1>Current {this.props.baseToken} Price:</T1>
-                <T1Number>{getCoinPrices()[this.props.baseToken] + '$'}</T1Number>
+                <T1Number>{beautyNumber(getCoinPrices()[this.props.baseToken],2) + '$'}</T1Number>
                 <T2>Expected {this.props.baseToken} Price:</T2>
-                <T2Number>{Number(getCoinPrices()[this.props.baseToken]*(100 + this.state.slider)/100).toFixed(2)}$</T2Number>
-                <PriceSlider 
-                  defaultValue={0} 
-                  max={49} min={-50} 
-                  tooltipVisible tipFormatter={(value)=>{return <div>{value>0?"+"+ value + "%":value + "%"}</div>}}
-                  onChange={(value)=>{
+                <T2Number>{Number(getCoinPrices()[this.props.baseToken] * (100 + this.state.slider) / 100).toFixed(2)}$</T2Number>
+                <PriceSlider
+                  defaultValue={0}
+                  max={49} min={-50}
+                  tooltipVisible tipFormatter={(value) => { return <div>{value > 0 ? "+" + value + "%" : value + "%"}</div> }}
+                  onChange={(value) => {
                     this.needUpdate = false;
-                    this.setState({slider: value});
+                    this.setState({ slider: value });
                   }}
-                  />
+                />
               </SubLine>
             </Row>
             <Row>
@@ -283,11 +297,11 @@ class BuyOptions extends Component {
         </Row>
         {
           renderBuyOptionsModal(this.state.buyModalVisible, () => {
-              this.setState({buyModalVisible: false});
-            }, this.buyOptions, 
-            this.state.amountToPay, this.state.currencyToPay, 
+            this.setState({ buyModalVisible: false });
+          }, this.buyOptions,
+            this.state.amountToPay, this.state.currencyToPay,
             this.state.balance, this.state.buyLoading, getFee(),
-            this.props.selectedAccount ? this.props.selectedAccount.get("isLocked"):false)
+            this.props.selectedAccount ? this.props.selectedAccount.get("isLocked") : false)
         }
 
       </CenterAlign>

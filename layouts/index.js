@@ -15,6 +15,8 @@ import { getNodeUrl, isSwitchFinish } from '../utils/web3switch.js';
 import sleep from 'ko-sleep';
 import { TabButton, WalletBt, InALine, WalletTitle, ConnectWallet, renderSelectWalletModal, InALineLeft, InALineBetween, HeaderLine } from '../components';
 import { updateCoinPrices, updateCollateralInfo, updateUserOptions} from '../utils/scHelper.js';
+import styled from 'styled-components';
+import {insertOrderHistory, updateOrderStatus, getOrderHistory} from '../components/db';
 
 const networkLogo = networkId == 1 ? require('../img/mainnet.svg') : require('../img/testnet.svg');
 
@@ -151,6 +153,7 @@ class Layout extends Component {
               </InALineLeft>
 
               <InALine>
+                <DebugButton onClick={debug}>Debug</DebugButton>
                 <div className={style.gameRule} onClick={this.showGameRule}><img height="25px" src={require('../img/help.png')}/></div>
                 <ConnectWallet onClick={() => { this.setState({ visible: true }) }}>Connect Wallet</ConnectWallet>
                 {
@@ -171,7 +174,19 @@ class Layout extends Component {
   }
 }
 
+const DebugButton = styled(Button)`
+  width: 120px;
+  height: 40px;
+  border-radius: 15px;
+  margin:4px;
+`;
 
+
+function debug() {
+  console.log('debug');
+  let time = (new Date()).toLocaleString();
+  insertOrderHistory('abc', time, "Test", 3.14, 2.15, 'Pending');
+}
 
 
 

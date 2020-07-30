@@ -72,7 +72,7 @@ export const initSmartContract = async () => {
   scs.oracle = new web3.eth.Contract(require('./abi/CompoundOracle.json'), contractInfo.FNXOracle.address);
   scs.opPool = new web3.eth.Contract(require('./abi/OptionsPool.json'), contractInfo.OptionsPool.address);
   scs.opPrice = new web3.eth.Contract(require('./abi/OptionsPrice.json'), contractInfo.OptionsPrice.address);
-  scs.fctCoin = new web3.eth.Contract(require('./abi/FCTCoin.json'), contractInfo.FCTCoin.address);
+  scs.fctCoin = new web3.eth.Contract(require('./abi/FPTCoin.json'), contractInfo.FPTCoin.address);
 
   updateFee();
 }
@@ -487,14 +487,14 @@ export const getBalance = async (tokenAddress, address) => {
       balance = await token.methods.balanceOf(address).call();
     }
   } catch (err) {
-    console.log(err);
+    console.log(err, tokenAddress, address);
   }
 
   return Number(getWeb3().utils.fromWei(balance.toString()));
 }
 
 export const approve = async (tokenAddr, amount, owner, selectedWallet) => {
-  if (!tokenAddr || !amount || !selectedWallet) {
+  if (!tokenAddr || !selectedWallet) {
     message.error("approve input params error");
     return false;
   }
@@ -852,6 +852,11 @@ export const transferToken = async (chainType, token, to, value, selectedWallet,
     }
   }
 
+  return ret;
+}
+
+export const getOptionsLimitTimeById = async (id) => {
+  let ret = await scs.opPool.methods.getOptionsLimitTimeById(id).call();
   return ret;
 }
 

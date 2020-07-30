@@ -18,6 +18,8 @@ import BuyOptions from "../components/buyOptions";
 
 import Assets from './assets';
 
+import { getOrderHistory } from '../components/db';
+
 
 class IndexPage extends Component {
   constructor(props) {
@@ -85,55 +87,16 @@ class IndexPage extends Component {
     }
   }
 
-  optionsColumn = [
-    {
-      title: 'Options name',
-      dataIndex: "optionsName",
-      key: 'optionsName',
-    },
-    {
-      title: 'Underlying assets price',
-      dataIndex: "underlyingAssetsPrice",
-      key: 'underlyingAssetsPrice',
-    },
-    {
-      title: 'Amount',
-      dataIndex: "amount",
-      key: 'amount',
-    },
-    {
-      title: 'USD',
-      dataIndex: "usd",
-      key: 'usd',
-    },
-    {
-      title: 'Expiration',
-      dataIndex: "expiration",
-      key: 'expiration',
-    },
-    {
-      title: 'Operation',
-      dataIndex: "operate",
-      key: 'operate',
-      render: (value, row) => {
-       return ( <InALineSmall>
-          <SmallButton onClick={() => { this.onSellOptions(row) }}><img src={require('../img/sell.png')} style={{ marginRight: "10px" }} />Sell</SmallButton>
-          <SmallButton onClick={() => { this.onExerciseOptions(row) }}><img src={require('../img/transfer.png')} style={{ marginRight: "10px" }} />Exercise</SmallButton>
-        </InALineSmall>)
-      }
-    },
-  ]
-
   historyColumn = [
     {
-      title: 'Options name',
-      dataIndex: "optionsName",
-      key: 'optionsName',
+      title: 'Time',
+      dataIndex: "time",
+      key: 'time',
     },
     {
-      title: 'Underlying assets price',
-      dataIndex: "underlyingAssetsPrice",
-      key: 'underlyingAssetsPrice',
+      title: 'Options name',
+      dataIndex: "name",
+      key: 'name',
     },
     {
       title: 'Amount',
@@ -141,39 +104,15 @@ class IndexPage extends Component {
       key: 'amount',
     },
     {
-      title: 'Amount paid',
-      dataIndex: "amountPaid",
-      key: 'amountPaid',
+      title: 'Paid',
+      dataIndex: "paid",
+      key: 'paid',
     },
     {
       title: 'Status',
       dataIndex: "status",
       key: 'status',
     },
-  ]
-
-  demoData = [
-    // {
-    //   optionsName: "BTC call, 5th July, $7000",
-    //   underlyingAssetsPrice: "BTC / $ 7200",
-    //   amount: "0.12",
-    //   amountPaid: "$ 60 / 500.123456 FNX",
-    //   status: "Exercised"
-    // },
-    // {
-    //   optionsName: "BTC call, 15th July, $7000",
-    //   underlyingAssetsPrice: "BTC / $ 7200",
-    //   amount: "0.12",
-    //   amountPaid: "$ 60 / 500.123456 FNX",
-    //   status: "Before expiration"
-    // },
-    // {
-    //   optionsName: "BTC call, 1th July, $7000",
-    //   underlyingAssetsPrice: "BTC / $ 7200",
-    //   amount: "0.12",
-    //   amountPaid: "$ 60 / 500.123456 FNX",
-    //   status: "Past expiration"
-    // },
   ]
 
 
@@ -213,12 +152,12 @@ class IndexPage extends Component {
           </DarkContainer>
           <Header2>
             <InALineLeft>
-              <TabButtonSub select={this.state.historySelect1} onClick={() => { this.onHistorySelect(1) }}>My Orders History<MiddleLine visible={this.state.historySelect1} style={{ top: "30px", left: "-82px" }} /></TabButtonSub>
+              <TabButtonSub select={this.state.historySelect1} onClick={() => { this.onHistorySelect(1) }}>Orders History<MiddleLine visible={this.state.historySelect1} style={{ top: "30px", left: "-82px" }} /></TabButtonSub>
             </InALineLeft>
           </Header2>
           <SingleLine />
           <DarkContainer>
-            <HistoryTable columns={this.historyColumn} dataSource={this.demoData} />
+            <HistoryTable columns={this.historyColumn} dataSource={getOrderHistory(this.props.selectedAccount?this.props.selectedAccount.get('address'):'')} />
           </DarkContainer>
           <Space />
         </Body>

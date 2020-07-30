@@ -1,8 +1,6 @@
-import { Table } from 'antd';
-import styles from './assets.css';
 import styled from 'styled-components';
 import {
-  Body, Center, Space, ConnectWalletSub, InALine, Box, VerticalLine,
+  Body, Center, Space, Box, VerticalLine,
   InALineLeft, BigTitle, MyStatistic, InALineAround, HistoryTable,
   renderSellOptionsModal, checkNumber, renderExerciseModal, renderTransferModal, MyButton, SmallButton
 } from '../components';
@@ -10,13 +8,14 @@ import { Row, Col, Spin, message } from 'antd';
 import { Component } from 'react';
 import {
   getBalance, getCoinPrices, getCollateralInfo, beautyNumber, getUserOptions,
-  getOptionsPrices, getFee, sellOptions, exerciseOptions, transferToken
+  getOptionsPrices, getFee, sellOptions, exerciseOptions, transferToken,
+  getOptionsLimitTimeById
 } from '../utils/scHelper';
 import withRouter from 'umi/withRouter';
-import { Wallet, getSelectedAccount, WalletButton, WalletButtonLong, getSelectedAccountWallet, getTransactionReceipt } from "wan-dex-sdk-wallet";
+import { getSelectedAccount, getSelectedAccountWallet, getTransactionReceipt } from "wan-dex-sdk-wallet";
 import { connect } from 'react-redux';
 import { fnxTokenAddress, contractInfo } from '../conf/config';
-import router from 'umi/router';
+import { insertOrderHistory, updateOrderStatus } from '../components/db';
 
 class Assets extends Component {
   constructor(props) {
@@ -166,8 +165,19 @@ class Assets extends Component {
     if (id === -1) {
       message.error("Sorry, can't find options id by name");
     }
-    let chainType = info.assets.includes('Wanchain') ? 'wan' : 'eth';
-    this.setState({ optionsID: id, chainType, optionsName: info.assets, optionsBalance: info.balance, sellOptionsModalVisible: true });
+    getOptionsLimitTimeById(id).then((ret)=>{
+      console.log('getOptionsLimitTimeById', ret);
+      if(Number(ret) > Date.now()/1000) {
+        message.warn("Can not sell options in 1 hour after buy.");
+        return;
+      }
+
+      let chainType = info.assets.includes('Wanchain') ? 'wan' : 'eth';
+      this.setState({ optionsID: id, chainType, optionsName: info.assets, optionsBalance: info.balance, sellOptionsModalVisible: true });
+  
+    }).catch((e)=>{
+      console.log(e);
+    })
   }
 
   onSellOptionsOk = () => {
@@ -210,8 +220,18 @@ class Assets extends Component {
     if (id === -1) {
       message.error("Sorry, can't find options id by name");
     }
-    let chainType = info.assets.includes('Wanchain') ? 'wan' : 'eth';
-    this.setState({ optionsID: id, chainType, optionsName: info.assets, optionsBalance: info.balance, exerciseOptionsModalVisible: true });
+
+    getOptionsLimitTimeById(id).then((ret)=>{
+      console.log('getOptionsLimitTimeById', ret);
+      if(Number(ret) > Date.now()/1000) {
+        message.warn("Can not exercise options in 1 hour after buy.");
+        return;
+      }
+
+      let chainType = info.assets.includes('Wanchain') ? 'wan' : 'eth';
+      this.setState({ optionsID: id, chainType, optionsName: info.assets, optionsBalance: info.balance, exerciseOptionsModalVisible: true });
+    }).catch((e)=>console.log(e));
+
   }
 
   onExerciseOk = () => {
@@ -413,7 +433,7 @@ class Assets extends Component {
       this.setInfo('FNX @Wanchain', ret, ret * prices.FNX);
     }).catch(e => console.log(e));
 
-    getBalance(contractInfo.OptionsManagerV2.address, address).then((ret) => {
+    getBalance(contractInfo.FPTCoin.address, address).then((ret) => {
       this.setInfo('Shares token @Wanchain', ret, ret * colInfo.sharePrice);
     }).catch(e => console.log(e));
 
