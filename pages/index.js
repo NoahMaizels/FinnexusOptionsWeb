@@ -213,7 +213,7 @@ class IndexPage extends Component {
           </DarkContainer>
           <Header2>
             <InALineLeft>
-              <TabButtonSub select={this.state.historySelect1} onClick={() => { this.onHistorySelect(1) }}>Orders History<MiddleLine visible={this.state.historySelect1} style={{ top: "30px", left: "-82px" }} /></TabButtonSub>
+              <TabButtonSub select={this.state.historySelect1} onClick={() => { this.onHistorySelect(1) }}>My Orders History<MiddleLine visible={this.state.historySelect1} style={{ top: "30px", left: "-82px" }} /></TabButtonSub>
             </InALineLeft>
           </Header2>
           <SingleLine />

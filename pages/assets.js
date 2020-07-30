@@ -131,18 +131,18 @@ class Assets extends Component {
       render: (value, row) => {
         if (value === 0) {
           return (
-            <InALine>
+            <InALineLeft>
               <SmallButton><img src={require('../img/buy.png')} style={{ marginRight: "10px" }} />Buy</SmallButton>
               <SmallButton><img src={require('../img/sell.png')} style={{ marginRight: "10px" }} />Sell</SmallButton>
               <SmallButton onClick={() => { this.onTransfer(row.assets) }}><img src={require('../img/transfer.png')} style={{ marginRight: "10px" }} />Transfer</SmallButton>
-            </InALine>
+            </InALineLeft>
           );
         } else {
           return (
-            <InALine>
+            <InALineLeft>
               <SmallButton onClick={() => { this.onSellOptions(row) }}><img src={require('../img/sell.png')} style={{ marginRight: "10px" }} />Sell</SmallButton>
               <SmallButton onClick={() => { this.onExerciseOptions(row) }}><img src={require('../img/transfer.png')} style={{ marginRight: "10px" }} />Exercise</SmallButton>
-            </InALine>
+            </InALineLeft>
           );
         }
       }
@@ -345,6 +345,7 @@ class Assets extends Component {
 
   setOptions = (optionsInfo) => {
     console.log('setOptions', optionsInfo);
+    let prices = getCoinPrices();
     let options = [];
     for (let i = 0; i < optionsInfo.length; i++) {
       let op = {
@@ -355,6 +356,20 @@ class Assets extends Component {
         expiration: this.getLeftTimeStr(optionsInfo[i].expiration),
         operation: 1
       };
+
+      if (optionsInfo[i].optType === "Call") {
+        if (Number(prices[optionsInfo[i].underlying]) <= Number(optionsInfo[i].strikePrice)) {
+          op.currentReturn = "0";
+        } else {
+          op.currentReturn = "$ " + beautyNumber(optionsInfo[i].amount * (Number(prices[optionsInfo[i].underlying]) - Number(optionsInfo[i].strikePrice)), 4);
+        }
+      } else {
+        if (Number(prices[optionsInfo[i].underlying]) >= Number(optionsInfo[i].strikePrice)) {
+          op.currentReturn = "0";
+        } else {
+          op.currentReturn = "$ " + beautyNumber(optionsInfo[i].amount * (Number(optionsInfo[i].strikePrice) - Number(prices[optionsInfo[i].underlying])), 4);
+        }
+      }
 
       if (optionsInfo[i].price) {
         op.usd = '$' + beautyNumber(optionsInfo[i].price * optionsInfo[i].amount, 4);

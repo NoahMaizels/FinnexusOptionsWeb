@@ -54,8 +54,8 @@ class MyChart extends Component {
           ? (<Guide>
             <Guide.Line
               top={true} 
-              start={['start', Number(this.props.optType) === 0 ? this.props.lineData[50 + this.props.slider].profit: this.props.lineData[50 - this.props.slider].profit]} 
-              end={['end', Number(this.props.optType) === 0 ? this.props.lineData[50 + this.props.slider].profit: this.props.lineData[50 - this.props.slider].profit]} 
+              start={['start', Number(this.props.optType) === 0 ? (this.props.lineData[50 + this.props.slider] ? this.props.lineData[50 + this.props.slider].profit:0): (this.props.lineData[50 - this.props.slider] ?this.props.lineData[50 - this.props.slider].profit:0)]} 
+              end={['end', Number(this.props.optType) === 0 ? (this.props.lineData[50 + this.props.slider]?this.props.lineData[50 + this.props.slider].profit:0): (this.props.lineData[50 - this.props.slider]?this.props.lineData[50 - this.props.slider].profit:0)]} 
               lineStyle={{
                 stroke: '#FFFFFF', 
                 lineDash: [0, 2, 2], 
@@ -64,7 +64,7 @@ class MyChart extends Component {
 
               text={{
                 position: 'start', 
-                content: 'Profit or loss: ' + (Number(this.props.optType) === 0 ? this.props.lineData[50 + this.props.slider].profit: this.props.lineData[50 - this.props.slider].profit) + '$', 
+                content: 'Profit or loss: ' + (Number(this.props.optType) === 0 ? (this.props.lineData[50 + this.props.slider]?this.props.lineData[50 + this.props.slider].profit:0): (this.props.lineData[50 - this.props.slider]?this.props.lineData[50 - this.props.slider].profit:0)) + '$', 
                 style: {
                   fill: 'white'
                 },

@@ -70,7 +70,7 @@ class BuyOptions extends Component {
         });
       }
     }
-    this.minValue = optionsFee - 1000;
+    this.minValue = optionsFee - Math.abs(optionsFee * 4);
     return data;
   }
 
@@ -267,7 +267,7 @@ class BuyOptions extends Component {
                 <T2Number>{Number(getCoinPrices()[this.props.baseToken]*(100 + this.state.slider)/100).toFixed(2)}$</T2Number>
                 <PriceSlider 
                   defaultValue={0} 
-                  max={50} min={-50} 
+                  max={49} min={-50} 
                   tooltipVisible tipFormatter={(value)=>{return <div>{value>0?"+"+ value + "%":value + "%"}</div>}}
                   onChange={(value)=>{
                     this.needUpdate = false;
