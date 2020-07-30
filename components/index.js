@@ -378,7 +378,7 @@ export const SmallSpace = styled.div`
   height: 5px;
 `;
 
-const MyModal = styled(Modal)`
+export const MyModal = styled(Modal)`
   .ant-modal-content {
     border-radius: 15px;
     width: 406px;
@@ -391,11 +391,11 @@ const MyModal = styled(Modal)`
   }
 `;
 
-const AmountInput = styled(AdjustInput)`
+export const AmountInput = styled(AdjustInput)`
   width: 320px;
 `;
 
-const AmountShow = styled(AmountInput)`
+export const AmountShow = styled(AmountInput)`
   font-size: 13px;
 `;
 
@@ -423,6 +423,27 @@ const Locked = styled(LockOutlined)`
   top: -30px;
   left: 10px;
 `;
+
+export const MyButton = styled(ConnectWalletSub)`
+  width:135px;
+  height:45px;
+  /* background:linear-gradient(90deg,rgba(99,125,255,1) 0%,rgba(99,176,255,1) 100%); */
+  background: transparent;
+  border-radius:23px;
+  font-family:Helvetica Neue;
+  font-weight:400;
+  color:rgba(255,255,255,1);
+  line-height:15px;
+`;
+
+export const SmallButton = styled(MyButton)`
+  width: 116px;
+  margin: 0px;
+  padding: 0px;
+`;
+
+
+//----------
 
 export const renderDepositModal = (chainType, visible, handleCancel, handleOk, 
   amountToDeposit, amountChange, currencyToPay, currencyChange, balance, loading, fee, locked) => {

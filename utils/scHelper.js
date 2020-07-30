@@ -69,9 +69,10 @@ export const initSmartContract = async () => {
 
   let web3 = await initWeb3();
   scs.opManager = new web3.eth.Contract(require('./abi/OptionsManagerV2.json'), contractInfo.OptionsManagerV2.address);
-  scs.oracle = new web3.eth.Contract(require('./abi/CompoundOracle.json'), contractInfo.CompoundOracle.address);
+  scs.oracle = new web3.eth.Contract(require('./abi/CompoundOracle.json'), contractInfo.FNXOracle.address);
   scs.opPool = new web3.eth.Contract(require('./abi/OptionsPool.json'), contractInfo.OptionsPool.address);
   scs.opPrice = new web3.eth.Contract(require('./abi/OptionsPrice.json'), contractInfo.OptionsPrice.address);
+  scs.fctCoin = new web3.eth.Contract(require('./abi/FCTCoin.json'), contractInfo.FCTCoin.address);
 
   updateFee();
 }
@@ -225,7 +226,7 @@ export const updateCollateralInfo = async (address) => {
     collateral.sharePrice = priceConvert(ret);
   }));
 
-  batch.add(scs.opManager.methods.totalSupply().call.request({}, (err, ret) => {
+  batch.add(scs.fctCoin.methods.totalSupply().call.request({}, (err, ret) => {
     if (err || !ret) {
       console.log(err, ret);
       return;
@@ -276,7 +277,7 @@ export const updateCollateralInfo = async (address) => {
   }));
 
   if (address) {
-    batch.add(scs.opManager.methods.balanceOf(address).call.request({}, (err, ret) => {
+    batch.add(scs.fctCoin.methods.balanceOf(address).call.request({}, (err, ret) => {
       if (err || !ret) {
         console.log(err, ret);
         return;

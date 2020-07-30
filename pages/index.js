@@ -1,40 +1,23 @@
 import { connect } from "react-redux";
 import { Component } from "react";
-import { Row, Col, Input, Slider, Radio, Table, Button, Divider, Spin, Modal, message, Carousel, Collapse } from "antd";
+import { Modal, message, Carousel, Collapse } from "antd";
 import BigNumber from 'bignumber.js';
 import { Wallet, getSelectedAccount, WalletButton, WalletButtonLong, getSelectedAccountWallet } from "wan-dex-sdk-wallet";
 import sleep from 'ko-sleep';
 import { DownOutlined } from '@ant-design/icons';
 import styled from 'styled-components';
 
-import styles from './style.less';
 import "wan-dex-sdk-wallet/index.css";
 
-// import {
-//   getOptionsInfo,
-//   getBalance,
-//   generateBuyOptionsTokenData,
-//   generateTx,
-//   watchTransactionStatus,
-//   sendTransaction,
-//   approve,
-//   getWeb3Obj,
-//   getBuyOptionsOrderAmount,
-//   sellOptionsToken,
-//   startEventScan
-// } from '../utils/scHelper';
-
 import { wanTokenAddress, fnxTokenAddress, additionalFee } from "../conf/config";
-import { Label } from "bizcharts";
 
-import { HistoryTable, Center, Body, Header2, Space, DarkContainer, TabButtonSub, InALineBetween, InALineLeft, SingleLine, SubTitle, MiddleLine } from '../components';
+import { HistoryTable, Center, Body, Header2, Space, DarkContainer, 
+  TabButtonSub, InALineBetween, InALineLeft, SingleLine, SubTitle, MiddleLine,
+  SmallButton, InALine } from '../components';
 import BuyOptions from "../components/buyOptions";
 
+import Assets from './assets';
 
-const { confirm } = Modal;
-const { Panel } = Collapse;
-
-// let web3 = getWeb3Obj();
 
 class IndexPage extends Component {
   constructor(props) {
@@ -102,6 +85,45 @@ class IndexPage extends Component {
     }
   }
 
+  optionsColumn = [
+    {
+      title: 'Options name',
+      dataIndex: "optionsName",
+      key: 'optionsName',
+    },
+    {
+      title: 'Underlying assets price',
+      dataIndex: "underlyingAssetsPrice",
+      key: 'underlyingAssetsPrice',
+    },
+    {
+      title: 'Amount',
+      dataIndex: "amount",
+      key: 'amount',
+    },
+    {
+      title: 'USD',
+      dataIndex: "usd",
+      key: 'usd',
+    },
+    {
+      title: 'Expiration',
+      dataIndex: "expiration",
+      key: 'expiration',
+    },
+    {
+      title: 'Operation',
+      dataIndex: "operate",
+      key: 'operate',
+      render: (value, row) => {
+       return ( <InALineSmall>
+          <SmallButton onClick={() => { this.onSellOptions(row) }}><img src={require('../img/sell.png')} style={{ marginRight: "10px" }} />Sell</SmallButton>
+          <SmallButton onClick={() => { this.onExerciseOptions(row) }}><img src={require('../img/transfer.png')} style={{ marginRight: "10px" }} />Exercise</SmallButton>
+        </InALineSmall>)
+      }
+    },
+  ]
+
   historyColumn = [
     {
       title: 'Options name',
@@ -131,51 +153,27 @@ class IndexPage extends Component {
   ]
 
   demoData = [
-    {
-      optionsName: "BTC call, 5th July, $7000",
-      underlyingAssetsPrice: "BTC / $ 7200",
-      amount: "0.12",
-      amountPaid: "$ 60 / 500.123456 FNX",
-      status: "Success"
-    },
-    {
-      optionsName: "BTC call, 15th July, $7000",
-      underlyingAssetsPrice: "BTC / $ 7200",
-      amount: "0.12",
-      amountPaid: "$ 60 / 500.123456 FNX",
-      status: "Pending"
-    },
-    {
-      optionsName: "BTC call, 1th July, $7000",
-      underlyingAssetsPrice: "BTC / $ 7200",
-      amount: "0.12",
-      amountPaid: "$ 60 / 500.123456 FNX",
-      status: "Failed"
-    },
-  ]
-
-  demoMyOptions = [
-    {
-      optionsName: "BTC call, 5th July, $7000",
-      underlyingAssetsPrice: "BTC / $ 7200",
-      amount: "0.12",
-      amountPaid: "$ 60 / 500.123456 FNX",
-      status: "Exercised"
-    },
-    {
-      optionsName: "BTC call, 15th July, $7000",
-      underlyingAssetsPrice: "BTC / $ 7200",
-      amount: "0.12",
-      amountPaid: "$ 60 / 500.123456 FNX",
-      status: "Before expiration"
-    },
-    {
-      optionsName: "BTC call, 1th July, $7000",
-      underlyingAssetsPrice: "BTC / $ 7200",
-      amount: "0.12",
-      amountPaid: "$ 60 / 500.123456 FNX",
-      status: "Past expiration"
-    },
+    // {
+    //   optionsName: "BTC call, 5th July, $7000",
+    //   underlyingAssetsPrice: "BTC / $ 7200",
+    //   amount: "0.12",
+    //   amountPaid: "$ 60 / 500.123456 FNX",
+    //   status: "Exercised"
+    // },
+    // {
+    //   optionsName: "BTC call, 15th July, $7000",
+    //   underlyingAssetsPrice: "BTC / $ 7200",
+    //   amount: "0.12",
+    //   amountPaid: "$ 60 / 500.123456 FNX",
+    //   status: "Before expiration"
+    // },
+    // {
+    //   optionsName: "BTC call, 1th July, $7000",
+    //   underlyingAssetsPrice: "BTC / $ 7200",
+    //   amount: "0.12",
+    //   amountPaid: "$ 60 / 500.123456 FNX",
+    //   status: "Past expiration"
+    // },
   ]
 
 
@@ -192,7 +190,7 @@ class IndexPage extends Component {
               </InALineLeft>
             </InALineBetween>
           </Header2>
-          <SingleLine/>
+          <SingleLine />
           {
             this.state.tabSelect1
               ? <BuyOptions title="Choose and buy the options" baseToken="BTC" />
@@ -205,22 +203,22 @@ class IndexPage extends Component {
           }
           <Header2>
             <InALineLeft>
-              <TabButtonSub select={this.state.historySelect1} onClick={() => { this.onHistorySelect(1) }}>Orders History<MiddleLine visible={this.state.historySelect1} style={{top:"30px", left: "-82px"}}/></TabButtonSub>
-              <TabButtonSub select={this.state.historySelect2} onClick={() => { this.onHistorySelect(2) }}>My Options<MiddleLine visible={this.state.historySelect2} style={{top:"30px", left: "-72px"}}/></TabButtonSub>
+              <TabButtonSub select >My Options<MiddleLine visible style={{ top: "30px", left: "-72px" }} /></TabButtonSub>
             </InALineLeft>
           </Header2>
-          <SingleLine/>
+          <SingleLine />
           <DarkContainer>
-          {
-            this.state.historySelect1
-              ? <HistoryTable columns={this.historyColumn} dataSource={this.demoData} />
-              : null
-          }
-          {
-            this.state.historySelect2
-              ? <HistoryTable columns={this.historyColumn} dataSource={this.demoMyOptions} />
-              : null
-          }
+            {/* <HistoryTable columns={this.optionsColumn} dataSource={this.demoMyOptions} /> */}
+            <Assets mini/>
+          </DarkContainer>
+          <Header2>
+            <InALineLeft>
+              <TabButtonSub select={this.state.historySelect1} onClick={() => { this.onHistorySelect(1) }}>Orders History<MiddleLine visible={this.state.historySelect1} style={{ top: "30px", left: "-82px" }} /></TabButtonSub>
+            </InALineLeft>
+          </Header2>
+          <SingleLine />
+          <DarkContainer>
+            <HistoryTable columns={this.historyColumn} dataSource={this.demoData} />
           </DarkContainer>
           <Space />
         </Body>
@@ -231,8 +229,10 @@ class IndexPage extends Component {
 
 
 
-
-
+const InALineSmall = styled(InALine)`
+  width: 240px;
+  margin-right: -24px;
+`;
 
 
 
