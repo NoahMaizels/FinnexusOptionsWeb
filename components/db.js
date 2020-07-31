@@ -16,9 +16,9 @@ export const getOrderHistory = (address) => {
   return db.get('order').filter({ address }).sortBy('time').value().reverse();
 }
 
-export const insertOrderHistory = (address, time, name, amount, paid, status) => {
+export const insertOrderHistory = (address, time, name, amount, paid, type, status) => {
   db.get('order').push(
-    { address, time, name, amount, paid, status, key: time }
+    { address, time, name, amount, paid, type, status, key: time }
   ).write();
 }
 

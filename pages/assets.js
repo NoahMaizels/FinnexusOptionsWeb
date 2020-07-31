@@ -99,6 +99,11 @@ class Assets extends Component {
 
   column = [
     {
+      title: 'ID',
+      dataIndex: "id",
+      key: 'id',
+    },
+    {
       title: 'Assets',
       dataIndex: "assets",
       key: 'assets',
@@ -161,7 +166,7 @@ class Assets extends Component {
 
   onSellOptions = (info) => {
     console.log('onSellOptions', info);
-    let id = this.getOptionsIdByName(info.assets);
+    let id = info.id;
     if (id === -1) {
       message.error("Sorry, can't find options id by name");
     }
@@ -192,22 +197,36 @@ class Assets extends Component {
     }
 
     let address = this.props.selectedAccount.get("address");
+    let time = (new Date()).toLocaleString();
+    let options = this.getOptionsById(this.state.optionsID);
+    let sellValue = '';
+    if (options.price) {
+      sellValue = beautyNumber(options.price * this.state.optionsAmount, 4) + '$';
+    }
+
+    console.log('onSellOptionsOk', options);
 
     this.setState({ optionsOperateLoading: true });
 
     sellOptions(this.state.chainType, this.state.optionsID, this.state.optionsAmount, this.props.selectedWallet, address).then((ret) => {
       if (ret) {
         message.info("Sell options success");
-        this.setState({ optionsID: -1, sellOptionsModalVisible: false, optionsAmount: '', optionsName: '', optionsOperateLoading: false });
+        // this.setState({ optionsID: -1, sellOptionsModalVisible: false, optionsAmount: '', optionsName: '', optionsOperateLoading: false });
+        updateOrderStatus(time, "Success");
       } else {
         message.error("Sell options failed");
-        this.setState({ optionsOperateLoading: false });
+        // this.setState({ optionsOperateLoading: false });
+        updateOrderStatus(time, "Failed");
       }
     }).catch(e => {
       console.log(e);
       message.error(e.message);
-      this.setState({ optionsOperateLoading: false });
+      // this.setState({ optionsOperateLoading: false });
+      updateOrderStatus(time, "Failed");
     });
+
+    insertOrderHistory(address, time, options.name, -1 * this.state.optionsAmount, sellValue, 'Sell', 'Pending');
+    this.setState({ sellOptionsModalVisible: false, optionsAmount: '', optionsName: '', optionsOperateLoading: false });
   }
 
   onSellOptionsCancel = () => {
@@ -216,7 +235,7 @@ class Assets extends Component {
 
   onExerciseOptions = (info) => {
     console.log('onExerciseOptions', info);
-    let id = this.getOptionsIdByName(info.assets);
+    let id = info.id;
     if (id === -1) {
       message.error("Sorry, can't find options id by name");
     }
@@ -246,22 +265,46 @@ class Assets extends Component {
     }
 
     let address = this.props.selectedAccount.get("address");
+    let time = (new Date()).toLocaleString();
+    let options = this.getOptionsById(this.state.optionsID);
 
     this.setState({ optionsOperateLoading: true });
 
     exerciseOptions(this.state.chainType, this.state.optionsID, this.state.optionsAmount, this.props.selectedWallet, address).then((ret) => {
       if (ret) {
         message.info("Exercise options success");
-        this.setState({ optionsID: -1, exerciseOptionsModalVisible: false, optionsAmount: '', optionsName: '', optionsOperateLoading: false });
+        updateOrderStatus(time, "Success");
+        // this.setState({ optionsID: -1, exerciseOptionsModalVisible: false, optionsAmount: '', optionsName: '', optionsOperateLoading: false });
       } else {
         message.error("Exercise options failed");
-        this.setState({ optionsOperateLoading: false });
+        updateOrderStatus(time, "Failed");
+        // this.setState({ optionsOperateLoading: false });
       }
     }).catch(e => {
       console.log(e);
       message.error(e.message);
-      this.setState({ optionsOperateLoading: false });
+      updateOrderStatus(time, "Failed");
+      // this.setState({ optionsOperateLoading: false });
     });
+
+    let value ;
+    let prices = getCoinPrices();
+    if (options.optType === "Call") {
+      if (Number(prices[options.underlying]) <= Number(options.strikePrice)) {
+        value = "0";
+      } else {
+        value = beautyNumber(this.state.optionsAmount * (Number(prices[options.underlying]) - Number(options.strikePrice)), 4) + "$" ;
+      }
+    } else {
+      if (Number(prices[options.underlying]) >= Number(options.strikePrice)) {
+        value = "0";
+      } else {
+        value = beautyNumber(this.state.optionsAmount * (Number(options.strikePrice) - Number(prices[options.underlying])), 4) + "$" ;
+      }
+    }
+
+    insertOrderHistory(address, time, options.name, -1 * this.state.optionsAmount, value, 'Exercise', 'Pending');
+    this.setState({ exerciseOptionsModalVisible: false, optionsAmount: '', optionsName: '', optionsOperateLoading: false });
   }
 
   onExerciseCancel = () => {
@@ -369,10 +412,11 @@ class Assets extends Component {
     let options = [];
     for (let i = 0; i < optionsInfo.length; i++) {
       let op = {
+        id: optionsInfo[i].id,
         assets: optionsInfo[i].name,
         balance: optionsInfo[i].amount,
-        usd: "$ --",
-        currentReturn: "--",
+        usd: "loading",
+        currentReturn: "loading",
         expiration: this.getLeftTimeStr(optionsInfo[i].expiration),
         operation: 1
       };
@@ -381,18 +425,18 @@ class Assets extends Component {
         if (Number(prices[optionsInfo[i].underlying]) <= Number(optionsInfo[i].strikePrice)) {
           op.currentReturn = "0";
         } else {
-          op.currentReturn = "$ " + beautyNumber(optionsInfo[i].amount * (Number(prices[optionsInfo[i].underlying]) - Number(optionsInfo[i].strikePrice)), 4);
+          op.currentReturn = beautyNumber(optionsInfo[i].amount * (Number(prices[optionsInfo[i].underlying]) - Number(optionsInfo[i].strikePrice)), 4) + "$" ;
         }
       } else {
         if (Number(prices[optionsInfo[i].underlying]) >= Number(optionsInfo[i].strikePrice)) {
           op.currentReturn = "0";
         } else {
-          op.currentReturn = "$ " + beautyNumber(optionsInfo[i].amount * (Number(optionsInfo[i].strikePrice) - Number(prices[optionsInfo[i].underlying])), 4);
+          op.currentReturn = beautyNumber(optionsInfo[i].amount * (Number(optionsInfo[i].strikePrice) - Number(prices[optionsInfo[i].underlying])), 4) + "$" ;
         }
       }
 
       if (optionsInfo[i].price) {
-        op.usd = '$' + beautyNumber(optionsInfo[i].price * optionsInfo[i].amount, 4);
+        op.usd = beautyNumber(optionsInfo[i].price * optionsInfo[i].amount, 4) + '$';
       }
       options.push(op);
     }
@@ -400,15 +444,13 @@ class Assets extends Component {
     this.setState({ options });
   }
 
-  getOptionsIdByName = (name) => {
+  getOptionsById = (id) => {
     let options = getUserOptions();
     for (let i = 0; i < options.length; i++) {
-      if (name === options[i].name) {
-        return options[i].id;
+      if (id === options[i].id) {
+        return options[i];
       }
     }
-
-    return -1;
   }
 
   updateInfo = (loading) => {
@@ -437,10 +479,11 @@ class Assets extends Component {
       this.setInfo('Shares token @Wanchain', ret, ret * colInfo.sharePrice);
     }).catch(e => console.log(e));
 
-    this.setOptions(options);
+    // this.setOptions(options);
 
     getOptionsPrices().then(() => {
       let optionsWithPrice = getUserOptions();
+      console.log('optionsWithPrice', optionsWithPrice);
       this.setOptions(optionsWithPrice);
       this.setState({ loading: false });
     }).catch(e => console.log(e));

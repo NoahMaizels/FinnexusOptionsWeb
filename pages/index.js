@@ -94,6 +94,11 @@ class IndexPage extends Component {
       key: 'time',
     },
     {
+      title: 'Type',
+      dataIndex: "type",
+      key: 'type',
+    },
+    {
       title: 'Options name',
       dataIndex: "name",
       key: 'name',

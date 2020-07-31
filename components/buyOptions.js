@@ -145,7 +145,7 @@ class BuyOptions extends Component {
           updateOrderStatus(time, 'Failed');
         });
 
-      insertOrderHistory(address, time, name, this.state.amount, this.state.amountToPay+currencyToPay, 'Pending');
+      insertOrderHistory(address, time, name, "+" + this.state.amount, this.state.amountToPay+currencyToPay, 'Buy', 'Pending');
       this.setState({ buyLoading: false, buyModalVisible: false });
 
     }).catch((e) => {

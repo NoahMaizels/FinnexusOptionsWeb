@@ -631,6 +631,10 @@ export const updateUserOptions = async (address, chainType) => {
             ret
           };
 
+          if (Number(info.amount) === 0) {
+            return;
+          }
+
           let expirationWithYear = (new Date(info.expiration * 1000)).toDateString().split(' ').slice(1, 4).join(' ');
 
           info.name = info.underlying + " " + info.optType + ", " + expirationWithYear + ", $"+info.strikePrice + " @Wanchain";
@@ -654,10 +658,10 @@ export const getUserOptions = () => {
 
 export const getOptionsPrices = async () => {
   let timeout = 5;
-  while(optionsIDs.length === 0 || optionsIDs.length !== options.length) {
+  while(optionsIDs.length === 0) {
     await sleep(1000);
     console.log('timeout', timeout);
-    if(timeout-- < 0 && optionsIDs.length === 0 ) {
+    if(timeout-- < 0) {
       return [];
     }
   }
@@ -667,7 +671,7 @@ export const getOptionsPrices = async () => {
   let finish = false;
 
   for (let i=0; i<options.length; i++) {
-    if (options[i].expiration <= Date.now()/1000) {
+    if (options[i].expiration <= Date.now()/1000 || Number(options[i].amount) === 0) {
       continue;
     }
     let ptrOptions = options[i];
