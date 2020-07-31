@@ -265,6 +265,34 @@ export const updateCollateralInfo = async (address) => {
     collateral.usedValue = priceConvert(value);
   }));
 
+  batch.add(scs.opManager.methods.getLeftCollateral().call.request({}, (err, ret) => {
+    if (err || !ret) {
+      console.log(err, ret);
+      return;
+    }
+    console.log('getLeftCollateral', ret);
+    let value = web3.utils.fromWei(ret);
+    if (value > 1e30) {
+      console.log('getLeftCollateral value invalid', value);
+      return;
+    }
+    collateral.outOfWithdraw = priceConvert(value);
+  }));
+
+  batch.add(scs.fctCoin.methods.getTotalLockedWorth().call.request({}, (err, ret) => {
+    if (err || !ret) {
+      console.log(err, ret);
+      return;
+    }
+    console.log('getTotalLockedWorth', ret);
+    let value = web3.utils.fromWei(ret);
+    if (value > 1e30) {
+      console.log('getTotalLockedWorth value invalid', value);
+      return;
+    }
+    collateral.lockedValue = priceConvert(value);
+  }));
+
   batch.add(scs.opManager.methods.getCollateralRate().call.request({}, (err, ret) => {
     if (err || !ret) {
       console.log(err, ret);

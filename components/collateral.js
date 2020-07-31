@@ -112,6 +112,8 @@ class CollateralInfo extends Component {
         lowestPercent: info.lowestPercent,
         balance: info.balance,
         userPayUsd: info.userPayUsd,
+        outOfWithdraw: info.outOfWithdraw,
+        lockedValue: info.lockedValue,
       });
 
       if (this.firstLoad) {
@@ -241,18 +243,16 @@ class CollateralInfo extends Component {
         <Spin spinning={this.state.spinning} size="large">
           <Row gutter={[24, 24]}>
             <Col span={6}><Box><MyStatistic coldColor title="Collateral occupied percent" value={this.state.totalSupply > 0 ? beautyNumber(this.state.usedValue * 3 / this.state.totalValue * 100, 2) : 0} suffix="%" /><ShortLine coldColor /></Box></Col>
-            <Col span={6}><Box><TwoStatics title="Farming amount per day" value={'10.342 FNX / 20.1234 WAN'} suffix="" /><ShortLine /></Box></Col>
+            <Col span={6}><Box><TwoStatics  coldColor title="Farming amount per day" value={'10.342 FNX / 20.1234 WAN'} suffix="" /><ShortLine coldColor/></Box></Col>
             <Col span={6}><Box><MyStatistic coldColor title="Lowest collateral percent" value={this.state.lowestPercent} suffix="%" /><ShortLine coldColor /></Box></Col>
             <Col span={6}><Box><MyStatistic coldColor title="Net value for total FPT" value={beautyNumber(this.state.totalValue, 4)} suffix="$" /><ShortLine coldColor /></Box></Col>
-            <Col span={6}><Box><MyStatistic coldColor title="Net value for each FPT" value={beautyNumber(this.state.sharePrice, 4)} suffix="$" /><ShortLine coldColor /></Box></Col>
-          {/* </Row>
-          <Row gutter={[24, 24]}> */}
+            <Col span={6}><Box><MyStatistic title="Net value for each FPT" value={beautyNumber(this.state.sharePrice, 4)} suffix="$" /><ShortLine /></Box></Col>
             <Col span={6}><Box><MyStatistic title="Total amount of FPT" value={beautyNumber(this.state.totalSupply, 4)} /><ShortLine /></Box></Col>
             <Col span={6}><Box><MyStatistic title="Return in this month" value={'0'} suffix="$" /><ShortLine /></Box></Col>
             <Col span={6}><Box><MyStatistic title="APR in this month" value={'0'} suffix="%" /><ShortLine /></Box></Col>
-            <Col span={6}><Box><MyStatistic title="APR in this year" value={'0'} suffix="%" /><ShortLine /></Box></Col>
-            <Col span={6}><Box><MyStatistic title="FPT out of collateral" value={'0'} suffix="" /><ShortLine /></Box></Col>
-            <Col span={6}><Box><MyStatistic title="Withdrawing value in queue" value={'0'} suffix="USD" /><ShortLine /></Box></Col>
+            <Col span={6}><Box><MyStatistic coldColor title="APR in this year" value={'0'} suffix="%" /><ShortLine coldColor/></Box></Col>
+            <Col span={6}><Box><MyStatistic coldColor title="FPT out of collateral" value={beautyNumber(this.state.outOfWithdraw,2)} suffix="$" /><ShortLine coldColor/></Box></Col>
+            <Col span={6}><Box><MyStatistic coldColor title="Withdrawing value in queue" value={beautyNumber(this.state.lockedValue,2)} suffix="$" /><ShortLine coldColor/></Box></Col>
           </Row>
           <SingleLine />
           <Header2>
