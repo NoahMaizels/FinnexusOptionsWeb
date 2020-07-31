@@ -137,12 +137,12 @@ class IndexPage extends Component {
           <SingleLine />
           {
             this.state.tabSelect1
-              ? <BuyOptions title="Choose and buy the options" baseToken="BTC" />
+              ? <BuyOptions title="Choose and buy the options" baseToken="BTC" update={()=>{this.setState()}} />
               : null
           }
           {
             this.state.tabSelect2
-              ? <BuyOptions title="Choose and buy the options" baseToken="ETH" />
+              ? <BuyOptions title="Choose and buy the options" baseToken="ETH" update={()=>{this.setState()}}/>
               : null
           }
           <Header2>
@@ -153,7 +153,7 @@ class IndexPage extends Component {
           <SingleLine />
           <DarkContainer>
             {/* <HistoryTable columns={this.optionsColumn} dataSource={this.demoMyOptions} /> */}
-            <Assets mini/>
+            <Assets mini update={()=>{this.setState()}}/>
           </DarkContainer>
           <Header2>
             <InALineLeft>

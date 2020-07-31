@@ -206,7 +206,7 @@ class Assets extends Component {
     }
 
     let address = this.props.selectedAccount.get("address");
-    let time = (new Date()).toLocaleString();
+    let time = (new Date()).toJSON().split('.')[0];
     let options = this.getOptionsById(this.state.optionsID);
     let sellValue = '';
     if (options.price) {
@@ -222,10 +222,16 @@ class Assets extends Component {
         message.info("Sell options success");
         // this.setState({ optionsID: -1, sellOptionsModalVisible: false, optionsAmount: '', optionsName: '', optionsOperateLoading: false });
         updateOrderStatus(time, "Success");
+        if (this.props.update) {
+          this.props.update();
+        }
       } else {
         message.error("Sell options failed");
         // this.setState({ optionsOperateLoading: false });
         updateOrderStatus(time, "Failed");
+        if (this.props.update) {
+          this.props.update();
+        }
       }
     }).catch(e => {
       console.log(e);
@@ -234,8 +240,11 @@ class Assets extends Component {
       updateOrderStatus(time, "Failed");
     });
 
-    insertOrderHistory(address, time, options.name, -1 * this.state.optionsAmount, sellValue, 'Sell', 'Pending');
+    insertOrderHistory(address, time, options.name, -1 * this.state.optionsAmount, '+' + sellValue, 'Sell', 'Pending');
     this.setState({ sellOptionsModalVisible: false, optionsAmount: '', optionsName: '', optionsOperateLoading: false });
+    if (this.props.update) {
+      this.props.update();
+    }
   }
 
   onSellOptionsCancel = () => {
@@ -274,7 +283,7 @@ class Assets extends Component {
     }
 
     let address = this.props.selectedAccount.get("address");
-    let time = (new Date()).toLocaleString();
+    let time = (new Date()).toJSON().split('.')[0];
     let options = this.getOptionsById(this.state.optionsID);
 
     this.setState({ optionsOperateLoading: true });
@@ -283,16 +292,25 @@ class Assets extends Component {
       if (ret) {
         message.info("Exercise options success");
         updateOrderStatus(time, "Success");
+        if (this.props.update) {
+          this.props.update();
+        }
         // this.setState({ optionsID: -1, exerciseOptionsModalVisible: false, optionsAmount: '', optionsName: '', optionsOperateLoading: false });
       } else {
         message.error("Exercise options failed");
         updateOrderStatus(time, "Failed");
+        if (this.props.update) {
+          this.props.update();
+        }
         // this.setState({ optionsOperateLoading: false });
       }
     }).catch(e => {
       console.log(e);
       message.error(e.message);
       updateOrderStatus(time, "Failed");
+      if (this.props.update) {
+        this.props.update();
+      }
       // this.setState({ optionsOperateLoading: false });
     });
 
@@ -312,8 +330,11 @@ class Assets extends Component {
       }
     }
 
-    insertOrderHistory(address, time, options.name, -1 * this.state.optionsAmount, value, 'Exercise', 'Pending');
+    insertOrderHistory(address, time, options.name, -1 * this.state.optionsAmount, '+' + value, 'Exercise', 'Pending');
     this.setState({ exerciseOptionsModalVisible: false, optionsAmount: '', optionsName: '', optionsOperateLoading: false });
+    if (this.props.update) {
+      this.props.update();
+    }
   }
 
   onExerciseCancel = () => {
@@ -427,7 +448,8 @@ class Assets extends Component {
         usd: "loading",
         currentReturn: "loading",
         expiration: this.getLeftTimeStr(optionsInfo[i].expiration),
-        operation: 1
+        operation: 1,
+        key: optionsInfo[i].id,
       };
 
       if (optionsInfo[i].optType === "Call") {

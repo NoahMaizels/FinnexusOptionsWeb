@@ -680,6 +680,15 @@ export const updateUserOptions = async (address, chainType) => {
 
 export const getUserOptions = () => {
   if (optionsLatest.length > 0) {
+    for (let i=0; i<optionsLatest.length; i++) {
+      for(let j=0; j<options.length; j++) {
+        if(optionsLatest[i].id === options[j].id) {
+          if (Number(options[j].price) !== 0) {
+            optionsLatest[i].price = options[i].price;
+          }
+        }
+      }
+    }
     options = optionsLatest.slice();
   }
   console.log('optionsLatest', optionsLatest);

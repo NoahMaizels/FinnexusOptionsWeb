@@ -119,7 +119,7 @@ class BuyOptions extends Component {
       }
 
       let address = this.props.selectedAccount.get('address');
-      let time = (new Date()).toLocaleString();
+      let time = (new Date()).toJSON().split('.')[0];
 
       let expirationWithYear = (new Date(Date.now() + expiration * 1000)).toDateString().split(' ').slice(1, 4).join(' ');
 
@@ -133,10 +133,12 @@ class BuyOptions extends Component {
             message.info("Buy success");
             // this.setState({ buyLoading: false, buyModalVisible: false });
             updateOrderStatus(time, 'Success');
+            this.props.update();
           } else {
             message.info("Sorry, buy failed");
             // this.setState({ buyLoading: false });
             updateOrderStatus(time, 'Failed');
+            this.props.update();
           }
         }).catch((e) => {
           console.log(e);
@@ -145,8 +147,9 @@ class BuyOptions extends Component {
           updateOrderStatus(time, 'Failed');
         });
 
-      insertOrderHistory(address, time, name, "+" + this.state.amount, this.state.amountToPay+currencyToPay, 'Buy', 'Pending');
+      insertOrderHistory(address, time, name, "+" + this.state.amount, '-' + this.state.amountToPay+currencyToPay, 'Buy', 'Pending');
       this.setState({ buyLoading: false, buyModalVisible: false });
+      this.props.update();
 
     }).catch((e) => {
       console.log(e);
