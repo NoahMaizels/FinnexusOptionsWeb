@@ -505,7 +505,7 @@ export const renderDepositModal = (chainType, visible, handleCancel, handleOk,
 
 export const renderWithdrawModal = (chainType, visible, handleCancel, handleOk, 
   amountToDeposit, amountChange, currencyToPay, currencyChange, balance, loading, fee, locked) => {
-  let payToken = "Shares token";
+  let payToken = "FPT";
   return (
     <MyModal
       title="Withdraw"
@@ -553,7 +553,7 @@ export const renderWithdrawModal = (chainType, visible, handleCancel, handleOk,
             value={amountToDeposit}
             onChange={amountChange}
           />
-          <p style={{opacity: "0.6"}}>* Your shares token balance is: {beautyNumber(balance, 8) + " "} </p>
+          <p style={{opacity: "0.6"}}>* Your FPT balance is: {beautyNumber(balance, 8) + " "} </p>
           <p style={{opacity: "0.6"}}>* Contains {fee.redeemColFee*100 + "%"} fee.</p>
         </Row>
       </CenterAlign>

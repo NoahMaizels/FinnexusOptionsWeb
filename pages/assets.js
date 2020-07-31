@@ -57,22 +57,22 @@ class Assets extends Component {
           key: 'wan'
         },
         {
-          assets: "Shares token @Wanchain",
+          assets: "FPT @Wanchain",
           balance: "0",
           usd: "$ 0",
           currentReturn: "--",
           expiration: '--',
-          operation: 0,
-          key: 'Shares token @Wanchain'
+          operation: 2,
+          key: 'FPT @Wanchain'
         },
         {
-          assets: "Shares token @Ethereum",
+          assets: "FPT @Ethereum",
           balance: "0",
           usd: "$ 0",
           currentReturn: "--",
           expiration: '--',
-          operation: 0,
-          key: "Shares token @Ethereum"
+          operation: 2,
+          key: "FPT @Ethereum"
         },
         {
           assets: "FNX @Ethereum",
@@ -102,6 +102,7 @@ class Assets extends Component {
       title: 'ID',
       dataIndex: "id",
       key: 'id',
+      visible: false,
     },
     {
       title: 'Assets',
@@ -141,11 +142,19 @@ class Assets extends Component {
               <SmallButton onClick={() => { this.onTransfer(row.assets) }}><img src={require('../img/transfer.png')} style={{ marginRight: "10px" }} />Transfer</SmallButton>
             </InALineLeft>
           );
-        } else {
+        } else if(value === 1) {
           return (
             <InALineLeft>
               <SmallButton onClick={() => { this.onSellOptions(row) }}><img src={require('../img/sell.png')} style={{ marginRight: "10px" }} />Sell</SmallButton>
               <SmallButton onClick={() => { this.onExerciseOptions(row) }}><img src={require('../img/transfer.png')} style={{ marginRight: "10px" }} />Exercise</SmallButton>
+            </InALineLeft>
+          );
+        } else {
+          return (
+            <InALineLeft>
+              <SmallButton><img src={require('../img/buy.png')} style={{ marginRight: "10px" }} />Deposit</SmallButton>
+              <SmallButton><img src={require('../img/sell.png')} style={{ marginRight: "10px" }} />Withdraw</SmallButton>
+              <SmallButton onClick={() => { this.onTransfer(row.assets) }}><img src={require('../img/transfer.png')} style={{ marginRight: "10px" }} />Transfer</SmallButton>
             </InALineLeft>
           );
         }
@@ -476,7 +485,7 @@ class Assets extends Component {
     }).catch(e => console.log(e));
 
     getBalance(contractInfo.FPTCoin.address, address).then((ret) => {
-      this.setInfo('Shares token @Wanchain', ret, ret * colInfo.sharePrice);
+      this.setInfo('FPT @Wanchain', ret, ret * colInfo.sharePrice);
     }).catch(e => console.log(e));
 
     // this.setOptions(options);
@@ -521,7 +530,7 @@ class Assets extends Component {
 
     }
 
-    if (tokenName === 'Shares token @Wanchain') {
+    if (tokenName === 'FPT @Wanchain') {
       this.setState({
         chainType: 'wan',
         transferName: tokenName,
@@ -531,7 +540,7 @@ class Assets extends Component {
       });
     }
 
-    if (tokenName === 'Shares token @Ethereum') {
+    if (tokenName === 'FPT @Ethereum') {
 
     }
   }

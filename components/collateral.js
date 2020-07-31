@@ -241,15 +241,18 @@ class CollateralInfo extends Component {
         <Spin spinning={this.state.spinning} size="large">
           <Row gutter={[24, 24]}>
             <Col span={6}><Box><MyStatistic coldColor title="Collateral occupied percent" value={this.state.totalSupply > 0 ? beautyNumber(this.state.usedValue * 3 / this.state.totalValue * 100, 2) : 0} suffix="%" /><ShortLine coldColor /></Box></Col>
+            <Col span={6}><Box><TwoStatics title="Farming amount per day" value={'10.342 FNX / 20.1234 WAN'} suffix="" /><ShortLine /></Box></Col>
             <Col span={6}><Box><MyStatistic coldColor title="Lowest collateral percent" value={this.state.lowestPercent} suffix="%" /><ShortLine coldColor /></Box></Col>
-            <Col span={6}><Box><MyStatistic coldColor title="Net value for total shares" value={beautyNumber(this.state.totalValue, 4)} suffix="$" /><ShortLine coldColor /></Box></Col>
-            <Col span={6}><Box><MyStatistic coldColor title="Net value for each share" value={beautyNumber(this.state.sharePrice, 4)} suffix="$" /><ShortLine coldColor /></Box></Col>
-          </Row>
-          <Row gutter={[24, 24]}>
-            <Col span={6}><Box><MyStatistic title="Total amount of shares" value={beautyNumber(this.state.totalSupply, 4)} /><ShortLine /></Box></Col>
+            <Col span={6}><Box><MyStatistic coldColor title="Net value for total FPT" value={beautyNumber(this.state.totalValue, 4)} suffix="$" /><ShortLine coldColor /></Box></Col>
+            <Col span={6}><Box><MyStatistic coldColor title="Net value for each FPT" value={beautyNumber(this.state.sharePrice, 4)} suffix="$" /><ShortLine coldColor /></Box></Col>
+          {/* </Row>
+          <Row gutter={[24, 24]}> */}
+            <Col span={6}><Box><MyStatistic title="Total amount of FPT" value={beautyNumber(this.state.totalSupply, 4)} /><ShortLine /></Box></Col>
             <Col span={6}><Box><MyStatistic title="Return in this month" value={'0'} suffix="$" /><ShortLine /></Box></Col>
             <Col span={6}><Box><MyStatistic title="APR in this month" value={'0'} suffix="%" /><ShortLine /></Box></Col>
             <Col span={6}><Box><MyStatistic title="APR in this year" value={'0'} suffix="%" /><ShortLine /></Box></Col>
+            <Col span={6}><Box><MyStatistic title="FPT out of collateral" value={'0'} suffix="" /><ShortLine /></Box></Col>
+            <Col span={6}><Box><MyStatistic title="Withdrawing value in queue" value={'0'} suffix="USD" /><ShortLine /></Box></Col>
           </Row>
           <SingleLine />
           <Header2>
@@ -267,7 +270,7 @@ class CollateralInfo extends Component {
           <SingleLine />
           <SmallSpace />
           <Row gutter={[24, 40]}>
-            <Col span={6}><Box><MyStatistic title="My shares token" value={beautyNumber(this.state.balance, 4)} /><ShortLine coldColor /></Box></Col>
+            <Col span={6}><Box><MyStatistic title="My FPT" value={beautyNumber(this.state.balance, 4)} /><ShortLine coldColor /></Box></Col>
             <Col span={6}><Box><MyStatistic title="Percentage of the pool" value={this.state.totalSupply > 0 ? beautyNumber(this.state.balance / this.state.totalSupply * 100, 4) : 0} suffix="%" /><ShortLine coldColor /></Box></Col>
             <Col span={6}><Box><MyStatistic title="Current value" value={beautyNumber(this.state.balance * this.state.sharePrice, 4)} suffix="$" /><ShortLine coldColor /></Box></Col>
             <Col span={6}><Box><MyStatistic title="Total return" value={beautyNumber(this.state.balance * this.state.sharePrice - this.state.userPayUsd, 4)} suffix="$" /><ShortLine coldColor /></Box></Col>
@@ -317,6 +320,12 @@ const Title = styled.div`
 
 const MyButton = styled(ConnectWalletSub)`
   margin-top: 12px;
+`;
+
+const TwoStatics = styled(MyStatistic)`
+  .ant-statistic-content-value {
+    font-size: 20px;
+  }
 `;
 
 

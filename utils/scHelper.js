@@ -27,6 +27,8 @@ let collateral = {
   lowestPercent: 0,
   balance: 0,
   userPayUsd: 0,
+  outOfWithdraw: 0,
+  lockedValue: 0,
 }
 
 let optionsIDs = [];

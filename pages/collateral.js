@@ -1,10 +1,9 @@
 import { Carousel } from 'antd';
 import { Component } from 'react';
-import { SingleLine, Center, Body, Header2, Space, MiddleLine, TabButtonSub, InALineBetween, InALineLeft, SubTitle } from '../components';
+import { SingleLine, Center, Body, Header2, Space, MiddleLine, 
+  TabButtonSub, InALineBetween, InALineLeft, SubTitle, DarkContainer, HistoryTable } from '../components';
 import CollateralInfo from '../components/collateral.js';
 
-
-import styles from './collateral.css';
 
 class Collateral extends Component {
   constructor(props) {
@@ -15,6 +14,48 @@ class Collateral extends Component {
     };
   }
 
+  historyColumn = [
+    {
+      title: 'Time',
+      dataIndex: "time",
+      key: 'time',
+    },
+    {
+      title: 'Token',
+      dataIndex: "token",
+      key: 'token',
+    },
+    {
+      title: 'Type',
+      dataIndex: "type",
+      key: 'type',
+    },
+    {
+      title: 'Amount',
+      dataIndex: "amount",
+      key: 'amount',
+    },
+    {
+      title: 'Value',
+      dataIndex: "value",
+      key: 'value',
+    },
+    {
+      title: 'Currency',
+      dataIndex: "currency",
+      key: 'currency',
+    },
+    {
+      title: 'Status',
+      dataIndex: "status",
+      key: 'status',
+    },
+    {
+      title: 'Operation',
+      dataIndex: 'operation',
+      key: 'operation'
+    }
+  ]
 
   onTabSelect = (id) => {
     switch (id) {
@@ -59,7 +100,15 @@ class Collateral extends Component {
               ? <CollateralInfo chainType='eth' />
               : null
           }
-
+          <Header2>
+            <InALineLeft>
+              <TabButtonSub select>FPT History<MiddleLine visible style={{ top: "30px", left: "-82px" }} /></TabButtonSub>
+            </InALineLeft>
+          </Header2>
+          <SingleLine />
+          <DarkContainer>
+            <HistoryTable columns={this.historyColumn}/>
+          </DarkContainer>
         </Body>
       </Center>
     );
