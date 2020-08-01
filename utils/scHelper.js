@@ -9,14 +9,14 @@ import { getWeb3, isSwitchFinish } from './web3switch.js';
 let scs = {};
 
 let prices = {
-  WAN:0,
-  BTC:0,
-  ETH:0,
-  FNX:0,
-  rawWAN:0,
-  rawBTC:0,
-  rawETH:0,
-  rawFNX:0,
+  WAN: 0,
+  BTC: 0,
+  ETH: 0,
+  FNX: 0,
+  rawWAN: 0,
+  rawBTC: 0,
+  rawETH: 0,
+  rawFNX: 0,
 };
 
 let collateral = {
@@ -29,6 +29,7 @@ let collateral = {
   userPayUsd: 0,
   outOfWithdraw: 0,
   lockedValue: 0,
+  availableCollateral: 0,
 }
 
 let optionsIDs = [];
@@ -75,6 +76,7 @@ export const initSmartContract = async () => {
   scs.opPool = new web3.eth.Contract(require('./abi/OptionsPool.json'), contractInfo.OptionsPool.address);
   scs.opPrice = new web3.eth.Contract(require('./abi/OptionsPrice.json'), contractInfo.OptionsPrice.address);
   scs.fctCoin = new web3.eth.Contract(require('./abi/FPTCoin.json'), contractInfo.FPTCoin.address);
+  scs.minePool = new web3.eth.Contract(require('./abi/FNXMinePool.json'), contractInfo.FNXMinePool.address);
 
   updateFee();
 }
@@ -187,7 +189,7 @@ function priceConvert(price, time) {
     return " Timeout";
   }
 
-  if (time && (Date.now()/1000 - time) > priceTimeout) {
+  if (time && (Date.now() / 1000 - time) > priceTimeout) {
     return " Timeout";
   }
   return Number((Number(price) / decimals).toFixed(8));
@@ -237,6 +239,15 @@ export const updateCollateralInfo = async (address) => {
     collateral.totalSupply = web3.utils.fromWei(ret);
   }));
 
+  batch.add(scs.opManager.methods.getAvailableCollateral().call.request({}, (err, ret) => {
+    if (err || !ret) {
+      console.log(err, ret);
+      return;
+    }
+    console.log('getAvailableCollateral', priceConvert(web3.utils.fromWei(ret)));
+    collateral.availableCollateral = priceConvert(web3.utils.fromWei(ret));
+  }));
+
   batch.add(scs.opManager.methods.getTotalCollateral().call.request({}, (err, ret) => {
     if (err || !ret) {
       console.log(err, ret);
@@ -256,10 +267,10 @@ export const updateCollateralInfo = async (address) => {
       console.log(err, ret);
       return;
     }
-    console.log('getOccupiedCollateral', ret);
+    console.log('getOccupiedCollateral', priceConvert(web3.utils.fromWei(ret)));
     let value = web3.utils.fromWei(ret);
     if (value > 1e30) {
-      console.log('getOccupiedCollateral value invalid', value);
+      console.log('getOccupiedCollateral value invalid', priceConvert(value));
       return;
     }
     collateral.usedValue = priceConvert(value);
@@ -293,18 +304,44 @@ export const updateCollateralInfo = async (address) => {
     collateral.lockedValue = priceConvert(value);
   }));
 
+  //--mine--info---
+  batch.add(scs.minePool.methods.getMineInfo(fnxTokenAddress).call.request({}, (err, ret) => {
+    if (err || !ret) {
+      console.log(err, ret);
+      return;
+    }
+    let amount = web3.utils.fromWei(ret[0]);
+    let interval = ret[1];
+    console.log('getMineInfo fnx', ret, beautyNumber(amount * 3600 * 24 / interval, 2));
+
+    collateral.fnxMine = beautyNumber(amount * 3600 * 24 / interval, 2);
+  }));
+
+  batch.add(scs.minePool.methods.getMineInfo('0x0000000000000000000000000000000000000000').call.request({}, (err, ret) => {
+    if (err || !ret) {
+      console.log(err, ret);
+      return;
+    }
+    let amount = web3.utils.fromWei(ret[0]);
+    let interval = ret[1];
+    console.log('getMineInfo wan', ret, beautyNumber(amount * 3600 * 24 / interval, 2));
+    collateral.wanMine = beautyNumber(amount * 3600 * 24 / interval, 2);
+  }));
+
   batch.add(scs.opManager.methods.getCollateralRate().call.request({}, (err, ret) => {
     if (err || !ret) {
       console.log(err, ret);
       return;
     }
     console.log('getCollateralRate', ret);
-    collateral.lowestPercent = beautyNumber(ret[0]**ret[1] * 100, 2);
+    collateral.lowestPercent = beautyNumber(ret[0] ** ret[1] * 100, 2);
 
     if (!address) {
       finish = true;
     }
   }));
+
+
 
   if (address) {
     batch.add(scs.fctCoin.methods.balanceOf(address).call.request({}, (err, ret) => {
@@ -325,11 +362,29 @@ export const updateCollateralInfo = async (address) => {
       console.log('getUserPayingUsd', ret);
       collateral.userPayUsd = priceConvert(web3.utils.fromWei(ret));
     }));
+
+    batch.add(scs.minePool.methods.getMinerBalance(address, fnxTokenAddress).call.request({}, (err, ret) => {
+      if (err || !ret) {
+        console.log(err, ret);
+        return;
+      }
+      console.log('getMinerBalance fnx', web3.utils.fromWei(ret));
+      collateral.minedFnx = web3.utils.fromWei(ret);
+    }));
+
+    batch.add(scs.minePool.methods.getMinerBalance(address, '0x0000000000000000000000000000000000000000').call.request({}, (err, ret) => {
+      if (err || !ret) {
+        console.log(err, ret);
+        return;
+      }
+      console.log('getMinerBalance wan', web3.utils.fromWei(ret));
+      collateral.minedWan = web3.utils.fromWei(ret);
+    }));
   }
 
   batch.execute();
 
-  while(!finish) {
+  while (!finish) {
     await sleep(500);
   }
   await sleep(5000);
@@ -348,7 +403,7 @@ export const deposit = async (chainType, amountToPay, currencyToPay, selectedWal
   let ret = false;
   console.log('deposit:', chainType, amountToPay, currencyToPay);
   let web3 = getWeb3();
-  let txParam = {gasPrice: '0x3B9ACA00'};
+  let txParam = { gasPrice: '0x3B9ACA00' };
   if (chainType === 'wan') {
     let token = "0x0000000000000000000000000000000000000000";
     txParam.to = contractInfo.OptionsManagerV2.address;
@@ -363,7 +418,7 @@ export const deposit = async (chainType, amountToPay, currencyToPay, selectedWal
       txParam.value = web3.utils.toWei(amountToPay.toString());
     }
     console.log('addCollateral:', token, web3.utils.toWei(amountToPay.toString()));
-    let gas = await scs.opManager.methods.addCollateral(token, web3.utils.toWei(amountToPay.toString())).estimateGas({gas: 1e7, from: address, value: txParam.value});
+    let gas = await scs.opManager.methods.addCollateral(token, web3.utils.toWei(amountToPay.toString())).estimateGas({ gas: 1e7, from: address, value: txParam.value });
     if (gas.toString() === "10000000") {
       message.error("Sorry, gas estimate failed, Please check input params");
       return false;
@@ -404,16 +459,16 @@ export const withdraw = async (chainType, amountToPay, currencyToPay, selectedWa
   let ret = false;
   console.log('withdraw:', chainType, amountToPay, currencyToPay);
   let web3 = getWeb3();
-  let txParam = {gasPrice: '0x3B9ACA00'};
+  let txParam = { gasPrice: '0x3B9ACA00' };
   if (chainType === 'wan') {
     let token = "0x0000000000000000000000000000000000000000";
     txParam.to = contractInfo.OptionsManagerV2.address;
     if (currencyToPay != 0) {
       token = fnxTokenAddress;
-    } 
+    }
     txParam.value = "0";
     console.log('withdraw:', token, web3.utils.toWei(amountToPay.toString()));
-    let gas = await scs.opManager.methods.redeemCollateral(web3.utils.toWei(amountToPay.toString()), token).estimateGas({gas: 1e7, from: address, value: txParam.value});
+    let gas = await scs.opManager.methods.redeemCollateral(web3.utils.toWei(amountToPay.toString()), token).estimateGas({ gas: 1e7, from: address, value: txParam.value });
     if (gas.toString() === "10000000") {
       message.error("Sorry, gas estimate failed, Please check input params");
       return false;
@@ -453,7 +508,7 @@ export const buyOptions = async (chainType, currencyToPay, amountToPay, strikePr
   }
   let ret = false;
   console.log('buyOption:', currencyToPay, amountToPay, strikePrice, underlying, expiration, amount, optType, address);
-  let txParam = {gasPrice: '0x3B9ACA00'};
+  let txParam = { gasPrice: '0x3B9ACA00' };
   if (chainType === 'wan') {
     let web3 = getWeb3();
     let token = "0x0000000000000000000000000000000000000000";
@@ -469,9 +524,9 @@ export const buyOptions = async (chainType, currencyToPay, amountToPay, strikePr
       txParam.value = web3.utils.toWei(amountToPay.toString());
     }
     console.log('addCollateral:', token, web3.utils.toWei(amountToPay.toString()));
-    let gas = await scs.opManager.methods.buyOption(token, 
-      web3.utils.toWei(amountToPay.toString()), 
-      priceRevert(strikePrice), underlying, expiration, web3.utils.toWei(amount.toString()), optType).estimateGas({gas: 1e7, from: address, value: txParam.value});
+    let gas = await scs.opManager.methods.buyOption(token,
+      web3.utils.toWei(amountToPay.toString()),
+      priceRevert(strikePrice), underlying, expiration, web3.utils.toWei(amount.toString()), optType).estimateGas({ gas: 1e7, from: address, value: txParam.value });
     if (gas.toString() === "10000000") {
       message.error("Sorry, gas estimate failed, Please check input params");
       return false;
@@ -482,8 +537,8 @@ export const buyOptions = async (chainType, currencyToPay, amountToPay, strikePr
       txParam.gasLimit = gas;
     }
 
-    let data = await scs.opManager.methods.buyOption(token, 
-      web3.utils.toWei(amountToPay.toString()), 
+    let data = await scs.opManager.methods.buyOption(token,
+      web3.utils.toWei(amountToPay.toString()),
       priceRevert(strikePrice), underlying, expiration, web3.utils.toWei(amount.toString()), optType).encodeABI();
     txParam.data = data;
 
@@ -535,8 +590,7 @@ export const approve = async (tokenAddr, amount, owner, selectedWallet) => {
     let token = new web3.eth.Contract(abiErc20, tokenAddr);
     let allowance = await token.methods.allowance(owner, contractInfo.OptionsManagerV2.address).call();
     console.log('allowance', allowance);
-    if (Number(allowance) !== 0 && Number(amount) !== 0)
-    {
+    if (Number(allowance) !== 0 && Number(amount) !== 0) {
       if (Number(web3.utils.fromWei(allowance.toString())) >= amount) {
         return true;
       }
@@ -638,18 +692,18 @@ export const updateUserOptions = async (address, chainType) => {
     // console.log('getUserOptions, id', optionsIDs);
     if (optionsIDs.length > 0) {
       let batch = new web3.BatchRequest();
-      for (let i=0; i<optionsIDs.length; i++) {
+      for (let i = 0; i < optionsIDs.length; i++) {
         batch.add(scs.opPool.methods.getOptionsById(optionsIDs[i]).call.request({}, (err, ret) => {
           if (err || !ret) {
             console.log(err, ret);
             return;
           }
-  
+
           // console.log('getOptionsById', optionsIDs[i], ret);
           if (ret[1].toLowerCase() != address.toLowerCase()) {
             console.log('getOptionsById information address mismatch');
           }
-  
+
           let info = {
             id: ret[0],
             key: ret[0],
@@ -667,7 +721,7 @@ export const updateUserOptions = async (address, chainType) => {
 
           let expirationWithYear = (new Date(info.expiration * 1000)).toDateString().split(' ').slice(1, 4).join(' ');
 
-          info.name = info.underlying + " " + info.optType + ", " + expirationWithYear + ", $"+info.strikePrice + " @Wanchain";
+          info.name = info.underlying + " " + info.optType + ", " + expirationWithYear + ", $" + info.strikePrice + " @Wanchain";
           optionsLatest.push(info);
         }));
       }
@@ -680,9 +734,9 @@ export const updateUserOptions = async (address, chainType) => {
 
 export const getUserOptions = () => {
   if (optionsLatest.length > 0) {
-    for (let i=0; i<optionsLatest.length; i++) {
-      for(let j=0; j<options.length; j++) {
-        if(optionsLatest[i].id === options[j].id) {
+    for (let i = 0; i < optionsLatest.length; i++) {
+      for (let j = 0; j < options.length; j++) {
+        if (optionsLatest[i].id === options[j].id) {
           if (Number(options[j].price) !== 0) {
             optionsLatest[i].price = options[i].price;
           }
@@ -692,15 +746,15 @@ export const getUserOptions = () => {
     options = optionsLatest.slice();
   }
   console.log('optionsLatest', optionsLatest);
-  return options.sort((a,b)=>{return b.id - a.id});
+  return options.sort((a, b) => { return b.id - a.id });
 }
 
 export const getOptionsPrices = async () => {
   let timeout = 5;
-  while(optionsIDs.length === 0) {
+  while (optionsIDs.length === 0) {
     await sleep(1000);
     console.log('timeout', timeout);
-    if(timeout-- < 0) {
+    if (timeout-- < 0) {
       return [];
     }
   }
@@ -709,28 +763,28 @@ export const getOptionsPrices = async () => {
   let batch = new web3.BatchRequest();
   let finish = false;
 
-  for (let i=0; i<options.length; i++) {
-    if (options[i].expiration <= Date.now()/1000 || Number(options[i].amount) === 0) {
+  for (let i = 0; i < options.length; i++) {
+    if (options[i].expiration <= Date.now() / 1000 || Number(options[i].amount) === 0) {
       continue;
     }
     let ptrOptions = options[i];
-    batch.add(scs.opPrice.methods.getOptionsPrice(prices['raw'+options[i].underlying], 
-      options[i].ret[5], options[i].expiration - parseInt(Date.now()/1000, 10), 
-      options[i].ret[3], options[i].ret[2]).call.request({}, 
-      (err, ret) => {
-        if (err || !ret) {
-          console.log(err, ret);
-          return;
-        }
-        // console.log('getOptionsPrice', ret);
-        ptrOptions.price = priceConvert(ret);
-        finish = true;
-    }));
+    batch.add(scs.opPrice.methods.getOptionsPrice(prices['raw' + options[i].underlying],
+      options[i].ret[5], options[i].expiration - parseInt(Date.now() / 1000, 10),
+      options[i].ret[3], options[i].ret[2]).call.request({},
+        (err, ret) => {
+          if (err || !ret) {
+            console.log(err, ret);
+            return;
+          }
+          // console.log('getOptionsPrice', ret);
+          ptrOptions.price = priceConvert(ret);
+          finish = true;
+        }));
   }
 
   batch.execute();
 
-  while(!finish) {
+  while (!finish) {
     await sleep(1000);
   }
 
@@ -738,20 +792,20 @@ export const getOptionsPrices = async () => {
 }
 
 export const sellOptions = async (chainType, id, amount, selectedWallet, address) => {
-  if ( !amount || !selectedWallet || !address ) {
+  if (!amount || !selectedWallet || !address) {
     message.error("Sorry, deposit input params error");
     return false;
   }
   let ret = false;
   console.log('sellOptions:', chainType, id, amount);
-  let txParam = {gasPrice: '0x3B9ACA00'};
+  let txParam = { gasPrice: '0x3B9ACA00' };
   if (chainType === 'wan') {
     let web3 = getWeb3();
     txParam.to = contractInfo.OptionsManagerV2.address;
     txParam.value = "0";
 
-    let gas = await scs.opManager.methods.sellOption(id, 
-      web3.utils.toWei(amount.toString())).estimateGas({gas: 1e7, from: address, value: txParam.value});
+    let gas = await scs.opManager.methods.sellOption(id,
+      web3.utils.toWei(amount.toString())).estimateGas({ gas: 1e7, from: address, value: txParam.value });
     if (gas.toString() === "10000000") {
       message.error("Sorry, gas estimate failed, Please check input params");
       return false;
@@ -762,7 +816,7 @@ export const sellOptions = async (chainType, id, amount, selectedWallet, address
       txParam.gasLimit = gas;
     }
 
-    let data = await scs.opManager.methods.sellOption(id, 
+    let data = await scs.opManager.methods.sellOption(id,
       web3.utils.toWei(amount.toString())).encodeABI();
     txParam.data = data;
 
@@ -786,20 +840,20 @@ export const sellOptions = async (chainType, id, amount, selectedWallet, address
 }
 
 export const exerciseOptions = async (chainType, id, amount, selectedWallet, address) => {
-  if ( !amount || !selectedWallet || !address) {
+  if (!amount || !selectedWallet || !address) {
     message.error("Sorry, deposit input params error");
     return false;
   }
   let ret = false;
   console.log('exerciseOptions:', chainType, id, amount);
-  let txParam = {gasPrice: '0x3B9ACA00'};
+  let txParam = { gasPrice: '0x3B9ACA00' };
   if (chainType === 'wan') {
     let web3 = getWeb3();
     txParam.to = contractInfo.OptionsManagerV2.address;
     txParam.value = "0";
 
-    let gas = await scs.opManager.methods.exerciseOption(id, 
-      web3.utils.toWei(amount.toString())).estimateGas({gas: 1e7, from: address, value: txParam.value});
+    let gas = await scs.opManager.methods.exerciseOption(id,
+      web3.utils.toWei(amount.toString())).estimateGas({ gas: 1e7, from: address, value: txParam.value });
     if (gas.toString() === "10000000") {
       message.error("Sorry, gas estimate failed, Please check input params");
       return false;
@@ -810,7 +864,7 @@ export const exerciseOptions = async (chainType, id, amount, selectedWallet, add
       txParam.gasLimit = gas;
     }
 
-    let data = await scs.opManager.methods.exerciseOption(id, 
+    let data = await scs.opManager.methods.exerciseOption(id,
       web3.utils.toWei(amount.toString())).encodeABI();
     txParam.data = data;
 
@@ -834,13 +888,13 @@ export const exerciseOptions = async (chainType, id, amount, selectedWallet, add
 }
 
 export const transferToken = async (chainType, token, to, value, selectedWallet, address) => {
-  if ( !value || !selectedWallet || !address) {
+  if (!value || !selectedWallet || !address) {
     message.error("Sorry, deposit input params error");
     return false;
   }
   let ret = false;
   console.log('transferToken:', chainType, token, to, value);
-  let txParam = {gasPrice: '0x3B9ACA00'};
+  let txParam = { gasPrice: '0x3B9ACA00' };
   if (chainType === 'wan') {
     let web3 = getWeb3();
 
@@ -861,8 +915,8 @@ export const transferToken = async (chainType, token, to, value, selectedWallet,
       txParam.to = token;
       txParam.value = "0x0";
       let erc20 = new web3.eth.Contract(abiErc20, token);
-      let gas = await erc20.methods.transfer(to, 
-        web3.utils.toWei(value.toString())).estimateGas({gas: 1e7, from: address, value: txParam.value});
+      let gas = await erc20.methods.transfer(to,
+        web3.utils.toWei(value.toString())).estimateGas({ gas: 1e7, from: address, value: txParam.value });
       if (gas.toString() === "10000000") {
         message.error("Sorry, gas estimate failed, Please check input params");
         return false;
@@ -873,8 +927,8 @@ export const transferToken = async (chainType, token, to, value, selectedWallet,
       } else {
         txParam.gasLimit = gas;
       }
-  
-      let data = await erc20.methods.transfer(to, 
+
+      let data = await erc20.methods.transfer(to,
         web3.utils.toWei(value.toString())).encodeABI();
       txParam.data = data;
     }
@@ -903,6 +957,53 @@ export const getOptionsLimitTimeById = async (id) => {
   return ret;
 }
 
+export const redeemMinerCoin = async (chainType, coinToken, amount, selectedWallet, address) => {
+  if (!amount || !selectedWallet || !address) {
+    message.error("Sorry, deposit input params error");
+    return false;
+  }
+  console.log('redeemMinerCoin:', chainType, coinToken, amount);
+  let ret = false;
+  if (chainType === 'wan') {
+    let web3 = getWeb3();
+    let txParam = { gasPrice: '0x3B9ACA00' };
+    txParam.to = contractInfo.FNXMinePool.address;
+    txParam.value = "0";
+
+    let gas = await scs.minePool.methods.redeemMinerCoin(coinToken,
+      web3.utils.toWei(amount.toString())).estimateGas({ gas: 1e7, from: address, value: txParam.value });
+    if (gas.toString() === "10000000") {
+      message.error("Sorry, gas estimate failed, Please check input params");
+      // return false;
+    }
+    if (selectedWallet.type() === "EXTENSION") {
+      txParam.gas = gas;
+    } else {
+      txParam.gasLimit = gas;
+    }
+
+    let data = await scs.minePool.methods.redeemMinerCoin(coinToken,
+    web3.utils.toWei(amount.toString())).encodeABI();
+    txParam.data = data;
+
+    let transactionID = await selectedWallet.sendTransaction(txParam);
+    console.log('sendTransaction:', transactionID);
+    message.info("Transaction Submitted, txHash:" + transactionID);
+    let timeout = 20;
+    while (timeout > 0) {
+      const txReceipt = await getTransactionReceipt(transactionID);
+      if (!txReceipt) {
+        await sleep(3000);
+        console.log('waiting...');
+      } else {
+        return txReceipt.status;
+      }
+      timeout--;
+    }
+  }
+
+  return ret;
+}
 //// V1 code -----
 
 // const getOptionsList = async () => {

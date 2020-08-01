@@ -33,14 +33,14 @@ export const getCollateralHistory = (address) => {
   return db.get('collateral').filter({ address }).sortBy('time').value().reverse();
 }
 
-export const insertCollateralHistory = (address, time, hash, sharesName, sharesAmount, value, currency, status) => {
+export const insertCollateralHistory = (address, time, token, type, amount, value, currency, status) => {
   db.get('collateral').push(
-    { address, time, hash, sharesName, sharesAmount, value, currency, status, key: time }
+    { address, time, token, type, amount, value, currency, status, key: time }
   ).write();
 }
 
-export const updateCollateralStatus = (hash, status) => {
-  db.get('collateral').find({ hash }).assign({ status }).write();
+export const updateCollateralStatus = (time, status) => {
+  db.get('collateral').find({ time }).assign({ status }).write();
 }
 
 // ---------transfer----------

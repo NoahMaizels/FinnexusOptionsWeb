@@ -3,6 +3,9 @@ import { Component } from 'react';
 import { SingleLine, Center, Body, Header2, Space, MiddleLine, 
   TabButtonSub, InALineBetween, InALineLeft, SubTitle, DarkContainer, HistoryTable } from '../components';
 import CollateralInfo from '../components/collateral.js';
+import {getCollateralHistory} from '../components/db';
+import { getSelectedAccount, getSelectedAccountWallet } from "wan-dex-sdk-wallet";
+import { connect } from "react-redux";
 
 
 class Collateral extends Component {
@@ -31,7 +34,7 @@ class Collateral extends Component {
       key: 'type',
     },
     {
-      title: 'Amount',
+      title: 'FPT Amount',
       dataIndex: "amount",
       key: 'amount',
     },
@@ -49,11 +52,6 @@ class Collateral extends Component {
       title: 'Status',
       dataIndex: "status",
       key: 'status',
-    },
-    {
-      title: 'Operation',
-      dataIndex: 'operation',
-      key: 'operation'
     }
   ]
 
@@ -78,6 +76,7 @@ class Collateral extends Component {
     });
   };
 
+
   render() {
     return (
       <Center>
@@ -92,12 +91,12 @@ class Collateral extends Component {
           <SingleLine/>
           {
             this.state.tabSelect1
-              ? <CollateralInfo chainType='wan' />
+              ? <CollateralInfo chainType='wan' update={()=>{this.setState({})}} />
               : null
           }
           {
             this.state.tabSelect2
-              ? <CollateralInfo chainType='eth' />
+              ? <CollateralInfo chainType='eth' update={()=>{this.setState({})}} />
               : null
           }
           <Header2>
@@ -107,7 +106,7 @@ class Collateral extends Component {
           </Header2>
           <SingleLine />
           <DarkContainer>
-            <HistoryTable columns={this.historyColumn}/>
+            <HistoryTable columns={this.historyColumn} dataSource={getCollateralHistory(this.props.selectedAccount?this.props.selectedAccount.get('address'):'')}/>
           </DarkContainer>
         </Body>
       </Center>
@@ -115,5 +114,13 @@ class Collateral extends Component {
   }
 }
 
-export default Collateral;
 
+export default connect(state => {
+  const selectedAccountID = state.WalletReducer.get('selectedAccountID');
+  return {
+    selectedAccount: getSelectedAccount(state),
+    selectedWallet: getSelectedAccountWallet(state),
+    networkId: state.WalletReducer.getIn(['accounts', selectedAccountID, 'networkId']),
+    selectedAccountID,
+  }
+})(Collateral);

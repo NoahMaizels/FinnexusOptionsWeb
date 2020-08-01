@@ -7,7 +7,9 @@ import {
   BigTitle, RadioGroup, RadioButton, CenterAlign, RadioButtonSmall,
   YellowText, AdjustInput, DarkText, SmallSpace, checkNumber, renderBuyOptionsModal
 } from './index';
-import { getCoinPrices, beautyNumber, getOptionsPrice, getFee, getBalance, buyOptions } from "../utils/scHelper.js";
+import { getCoinPrices, beautyNumber, getOptionsPrice, 
+  getFee, getBalance, buyOptions,
+  getCollateralInfo } from "../utils/scHelper.js";
 import withRouter from 'umi/withRouter';
 import { Wallet, getSelectedAccount, WalletButton, WalletButtonLong, getSelectedAccountWallet, getTransactionReceipt } from "wan-dex-sdk-wallet";
 import { connect } from 'react-redux';
@@ -114,6 +116,13 @@ class BuyOptions extends Component {
       let chainType = this.state.currencyToPay === "1" ? "eth" : "wan";
       if (!this.props.selectedAccount) {
         message.warn("Please select address");
+        this.setState({ buyLoading: false });
+        return;
+      }
+
+      let col = getCollateralInfo();
+      if (value > col.availableCollateral/col.lowestPercent*100) {
+        message.warn("Sorry, Collateral not enough.");
         this.setState({ buyLoading: false });
         return;
       }

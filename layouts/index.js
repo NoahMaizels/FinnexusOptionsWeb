@@ -153,7 +153,7 @@ class Layout extends Component {
               </InALineLeft>
 
               <InALine>
-                <DebugButton onClick={debug}>Debug</DebugButton>
+                <DebugButton onClick={debug}>Clear History</DebugButton>
                 <div className={style.gameRule} onClick={this.showGameRule}><img height="25px" src={require('../img/help.png')}/></div>
                 <ConnectWallet onClick={() => { this.setState({ visible: true }) }}>Connect Wallet</ConnectWallet>
                 {

@@ -2,7 +2,7 @@ import { connect } from "react-redux";
 import { Component } from "react";
 import { Modal, message, Carousel, Collapse } from "antd";
 import BigNumber from 'bignumber.js';
-import { Wallet, getSelectedAccount, WalletButton, WalletButtonLong, getSelectedAccountWallet } from "wan-dex-sdk-wallet";
+import { getSelectedAccount, getSelectedAccountWallet } from "wan-dex-sdk-wallet";
 import sleep from 'ko-sleep';
 import { DownOutlined } from '@ant-design/icons';
 import styled from 'styled-components';
