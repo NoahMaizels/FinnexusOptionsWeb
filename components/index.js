@@ -759,3 +759,49 @@ export const renderTransferModal = (chainType, visible, name, amount, amountChan
     </MyModal>
   );
 };
+
+export const renderClaimModal = (chainType, visible, wanAmount, fnxAmount, handleOk, handleCancel, loading, locked) => {
+  return (
+    <MyModal
+      title={"Claim farming return"}
+      visible={visible}
+      onOk={handleOk}
+      onCancel={handleCancel}
+      confirmLoading={loading}
+    >
+      <CenterAlign>
+        <Row>
+          <p>Farming address</p>
+          <WalletDiv>
+            {
+              chainType === 'wan'
+              ? <WalletButtonLong />
+              : <EthWalletButton />
+            }
+            {
+              locked
+              ? <Locked />
+              : null
+            }
+          </WalletDiv>
+        </Row>
+        <Row>
+          <p>WAN return</p>
+          <AmountInput
+            placeholder={""}
+            value={wanAmount}
+            readOnly
+          />
+        </Row>
+        <Row>
+          <p>FNX return</p>
+          <AmountInput
+            placeholder={""}
+            value={fnxAmount}
+            readOnly
+          />
+        </Row>
+      </CenterAlign>
+    </MyModal>
+  );
+};

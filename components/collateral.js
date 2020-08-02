@@ -5,7 +5,8 @@ import styled from 'styled-components';
 import {
   Header2, Space, ConnectWalletSub, MyStatistic,
   Box, ShortLine, InALineLeft, VerticalLine, BigTitle,
-  SingleLine, renderDepositModal, checkNumber, renderWithdrawModal
+  SingleLine, renderDepositModal, checkNumber, renderWithdrawModal,
+  renderClaimModal
 } from './index';
 import {
   getCollateralInfo, beautyNumber, getBalance,
@@ -38,6 +39,7 @@ class CollateralInfo extends Component {
       userPayUsd: 0,
       depositVisible: false,
       withdrawVisible: false,
+      claimVisible: false,
       amountToPay: '',
       currencyToPay: "0",
       currencyBalance: 0,
@@ -162,8 +164,6 @@ class CollateralInfo extends Component {
     this.setState({ withdrawVisible: false, amountToPay: '' });
   }
 
-
-
   depositOk = () => {
     if (Number(this.state.amountToPay) >= Number(this.state.currencyBalance)) {
       message.warn("Balance not enough");
@@ -172,6 +172,11 @@ class CollateralInfo extends Component {
 
     if (!this.props.selectedAccount) {
       message.warn("Please select account first.");
+      return;
+    }
+
+    if (this.props.selectedAccount ? this.props.selectedAccount.get("isLocked") : false) {
+      message.info("Please unlock your wallet first");
       return;
     }
 
@@ -232,6 +237,11 @@ class CollateralInfo extends Component {
 
     if (this.state.amountToPay === 0) {
       message.warn("Please fill amount");
+      return;
+    }
+
+    if (this.props.selectedAccount ? this.props.selectedAccount.get("isLocked") : false) {
+      message.info("Please unlock your wallet first");
       return;
     }
 
@@ -309,6 +319,11 @@ class CollateralInfo extends Component {
       return;
     }
 
+    if (this.props.selectedAccount ? this.props.selectedAccount.get("isLocked") : false) {
+      message.info("Please unlock your wallet first");
+      return;
+    }
+
     // wan
     let time = (new Date()).toJSON().split('.')[0];
     redeemMinerCoin(this.props.chainType, '0x0000000000000000000000000000000000000000',
@@ -320,6 +335,9 @@ class CollateralInfo extends Component {
           message.info('Redeem mined WAN failed');
           updateCollateralStatus(time, 'Failed');
         }
+
+        this.updateNewInfo();
+
         if (this.props.update) {
           this.props.update();
         }
@@ -365,13 +383,15 @@ class CollateralInfo extends Component {
 
       let prices = getCoinPrices();
       let currency = 'FNX';
-      let value = beautyNumber(prices[currency] * this.state.minedWan, 4) + '$';
+      let value = beautyNumber(prices[currency] * this.state.minedFnx, 4) + '$';
       insertCollateralHistory(this.props.selectedAccount.get('address'),
-        time, 'FNX', 'Claim', '--', value, beautyNumber(this.state.minedWan, 4) + ' ' + currency, 'Pending');
+        time, 'FNX', 'Claim', '--', value, beautyNumber(this.state.minedFnx, 4) + ' ' + currency, 'Pending');
       if (this.props.update) {
         this.props.update();
       }
     }, 2000);
+
+    this.setState({ claimVisible: false});
   }
 
   render() {
@@ -426,15 +446,7 @@ class CollateralInfo extends Component {
                 this.setState({ withdrawVisible: true });
               }}>Withdraw</MyButton>
               <MyButton onClick={() => {
-                confirm({
-                  title: 'Do you Want to claim all farming return?',
-                  icon: <ExclamationCircleOutlined />,
-                  content: 'Redeem WAN and FNX to your address.',
-                  onOk: this.redeemMinedCoinToken,
-                  onCancel: () => {
-                    console.log('Cancel');
-                  },
-                });
+                this.setState({ claimVisible: true });
               }}>Claim return</MyButton>
             </InALineLeft>
           </Header2>
@@ -475,6 +487,12 @@ class CollateralInfo extends Component {
               this.setState({ currencyToPay: e.target.value });
             }, this.state.balance, this.state.loading, getFee(),
             this.props.selectedAccount ? this.props.selectedAccount.get("isLocked") : false)
+        }
+        {
+          renderClaimModal(this.props.chainType, this.state.claimVisible, this.state.minedWan, this.state.minedFnx, 
+            this.redeemMinedCoinToken, () => {
+              this.setState({claimVisible: false})
+            }, this.state.loading, this.props.selectedAccount ? this.props.selectedAccount.get("isLocked") : false)
         }
       </div>
     );
