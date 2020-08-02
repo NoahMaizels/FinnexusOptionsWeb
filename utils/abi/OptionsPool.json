@@ -863,6 +863,33 @@
     "type": "function"
   },
   {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "name": "from",
+        "type": "uint256"
+      },
+      {
+        "name": "size",
+        "type": "uint256"
+      }
+    ],
+    "name": "getUserOptionsID",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256[]"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "name": "oracleAddr",

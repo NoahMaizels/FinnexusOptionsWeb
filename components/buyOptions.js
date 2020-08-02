@@ -142,18 +142,18 @@ class BuyOptions extends Component {
             message.info("Buy success");
             // this.setState({ buyLoading: false, buyModalVisible: false });
             updateOrderStatus(time, 'Success');
-            this.props.update();
           } else {
             message.info("Sorry, buy failed");
             // this.setState({ buyLoading: false });
             updateOrderStatus(time, 'Failed');
-            this.props.update();
           }
+          this.props.update();
         }).catch((e) => {
           console.log(e);
           message.error("Sorry, buy failed. " + e.message);
           // this.setState({ buyLoading: false });
           updateOrderStatus(time, 'Failed');
+          this.props.update();
         });
 
       insertOrderHistory(address, time, name, "+" + this.state.amount, '-' + this.state.amountToPay+currencyToPay, 'Buy', 'Pending');

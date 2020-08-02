@@ -33,6 +33,25 @@
     "type": "function"
   },
   {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "netWorthBalances",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "constant": false,
     "inputs": [
       {
@@ -49,6 +68,76 @@
     ],
     "payable": false,
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "collateralBalances",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [],
+    "name": "redeemAll",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "feeType",
+        "type": "uint256"
+      },
+      {
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "calculateFee",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "feeBalances",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -127,6 +216,20 @@
     "type": "function"
   },
   {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "currency",
+        "type": "address"
+      }
+    ],
+    "name": "redeem",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "constant": true,
     "inputs": [],
     "name": "halted",
@@ -163,6 +266,28 @@
     "constant": false,
     "inputs": [
       {
+        "name": "feeType",
+        "type": "uint256"
+      },
+      {
+        "name": "numerator",
+        "type": "uint256"
+      },
+      {
+        "name": "denominator",
+        "type": "uint256"
+      }
+    ],
+    "name": "setTransactionFee",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
         "name": "addAddress",
         "type": "address"
       },
@@ -175,6 +300,25 @@
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "settlement",
+        "type": "address"
+      }
+    ],
+    "name": "getFeeBalance",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -193,12 +337,77 @@
   },
   {
     "constant": true,
+    "inputs": [
+      {
+        "name": "feeType",
+        "type": "uint256"
+      }
+    ],
+    "name": "getFeeRate",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
     "inputs": [],
     "name": "getManager",
     "outputs": [
       {
         "name": "",
         "type": "address"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "userCollateralPaying",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "FeeRates",
+    "outputs": [
+      {
+        "name": "numerator",
+        "type": "uint256"
+      },
+      {
+        "name": "denominator",
+        "type": "uint256"
       }
     ],
     "payable": false,
@@ -217,6 +426,24 @@
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "getAllFeeBalances",
+    "outputs": [
+      {
+        "name": "",
+        "type": "address[]"
+      },
+      {
+        "name": "",
+        "type": "uint256[]"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -248,12 +475,6 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "constructor"
-  },
-  {
     "payable": true,
     "stateMutability": "payable",
     "type": "fallback"
@@ -262,27 +483,22 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
-        "name": "value0",
-        "type": "uint256"
+        "indexed": true,
+        "name": "recieptor",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "name": "settlement",
+        "type": "address"
       },
       {
         "indexed": false,
-        "name": "value1",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "name": "value2",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "name": "value3",
+        "name": "payback",
         "type": "uint256"
       }
     ],
-    "name": "DebugEvent",
+    "name": "FeePayback",
     "type": "event"
   },
   {
@@ -290,16 +506,16 @@
     "inputs": [
       {
         "indexed": true,
-        "name": "account",
+        "name": "settlement",
         "type": "address"
       },
       {
         "indexed": false,
-        "name": "amount",
+        "name": "payback",
         "type": "uint256"
       }
     ],
-    "name": "MintMiner",
+    "name": "AddFee",
     "type": "event"
   },
   {
@@ -307,82 +523,21 @@
     "inputs": [
       {
         "indexed": true,
-        "name": "account",
+        "name": "recieptor",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "name": "settlement",
         "type": "address"
       },
       {
         "indexed": false,
-        "name": "amount",
+        "name": "payback",
         "type": "uint256"
       }
     ],
-    "name": "BurnMiner",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "name": "from",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "name": "mineCoin",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "name": "value",
-        "type": "uint256"
-      }
-    ],
-    "name": "RedeemMineCoin",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "name": "from",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "name": "to",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "name": "amount",
-        "type": "uint256"
-      }
-    ],
-    "name": "TranserMiner",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "name": "account",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "name": "mineCoin",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "name": "amount",
-        "type": "uint256"
-      }
-    ],
-    "name": "BuyingMiner",
+    "name": "TransferPayback",
     "type": "event"
   },
   {
@@ -406,11 +561,11 @@
     "constant": true,
     "inputs": [
       {
-        "name": "mineCoin",
+        "name": "user",
         "type": "address"
       }
     ],
-    "name": "getTotalMined",
+    "name": "getUserPayingUsd",
     "outputs": [
       {
         "name": "",
@@ -425,16 +580,16 @@
     "constant": true,
     "inputs": [
       {
-        "name": "mineCoin",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "name": "collateral",
         "type": "address"
       }
     ],
-    "name": "getMineInfo",
+    "name": "userInputCollateral",
     "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      },
       {
         "name": "",
         "type": "uint256"
@@ -448,15 +603,30 @@
     "constant": true,
     "inputs": [
       {
-        "name": "account",
-        "type": "address"
-      },
-      {
-        "name": "mineCoin",
+        "name": "collateral",
         "type": "address"
       }
     ],
-    "name": "getMinerBalance",
+    "name": "getNetWorthBalance",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "collateral",
+        "type": "address"
+      }
+    ],
+    "name": "getCollateralBalance",
     "outputs": [
       {
         "name": "",
@@ -471,19 +641,15 @@
     "constant": false,
     "inputs": [
       {
-        "name": "mineCoin",
+        "name": "user",
         "type": "address"
       },
       {
-        "name": "_mineAmount",
-        "type": "uint256"
-      },
-      {
-        "name": "_mineInterval",
+        "name": "amount",
         "type": "uint256"
       }
     ],
-    "name": "setMineCoinInfo",
+    "name": "addUserPayingUsd",
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
@@ -493,74 +659,233 @@
     "constant": false,
     "inputs": [
       {
-        "name": "mineCoin",
+        "name": "user",
         "type": "address"
       },
       {
-        "name": "_mineAmount",
+        "name": "collateral",
+        "type": "address"
+      },
+      {
+        "name": "amount",
         "type": "uint256"
       }
     ],
-    "name": "setBuyingMineInfo",
+    "name": "addUserInputCollateral",
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
-    "constant": true,
+    "constant": false,
     "inputs": [
       {
-        "name": "mineCoin",
+        "name": "collateral",
         "type": "address"
-      }
-    ],
-    "name": "getBuyingMineInfo",
-    "outputs": [
+      },
       {
-        "name": "",
+        "name": "amount",
         "type": "uint256"
       }
     ],
+    "name": "addNetWorthBalance",
+    "outputs": [],
     "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "getBuyingMineInfoAll",
-    "outputs": [
-      {
-        "name": "",
-        "type": "address[]"
-      },
-      {
-        "name": "",
-        "type": "uint256[]"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "constant": false,
     "inputs": [
       {
-        "name": "account",
+        "name": "collateral",
         "type": "address"
       },
+      {
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "addCollateralBalance",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "subUserPayingUsd",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "name": "collateral",
+        "type": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "subUserInputCollateral",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "collateral",
+        "type": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "subNetWorthBalance",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "collateral",
+        "type": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "subCollateralBalance",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "setUserPayingUsd",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "name": "collateral",
+        "type": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "setUserInputCollateral",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "collateral",
+        "type": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "setNetWorthBalance",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "collateral",
+        "type": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "setCollateralBalance",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
       {
         "name": "recieptor",
         "type": "address"
       },
       {
-        "name": "amount",
+        "name": "settleMent",
+        "type": "address"
+      },
+      {
+        "name": "payback",
+        "type": "uint256"
+      },
+      {
+        "name": "feeType",
         "type": "uint256"
       }
     ],
-    "name": "transferMinerCoin",
+    "name": "transferPaybackAndFee",
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
@@ -570,108 +895,49 @@
     "constant": false,
     "inputs": [
       {
-        "name": "account",
+        "name": "recieptor",
         "type": "address"
       },
       {
-        "name": "amount",
+        "name": "settlement",
+        "type": "address"
+      },
+      {
+        "name": "payback",
         "type": "uint256"
       }
     ],
-    "name": "mintMinerCoin",
+    "name": "transferPayback",
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
-    "constant": false,
+    "constant": true,
     "inputs": [
       {
-        "name": "account",
+        "name": "settlement",
         "type": "address"
       },
       {
-        "name": "amount",
-        "type": "uint256"
+        "name": "user",
+        "type": "address"
       }
     ],
-    "name": "burnMinerCoin",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [
+    "name": "calUserNetWorthBalanceRate",
+    "outputs": [
       {
-        "name": "account",
-        "type": "address"
+        "name": "",
+        "type": "uint256"
       },
       {
-        "name": "amount",
+        "name": "",
         "type": "uint256"
       }
     ],
-    "name": "addMinerBalance",
-    "outputs": [],
     "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "mineCoin",
-        "type": "address"
-      },
-      {
-        "name": "_mineAmount",
-        "type": "uint256"
-      }
-    ],
-    "name": "setMineAmount",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "mineCoin",
-        "type": "address"
-      },
-      {
-        "name": "_mineInterval",
-        "type": "uint256"
-      }
-    ],
-    "name": "setMineInterval",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "mineCoin",
-        "type": "address"
-      },
-      {
-        "name": "amount",
-        "type": "uint256"
-      }
-    ],
-    "name": "redeemMinerCoin",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
+    "stateMutability": "view",
     "type": "function"
   }
 ]

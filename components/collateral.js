@@ -67,6 +67,7 @@ class CollateralInfo extends Component {
           return { time: (new Date(v.time * 1000)).toISOString(), value: v.value };
           // return {time: (new Date(v.time*1000)).toLocaleDateString(), value: v.value};
         });
+        historyLine = historyLine.reverse();
 
         console.log('wan historyLine', historyLine);
         let min = 1e15, max = 0;
@@ -90,6 +91,8 @@ class CollateralInfo extends Component {
           return { time: (new Date(v.time * 1000)).toISOString(), value: v.value };
           // return {time: (new Date(v.time*1000)).toLocaleDateString(), value: v.value};
         });
+
+        historyLine = historyLine.reverse();
 
         console.log('eth historyLine', historyLine);
         let min = 1e15, max = 0;

@@ -1,33 +1,38 @@
 {
-  "FNXOracle":{
-    "address":"0x334DA1faB3ecfb5595949c78535A33159ab95262",
-    "fileName":"../contracts/FNXOracle.json"
+  "CollateralPool": {
+    "address": "0xffafa9efebe2eec9fcf02bbb332c234dbad62602",
+    "fileName": "../contracts/CollateralPool.json"
   },
-  "imVolatility32":{
-    "address":"0x588eF0629a979F01bF437ea29bC1D17e43E1cabd",
-    "fileName":"../contracts/imVolatility32.json"
+  "FNXMinePool": {
+    "address": "0x67130fb4e4fa6a310c0272dab3715559ec4fddaf",
+    "fileName": "../contracts/FNXMinePool.json"
   },
-  "FNXMinePool":{
-    "address":"0x5cfccAD1559771bBB8F5FA1dC1186C62087eB54B",
-    "fileName":"../contracts/FNXMinePool.json"
+  "FNXOracle": {
+    "address": "0xd7a7c356029767411d6868d3807d08260f7d2740",
+    "fileName": "../contracts/FNXOracle.json"
   },
-  "FPTCoin":{
-    "address":"0x92bA263ef4e943fF1E7D6F13fC5A84153354cF31",
-    "fileName":"../contracts/FPTCoin.json"
+  "FPTCoin": {
+    "address": "0x09914564ea88e9a637fe73989d0683e6c762ac9d",
+    "fileName": "../contracts/FPTCoin.json"
   },
-  "OptionsPrice":{
-    "address":"0x734FFb6B40fd78A34332b3658eE2C202FA60A64a",
-    "fileName":"../contracts/OptionsPool.json"
+  "IERC20": {
+    "address": "0x0000000000000000000000000000000000000000",
+    "fileName": "../contracts/IERC20.json"
   },
-  "OptionsPool":{
-    "address":"0x5EA7Aa55c5Dae50BF781A9A9622669c41F894E7c",
-    "fileName":"../contracts/OptionsPool.json"
+  "OptionsManagerV2": {
+    "address": "0x881af4582a0f935de19598376941e193b751ee82",
+    "fileName": "../contracts/OptionsManagerV2.json"
   },
-  "OptionsManagerV2":{
-    "address":"0x57cEF11Ea8148579a5BE6629E0BBCe31311686D5",
-    "fileName":"../contracts/OptionsManagerV2.json"
+  "OptionsPool": {
+    "address": "0xa5da71c84d50353456753a5f918a8e8169e190f4",
+    "fileName": "../contracts/OptionsPool.json"
   },
-  "IERC20":{
-    "fileName":"../contracts/IERC20.json"
+  "OptionsPrice": {
+    "address": "0xd635f46e5e6fdae8f9ed1ad591677671c38aa2db",
+    "fileName": "../contracts/OptionsPrice.json"
+  },
+  "imVolatility32": {
+    "address": "0x3c69ecfef8076edc30867d35473d13d2b4b99a94",
+    "fileName": "../contracts/imVolatility32.json"
   }
 }
