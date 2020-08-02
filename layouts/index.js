@@ -183,7 +183,7 @@ const DebugButton = styled(Button)`
 
 
 function debug() {
-  console.log('debug');
+  // console.log('debug');
   // let time = (new Date()).toLocaleString();
   // insertOrderHistory('abc', time, "Test", 3.14, 2.15, 'Pending');
   if (confirm("Clear all history?")) {

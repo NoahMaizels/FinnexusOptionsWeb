@@ -71,7 +71,7 @@ class CollateralInfo extends Component {
         });
         historyLine = historyLine.reverse();
 
-        console.log('wan historyLine', historyLine);
+        // console.log('wan historyLine', historyLine);
         let min = 1e15, max = 0;
         for (let i = 0; i < historyLine.length; i++) {
           if (historyLine[i].value > max) {
@@ -96,7 +96,7 @@ class CollateralInfo extends Component {
 
         historyLine = historyLine.reverse();
 
-        console.log('eth historyLine', historyLine);
+        // console.log('eth historyLine', historyLine);
         let min = 1e15, max = 0;
         for (let i = 0; i < historyLine.length; i++) {
           if (historyLine[i].value > max) {
@@ -143,11 +143,11 @@ class CollateralInfo extends Component {
   }
 
   updateNewInfo = () => {
-    console.log('updateNewInfo start');
+    // console.log('updateNewInfo start');
     this.setState({ spinning: true });
     updateCollateralInfo().then(() => {
       this.updateInfo();
-      console.log('updateNewInfo success');
+      // console.log('updateNewInfo success');
       this.setState({ spinning: false });
     }).catch(e => {
       console.log(e);
@@ -185,7 +185,7 @@ class CollateralInfo extends Component {
     }
 
     let time = (new Date()).toJSON().split('.')[0];
-    console.log('depositOk', this.props.chainType, this.state.amountToPay, this.state.currencyToPay);
+    // console.log('depositOk', this.props.chainType, this.state.amountToPay, this.state.currencyToPay);
 
     this.setState({ loading: true });
     deposit(this.props.chainType, this.state.amountToPay, this.state.currencyToPay, this.props.selectedWallet, this.props.selectedAccount.get('address')).then((ret) => {
@@ -230,7 +230,7 @@ class CollateralInfo extends Component {
   withdrawOk = () => {
     if (Number(this.state.amountToPay) > Number(this.state.balance)) {
       message.warn("Balance not enough");
-      console.log(this.state.amountToPay, this.state.balance);
+      // console.log(this.state.amountToPay, this.state.balance);
       return;
     }
 
@@ -299,9 +299,9 @@ class CollateralInfo extends Component {
     if (this.props.selectedAccount) {
       let address = this.props.selectedAccount.get('address');
       let token = this.state.currencyToPay === "0" ? "0x0000000000000000000000000000000000000000" : fnxTokenAddress;
-      console.log('getBalance');
+      // console.log('getBalance');
       getBalance(token, address).then((ret) => {
-        console.log('Balance', ret);
+        // console.log('Balance', ret);
         this.setState({ currencyBalance: ret });
       }).catch(console.log);
     }

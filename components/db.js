@@ -13,12 +13,12 @@ db.defaults({
 
 //------order----------
 export const getOrderHistory = (address) => {
-  console.log('getOrderHistory', db.get('order').filter({ address }).sortBy('time').value().reverse());
+  // console.log('getOrderHistory', db.get('order').filter({ address }).sortBy('time').value().reverse());
   return db.get('order').filter({ address }).sortBy('time').value().reverse();
 }
 
 export const insertOrderHistory = (address, time, name, amount, paid, type, status) => {
-  console.log('insertOrderHistory', address, time, name, amount, paid, type, status);
+  // console.log('insertOrderHistory', address, time, name, amount, paid, type, status);
   db.get('order').push(
     { address, time, name, amount, paid, type, status, key: time }
   ).write();

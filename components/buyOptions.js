@@ -58,7 +58,7 @@ class BuyOptions extends Component {
   calcLineData = (price, currentValue) => {
     let amount = this.state.amount;
     let optionsFee = -1 * currentValue;
-    console.log('optionsFee', optionsFee);
+    // console.log('optionsFee', optionsFee);
     let data = [];
     for (let i = 0; i < 100; i++) {
       let linePrice = beautyNumber(price * (50 + i) / 100, 2);
@@ -85,7 +85,7 @@ class BuyOptions extends Component {
       expiration = expiration * (3600 * 24);
       let prices = getCoinPrices();
       let ret = await getOptionsPrice(prices["raw" + this.props.baseToken], this.state.strikePrice, expiration, this.props.baseToken === "BTC" ? 1 : 2, this.state.optType);
-      console.log(ret);
+      // console.log(ret);
       let currencyToPay = this.state.currencyToPay === "2" ? "WAN" : "FNX";
       let fee = getFee();
       let value = ret * this.state.amount * (1 + Number(fee.buyFee));
@@ -108,7 +108,7 @@ class BuyOptions extends Component {
     let prices = getCoinPrices();
     this.setState({ buyLoading: true });
     getOptionsPrice(prices["raw" + this.props.baseToken], this.state.strikePrice, expiration, this.props.baseToken === "BTC" ? 1 : 2, this.state.optType).then((ret) => {
-      console.log(ret);
+      // console.log(ret);
       let currencyToPay = this.state.currencyToPay === "2" ? "WAN" : "FNX";
       let fee = getFee();
       let value = ret * this.state.amount * (1 + Number(fee.buyFee) + 0.01);
@@ -139,7 +139,7 @@ class BuyOptions extends Component {
       let expirationWithYear = (new Date(Date.now() + expiration * 1000)).toDateString().split(' ').slice(1, 4).join(' ');
 
       let name = this.props.baseToken + " " + (this.state.optType === '0' ? 'Call' : 'Put') + ", " + expirationWithYear + ", $" + this.state.strikePrice + (this.state.currencyToPay !== '1' ? " @Wanchain" : " @Ethereum");
-      console.log('name:', name);
+      // console.log('name:', name);
       buyOptions(chainType,
         this.state.currencyToPay, payAmount, this.state.strikePrice,
         this.props.baseToken === "BTC" ? 1 : 2,
@@ -179,9 +179,9 @@ class BuyOptions extends Component {
       let address = this.props.selectedAccount.get('address');
       // TODO:ETH
       let token = this.state.currencyToPay === "2" ? "0x0000000000000000000000000000000000000000" : fnxTokenAddress;
-      console.log('getBalance');
+      // console.log('getBalance');
       getBalance(token, address).then((ret) => {
-        console.log('Balance', ret);
+        // console.log('Balance', ret);
         this.setState({ balance: ret });
       }).catch(console.log);
     }
@@ -189,7 +189,7 @@ class BuyOptions extends Component {
 
   render() {
     if (this.needUpdate) {
-      console.log('render', (new Date()).toLocaleTimeString());
+      // console.log('render', (new Date()).toLocaleTimeString());
       this.updateOptionsPrice();
     } else {
       this.needUpdate = true;

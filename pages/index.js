@@ -48,7 +48,7 @@ class IndexPage extends Component {
     if (this.props.selectedAccount) {
       let currentAddr = this.props.selectedAccount.get('address');
       if (preAddr !== currentAddr) {
-        console.log('address changed.');
+        // console.log('address changed.');
         this.updatePage(true);
       }
     }

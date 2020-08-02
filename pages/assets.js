@@ -180,13 +180,13 @@ class Assets extends Component {
   }
 
   onSellOptions = (info) => {
-    console.log('onSellOptions', info);
+    // console.log('onSellOptions', info);
     let id = info.id;
     if (id === -1) {
       message.error("Sorry, can't find options id by name");
     }
     getOptionsLimitTimeById(id).then((ret) => {
-      console.log('getOptionsLimitTimeById', ret);
+      // console.log('getOptionsLimitTimeById', ret);
       if (Number(ret) > Date.now() / 1000) {
         message.warn("Can not sell options in 1 hour after buy.");
         return;
@@ -224,7 +224,7 @@ class Assets extends Component {
       sellValue = beautyNumber(options.price * this.state.optionsAmount, 4) + '$';
     }
 
-    console.log('onSellOptionsOk', options);
+    // console.log('onSellOptionsOk', options);
 
     this.setState({ optionsOperateLoading: true });
 
@@ -263,14 +263,14 @@ class Assets extends Component {
   }
 
   onExerciseOptions = (info) => {
-    console.log('onExerciseOptions', info);
+    // console.log('onExerciseOptions', info);
     let id = info.id;
     if (id === -1) {
       message.error("Sorry, can't find options id by name");
     }
 
     getOptionsLimitTimeById(id).then((ret) => {
-      console.log('getOptionsLimitTimeById', ret);
+      // console.log('getOptionsLimitTimeById', ret);
       if (Number(ret) > Date.now() / 1000) {
         message.warn("Can not exercise options in 1 hour after buy.");
         return;
@@ -387,7 +387,7 @@ class Assets extends Component {
     } else {
       token = this.state.chainType === 'wan' ? 'FPT@Wanchain' : 'FPT@Ethereum';
     }
-    console.log('this.state.chainType', this.state.chainType);
+    // console.log('this.state.chainType', this.state.chainType);
 
     transferToken(this.state.chainType, this.state.transferToken, this.state.transferTo, this.state.transferAmount, this.props.selectedWallet, address).then((ret) => {
       if (ret) {
@@ -445,7 +445,7 @@ class Assets extends Component {
   }
 
   setInfo = (symbol, balance, usd) => {
-    console.log('setInfo', symbol, balance, usd);
+    // console.log('setInfo', symbol, balance, usd);
     let assets = this.state.assets.slice();
     for (let i = 0; i < assets.length; i++) {
       if (assets[i].assets === symbol) {
@@ -482,7 +482,7 @@ class Assets extends Component {
   }
 
   setOptions = (optionsInfo) => {
-    console.log('setOptions', optionsInfo);
+    // console.log('setOptions', optionsInfo);
     let prices = getCoinPrices();
     let options = [];
     for (let i = 0; i < optionsInfo.length; i++) {
@@ -559,7 +559,7 @@ class Assets extends Component {
 
     getOptionsPrices().then(() => {
       let optionsWithPrice = getUserOptions();
-      console.log('optionsWithPrice', optionsWithPrice);
+      // console.log('optionsWithPrice', optionsWithPrice);
       this.setOptions(optionsWithPrice);
       this.setState({ loading: false });
     }).catch(e => console.log(e));
@@ -568,7 +568,7 @@ class Assets extends Component {
   }
 
   onTransfer = (tokenName) => {
-    console.log('onTransfer', tokenName);
+    // console.log('onTransfer', tokenName);
     if (tokenName === 'FNX(WRC20)') {
       this.setState({
         chainType: 'wan',
