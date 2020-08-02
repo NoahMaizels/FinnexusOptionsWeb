@@ -426,7 +426,7 @@ class CollateralInfo extends Component {
             <Col span={6}><Box><MyStatistic coldColor title="Net value for total FPT" value={beautyNumber(this.state.totalValue, 4)} suffix="$" /><ShortLine coldColor /></Box></Col>
             <Col span={6}><Box><MyStatistic coldColor title="Net value for each FPT" value={beautyNumber(this.state.sharePrice, 4)} suffix="$" /><ShortLine coldColor /></Box></Col>
             <Col span={6}><Box><MyStatistic title="Total amount of FPT" value={beautyNumber(this.state.totalSupply, 4)} /><ShortLine /></Box></Col>
-            <Col span={6}><Box><MyStatistic title="Return in this month" value={'0'} suffix="$" /><ShortLine /></Box></Col>
+            <Col span={6}><Box><MyStatistic title="Each FPT return in this month" value={'0'} suffix="$" /><ShortLine /></Box></Col>
             <Col span={6}><Box><MyStatistic title="APR in this month" value={'0'} suffix="%" /><ShortLine /></Box></Col>
             <Col span={6}><Box><MyStatistic title="APR in this year" value={'0'} suffix="%" /><ShortLine /></Box></Col>
             <Col span={6}><Box><MyStatistic coldColor title="Lowest collateral percent" value={this.state.lowestPercent} suffix="%" /><ShortLine coldColor /></Box></Col>
