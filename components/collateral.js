@@ -155,7 +155,6 @@ class CollateralInfo extends Component {
     });
   }
 
-
   depositCancel = () => {
     this.setState({ depositVisible: false, amountToPay: '' });
   }

@@ -19,6 +19,8 @@ import BuyOptions from "../components/buyOptions";
 import Assets from './assets';
 
 import { getOrderHistory } from '../components/db';
+import { orderHistoryColumn } from '../components/historyColums';
+
 
 
 class IndexPage extends Component {
@@ -87,38 +89,7 @@ class IndexPage extends Component {
     }
   }
 
-  historyColumn = [
-    {
-      title: 'Time',
-      dataIndex: "time",
-      key: 'time',
-    },
-    {
-      title: 'Type',
-      dataIndex: "type",
-      key: 'type',
-    },
-    {
-      title: 'Options name',
-      dataIndex: "name",
-      key: 'name',
-    },
-    {
-      title: 'Amount',
-      dataIndex: "amount",
-      key: 'amount',
-    },
-    {
-      title: 'Paid',
-      dataIndex: "paid",
-      key: 'paid',
-    },
-    {
-      title: 'Status',
-      dataIndex: "status",
-      key: 'status',
-    },
-  ]
+  
 
 
   render() {
@@ -162,7 +133,7 @@ class IndexPage extends Component {
           </Header2>
           <SingleLine />
           <DarkContainer>
-            <HistoryTable columns={this.historyColumn} dataSource={getOrderHistory(this.props.selectedAccount?this.props.selectedAccount.get('address'):'')} />
+            <HistoryTable columns={orderHistoryColumn} dataSource={getOrderHistory(this.props.selectedAccount?this.props.selectedAccount.get('address'):'')} />
           </DarkContainer>
           <Space />
         </Body>

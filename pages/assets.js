@@ -2,7 +2,8 @@ import styled from 'styled-components';
 import {
   Body, Center, Space, Box, VerticalLine,
   InALineLeft, BigTitle, MyStatistic, InALineAround, HistoryTable,
-  renderSellOptionsModal, checkNumber, renderExerciseModal, renderTransferModal, MyButton, SmallButton
+  renderSellOptionsModal, checkNumber, renderExerciseModal, renderTransferModal, MyButton, SmallButton,
+  SubTitle, DarkContainer, Header2, TabButtonSub, MiddleLine, SingleLine,
 } from '../components';
 import { Row, Col, Spin, message } from 'antd';
 import { Component } from 'react';
@@ -15,7 +16,11 @@ import withRouter from 'umi/withRouter';
 import { getSelectedAccount, getSelectedAccountWallet, getTransactionReceipt } from "wan-dex-sdk-wallet";
 import { connect } from 'react-redux';
 import { fnxTokenAddress, contractInfo } from '../conf/config';
-import { insertOrderHistory, updateOrderStatus } from '../components/db';
+import { insertOrderHistory, updateOrderStatus, 
+  insertTransferHistory, updateTransferStatus, 
+  getTransferHistory, getOrderHistory, getCollateralHistory } from '../components/db';
+import { transferHistoryColumn, collateralHistoryColumn, orderHistoryColumn } from '../components/historyColums';
+
 
 class Assets extends Component {
   constructor(props) {
@@ -37,6 +42,7 @@ class Assets extends Component {
       transferTo: "",
       transferBalance: "",
       transferToken: "0x0000000000000000000000000000000000000000",
+      historySelect: 0,
       assets: [
         {
           assets: "ETH",
@@ -142,7 +148,7 @@ class Assets extends Component {
               <SmallButton onClick={() => { this.onTransfer(row.assets) }}><img src={require('../img/transfer.png')} style={{ marginRight: "10px" }} />Transfer</SmallButton>
             </InALineLeft>
           );
-        } else if(value === 1) {
+        } else if (value === 1) {
           return (
             <InALineLeft>
               <SmallButton onClick={() => { this.onSellOptions(row) }}><img src={require('../img/sell.png')} style={{ marginRight: "10px" }} />Sell</SmallButton>
@@ -179,17 +185,17 @@ class Assets extends Component {
     if (id === -1) {
       message.error("Sorry, can't find options id by name");
     }
-    getOptionsLimitTimeById(id).then((ret)=>{
+    getOptionsLimitTimeById(id).then((ret) => {
       console.log('getOptionsLimitTimeById', ret);
-      if(Number(ret) > Date.now()/1000) {
+      if (Number(ret) > Date.now() / 1000) {
         message.warn("Can not sell options in 1 hour after buy.");
         return;
       }
 
       let chainType = info.assets.includes('Wanchain') ? 'wan' : 'eth';
       this.setState({ optionsID: id, chainType, optionsName: info.assets, optionsBalance: info.balance, sellOptionsModalVisible: true });
-  
-    }).catch((e)=>{
+
+    }).catch((e) => {
       console.log(e);
     })
   }
@@ -202,6 +208,11 @@ class Assets extends Component {
 
     if (!this.props.selectedAccount) {
       message.warn("Please connect wallet first");
+      return;
+    }
+
+    if (this.props.selectedAccount.get("isLocked")) {
+      message.info("Please unlock your wallet first");
       return;
     }
 
@@ -258,16 +269,16 @@ class Assets extends Component {
       message.error("Sorry, can't find options id by name");
     }
 
-    getOptionsLimitTimeById(id).then((ret)=>{
+    getOptionsLimitTimeById(id).then((ret) => {
       console.log('getOptionsLimitTimeById', ret);
-      if(Number(ret) > Date.now()/1000) {
+      if (Number(ret) > Date.now() / 1000) {
         message.warn("Can not exercise options in 1 hour after buy.");
         return;
       }
 
       let chainType = info.assets.includes('Wanchain') ? 'wan' : 'eth';
       this.setState({ optionsID: id, chainType, optionsName: info.assets, optionsBalance: info.balance, exerciseOptionsModalVisible: true });
-    }).catch((e)=>console.log(e));
+    }).catch((e) => console.log(e));
 
   }
 
@@ -279,6 +290,11 @@ class Assets extends Component {
 
     if (!this.props.selectedAccount) {
       message.warn("Please connect wallet first");
+      return;
+    }
+
+    if (this.props.selectedAccount.get("isLocked")) {
+      message.info("Please unlock your wallet first");
       return;
     }
 
@@ -314,19 +330,19 @@ class Assets extends Component {
       // this.setState({ optionsOperateLoading: false });
     });
 
-    let value ;
+    let value;
     let prices = getCoinPrices();
     if (options.optType === "Call") {
       if (Number(prices[options.underlying]) <= Number(options.strikePrice)) {
         value = "0";
       } else {
-        value = beautyNumber(this.state.optionsAmount * (Number(prices[options.underlying]) - Number(options.strikePrice)), 4) + "$" ;
+        value = beautyNumber(this.state.optionsAmount * (Number(prices[options.underlying]) - Number(options.strikePrice)), 4) + "$";
       }
     } else {
       if (Number(prices[options.underlying]) >= Number(options.strikePrice)) {
         value = "0";
       } else {
-        value = beautyNumber(this.state.optionsAmount * (Number(options.strikePrice) - Number(prices[options.underlying])), 4) + "$" ;
+        value = beautyNumber(this.state.optionsAmount * (Number(options.strikePrice) - Number(prices[options.underlying])), 4) + "$";
       }
     }
 
@@ -352,25 +368,54 @@ class Assets extends Component {
       return;
     }
 
+    if (this.props.selectedAccount.get("isLocked")) {
+      message.info("Please unlock your wallet first");
+      return;
+    }
+
     let address = this.props.selectedAccount.get("address");
 
     this.setState({ optionsOperateLoading: true });
 
+    let time = (new Date()).toJSON().split('.')[0];
     // chainType, token, to, value, selectedWallet, address
     let token = '';
+    if (this.state.transferToken === fnxTokenAddress) {
+      token = 'FNX@' + this.state.chainType === 'wan' ? 'Wanchain' : 'Ethereum';
+    } else if (this.state.transferToken === '0x0000000000000000000000000000000000000000') {
+      token = this.state.chainType === 'wan' ? 'WAN' : 'ETH';
+    } else {
+      token = this.state.chainType === 'wan' ? 'FPT@Wanchain' : 'FPT@Ethereum';
+    }
+    console.log('this.state.chainType', this.state.chainType);
+
     transferToken(this.state.chainType, this.state.transferToken, this.state.transferTo, this.state.transferAmount, this.props.selectedWallet, address).then((ret) => {
       if (ret) {
         message.info("Transfer success");
-        this.setState({ optionsID: -1, transferModalVisible: false, optionsAmount: '', optionsName: '', optionsOperateLoading: false });
+        updateTransferStatus(time, 'Success');
       } else {
         message.error("Transfer failed");
-        this.setState({ optionsOperateLoading: false });
+        updateTransferStatus(time, 'Failed');
+        // this.setState({ optionsOperateLoading: false });
+      }
+      if (this.props.update) {
+        this.props.update();
       }
     }).catch(e => {
       console.log(e);
       message.error(e.message);
-      this.setState({ optionsOperateLoading: false });
+      updateTransferStatus(time, 'Failed');
+      if (this.props.update) {
+        this.props.update();
+      }
+        // this.setState({ optionsOperateLoading: false });
     });
+
+    insertTransferHistory(address, time, token, this.state.transferTo, this.state.transferAmount, 'Pending');
+    this.setState({ optionsID: -1, transferModalVisible: false, optionsAmount: '', optionsName: '', optionsOperateLoading: false });
+    if (this.props.update) {
+      this.props.update();
+    }
   }
 
   onTransferCancel = () => {
@@ -456,13 +501,13 @@ class Assets extends Component {
         if (Number(prices[optionsInfo[i].underlying]) <= Number(optionsInfo[i].strikePrice)) {
           op.currentReturn = "0";
         } else {
-          op.currentReturn = beautyNumber(optionsInfo[i].amount * (Number(prices[optionsInfo[i].underlying]) - Number(optionsInfo[i].strikePrice)), 4) + "$" ;
+          op.currentReturn = beautyNumber(optionsInfo[i].amount * (Number(prices[optionsInfo[i].underlying]) - Number(optionsInfo[i].strikePrice)), 4) + "$";
         }
       } else {
         if (Number(prices[optionsInfo[i].underlying]) >= Number(optionsInfo[i].strikePrice)) {
           op.currentReturn = "0";
         } else {
-          op.currentReturn = beautyNumber(optionsInfo[i].amount * (Number(optionsInfo[i].strikePrice) - Number(prices[optionsInfo[i].underlying])), 4) + "$" ;
+          op.currentReturn = beautyNumber(optionsInfo[i].amount * (Number(optionsInfo[i].strikePrice) - Number(prices[optionsInfo[i].underlying])), 4) + "$";
         }
       }
 
@@ -556,7 +601,7 @@ class Assets extends Component {
       this.setState({
         chainType: 'wan',
         transferName: tokenName,
-        transferToken: contractInfo.OptionsManagerV2.address,
+        transferToken: contractInfo.FPTCoin.address,
         transferModalVisible: true,
         transferBalance: this.getTableData()[2].balance
       });
@@ -645,6 +690,37 @@ class Assets extends Component {
             }
 
             <AssetsTable columns={this.column} dataSource={this.getTableData()} />
+            {
+              this.props.mini
+                ? null
+                : (<div>
+                  <Header2>
+                    <InALineLeft>
+                      <TabButtonSub onClick={()=>{this.setState({historySelect: 0})}} select={this.state.historySelect === 0}>Order History<MiddleLine visible={this.state.historySelect === 0} style={{ top: "30px", left: "-82px" }} /></TabButtonSub>
+                      <TabButtonSub onClick={()=>{this.setState({historySelect: 1})}} select={this.state.historySelect === 1}>FPT History<MiddleLine visible={this.state.historySelect === 1} style={{ top: "30px", left: "-82px" }} /></TabButtonSub>
+                      <TabButtonSub onClick={()=>{this.setState({historySelect: 2})}} select={this.state.historySelect === 2}>Transfer History<MiddleLine visible={this.state.historySelect === 2} style={{ top: "30px", left: "-82px" }} /></TabButtonSub>
+                    </InALineLeft>
+                  </Header2>
+                  <SingleLine />
+                  <DarkContainer>
+                    {
+                      this.state.historySelect === 0
+                      ?<HistoryTable columns={orderHistoryColumn} dataSource={getOrderHistory(this.props.selectedAccount ? this.props.selectedAccount.get('address') : '')} />
+                      : null
+                    }
+                    {
+                      this.state.historySelect === 1
+                      ?<HistoryTable columns={collateralHistoryColumn} dataSource={getCollateralHistory(this.props.selectedAccount ? this.props.selectedAccount.get('address') : '')} />
+                      : null
+                    }
+                    {
+                      this.state.historySelect === 2
+                      ?<HistoryTable columns={transferHistoryColumn} dataSource={getTransferHistory(this.props.selectedAccount ? this.props.selectedAccount.get('address') : '')} />
+                      : null
+                    }
+                  </DarkContainer>
+                </div>)
+            }
           </Body>
         </Spin>
         {

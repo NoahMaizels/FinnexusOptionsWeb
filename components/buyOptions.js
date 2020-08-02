@@ -120,6 +120,12 @@ class BuyOptions extends Component {
         return;
       }
 
+      if (this.props.selectedAccount.get("isLocked")) {
+        message.info("Please unlock your wallet first");
+        this.setState({ buyLoading: false });
+        return;
+      }
+
       let col = getCollateralInfo();
       if (value > col.availableCollateral/col.lowestPercent*100) {
         message.warn("Sorry, Collateral not enough.");

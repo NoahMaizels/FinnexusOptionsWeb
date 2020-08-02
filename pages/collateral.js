@@ -6,6 +6,7 @@ import CollateralInfo from '../components/collateral.js';
 import {getCollateralHistory} from '../components/db';
 import { getSelectedAccount, getSelectedAccountWallet } from "wan-dex-sdk-wallet";
 import { connect } from "react-redux";
+import { collateralHistoryColumn } from '../components/historyColums';
 
 
 class Collateral extends Component {
@@ -16,44 +17,6 @@ class Collateral extends Component {
       tabSelect2: false
     };
   }
-
-  historyColumn = [
-    {
-      title: 'Time',
-      dataIndex: "time",
-      key: 'time',
-    },
-    {
-      title: 'Token',
-      dataIndex: "token",
-      key: 'token',
-    },
-    {
-      title: 'Type',
-      dataIndex: "type",
-      key: 'type',
-    },
-    {
-      title: 'FPT Amount',
-      dataIndex: "amount",
-      key: 'amount',
-    },
-    {
-      title: 'Value',
-      dataIndex: "value",
-      key: 'value',
-    },
-    {
-      title: 'Currency',
-      dataIndex: "currency",
-      key: 'currency',
-    },
-    {
-      title: 'Status',
-      dataIndex: "status",
-      key: 'status',
-    }
-  ]
 
   onTabSelect = (id) => {
     switch (id) {
@@ -106,7 +69,7 @@ class Collateral extends Component {
           </Header2>
           <SingleLine />
           <DarkContainer>
-            <HistoryTable columns={this.historyColumn} dataSource={getCollateralHistory(this.props.selectedAccount?this.props.selectedAccount.get('address'):'')}/>
+            <HistoryTable columns={collateralHistoryColumn} dataSource={getCollateralHistory(this.props.selectedAccount?this.props.selectedAccount.get('address'):'')}/>
           </DarkContainer>
         </Body>
       </Center>

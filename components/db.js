@@ -48,13 +48,13 @@ export const getTransferHistory = (address) => {
   return db.get('transfer').filter({ address }).sortBy('time').value().reverse();
 }
 
-export const insertTransferHistory = (address, time, hash, token, to, amount, status) => {
+export const insertTransferHistory = (address, time, token, to, amount, status) => {
   db.get('transfer').push(
-    { address, time, hash, token, to, amount, status, key: time }
+    { address, time, token, to, amount, status, key: time }
   ).write();
 }
 
-export const updateTransferStatus = (hash, status) => {
-  db.get('transfer').find({ hash }).assign({ status }).write();
+export const updateTransferStatus = (time, status) => {
+  db.get('transfer').find({ time }).assign({ status }).write();
 }
 // ---------mine--------------
