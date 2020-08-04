@@ -22,4 +22,8 @@ export default {
   'buy.currentPrice': '当前 {name} 价格:',
   'buy.expectedPrice': '预期 {name} 价格:',
 
+  'index.myOptions': '我的期权',
+  'index.orderHistory': '订单历史',
+
+  'table.time': '时间',
 }
