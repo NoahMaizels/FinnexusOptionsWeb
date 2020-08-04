@@ -20,8 +20,7 @@ import Assets from './assets';
 
 import { getOrderHistory } from '../components/db';
 import { orderHistoryColumn } from '../components/historyColums';
-
-
+import { injectIntl } from 'umi';
 
 class IndexPage extends Component {
   constructor(props) {
@@ -93,6 +92,7 @@ class IndexPage extends Component {
 
 
   render() {
+    const intl = this.props.intl;
     return (
       <Center>
         <Body>
@@ -118,7 +118,7 @@ class IndexPage extends Component {
           }
           <Header2>
             <InALineLeft>
-              <TabButtonSub select >My Options<MiddleLine visible style={{ top: "30px", left: "-72px" }} /></TabButtonSub>
+              <TabButtonSub select >{intl.messages['index.myOptions']}<MiddleLine visible style={{ top: "30px", left: "-72px" }} /></TabButtonSub>
             </InALineLeft>
           </Header2>
           <SingleLine />
@@ -128,7 +128,7 @@ class IndexPage extends Component {
           </DarkContainer>
           <Header2>
             <InALineLeft>
-              <TabButtonSub select={this.state.historySelect1} onClick={() => { this.onHistorySelect(1) }}>Orders History<MiddleLine visible={this.state.historySelect1} style={{ top: "30px", left: "-82px" }} /></TabButtonSub>
+              <TabButtonSub select={this.state.historySelect1} onClick={() => { this.onHistorySelect(1) }}>{intl.messages['index.orderHistory']}<MiddleLine visible={this.state.historySelect1} style={{ top: "30px", left: "-82px" }} /></TabButtonSub>
             </InALineLeft>
           </Header2>
           <SingleLine />
@@ -159,7 +159,7 @@ export default connect(state => {
     networkId: state.WalletReducer.getIn(['accounts', selectedAccountID, 'networkId']),
     selectedAccountID,
   }
-})(IndexPage);
+})(injectIntl(IndexPage));
 
 
 

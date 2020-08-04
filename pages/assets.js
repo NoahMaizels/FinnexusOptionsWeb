@@ -12,7 +12,7 @@ import {
   getOptionsPrices, getFee, sellOptions, exerciseOptions, transferToken,
   getOptionsLimitTimeById
 } from '../utils/scHelper';
-import withRouter from 'umi/withRouter';
+import { withRouter } from 'umi';
 import { getSelectedAccount, getSelectedAccountWallet, getTransactionReceipt } from "wan-dex-sdk-wallet";
 import { connect } from 'react-redux';
 import { fnxTokenAddress, contractInfo } from '../conf/config';

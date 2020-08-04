@@ -7,14 +7,17 @@ import {
   BigTitle, RadioGroup, RadioButton, CenterAlign, RadioButtonSmall,
   YellowText, AdjustInput, DarkText, SmallSpace, checkNumber, renderBuyOptionsModal
 } from './index';
-import { getCoinPrices, beautyNumber, getOptionsPrice, 
+import {
+  getCoinPrices, beautyNumber, getOptionsPrice,
   getFee, getBalance, buyOptions,
-  getCollateralInfo } from "../utils/scHelper.js";
-import withRouter from 'umi/withRouter';
+  getCollateralInfo
+} from "../utils/scHelper.js";
+import { withRouter } from 'umi';
 import { Wallet, getSelectedAccount, WalletButton, WalletButtonLong, getSelectedAccountWallet, getTransactionReceipt } from "wan-dex-sdk-wallet";
 import { connect } from 'react-redux';
 import { fnxTokenAddress } from '../conf/config.js';
 import { insertOrderHistory, updateOrderStatus } from './db';
+import { injectIntl } from 'umi';
 
 const { Option } = Select;
 
@@ -127,7 +130,7 @@ class BuyOptions extends Component {
       }
 
       let col = getCollateralInfo();
-      if (value > col.availableCollateral/col.lowestPercent*100) {
+      if (value > col.availableCollateral / col.lowestPercent * 100) {
         message.warn("Sorry, Collateral not enough.");
         this.setState({ buyLoading: false });
         return;
@@ -162,7 +165,7 @@ class BuyOptions extends Component {
           this.props.update();
         });
 
-      insertOrderHistory(address, time, name, "+" + this.state.amount, '-' + this.state.amountToPay+currencyToPay, 'Buy', 'Pending');
+      insertOrderHistory(address, time, name, "+" + this.state.amount, '-' + this.state.amountToPay + currencyToPay, 'Buy', 'Pending');
       this.setState({ buyLoading: false, buyModalVisible: false });
       this.props.update();
 
@@ -194,16 +197,17 @@ class BuyOptions extends Component {
     } else {
       this.needUpdate = true;
     }
+    const intl = this.props.intl;
     return (
       <CenterAlign style={{ background: "#1A1B2F" }}>
         <Row>
           <Col span={8}>
             <BuyBlock>
               <Row>
-                <p>Corresponding {this.props.baseToken} Amount</p>
+                <p>{intl.formatMessage({ id: 'buy.corresponding' }, { name: this.props.baseToken })}</p>
                 <AdjustInput suffix={
                   <YellowText>{this.props.baseToken}</YellowText>
-                } placeholder={"Enter " + this.props.baseToken + " amount"}
+                } placeholder={intl.formatMessage({ id: 'buy.enterAmount' }, { name: this.props.baseToken })}
                   value={this.state.amount}
                   onChange={e => {
                     if (checkNumber(e)) {
@@ -215,10 +219,10 @@ class BuyOptions extends Component {
                 <ModifyButton onClick={() => { this.setState({ amount: beautyNumber(this.state.amount - 0.1 > 0 ? this.state.amount - 0.1 : 0) }); }}><img src={require('../img/sub.png')} /></ModifyButton>
               </Row>
               <Row>
-                <p>Strike Price</p>
+                <p>{intl.messages['buy.strikePrice']}</p>
                 <AdjustInput suffix={
                   <YellowText>USD</YellowText>
-                } placeholder={"Enter a price"}
+                } placeholder={intl.messages['buy.enterPrice']}
                   value={beautyNumber(this.state.strikePrice, 1)}
                   onChange={e => {
                     if (checkNumber(e)) {
@@ -230,30 +234,30 @@ class BuyOptions extends Component {
                 <ModifyButton onClick={() => { this.setState({ strikePrice: beautyNumber(this.state.strikePrice - 100) }); }}><img src={require('../img/sub.png')} /></ModifyButton>
               </Row>
               <Row>
-                <p>Expiration</p>
+                <p>{intl.messages['buy.expiration']}</p>
                 <AdjustInput
                   value={this.state.expiration}
                   readOnly={true}
                 />
                 <DaySelect value={this.state.expiration} onChange={e => { this.setState({ expiration: e }); }}>
-                  <Option value="1 day">1 day</Option>
-                  <Option value="3 days">3 days</Option>
-                  <Option value="7 days">7 days</Option>
-                  <Option value="10 days">10 days</Option>
-                  <Option value="15 days">15 days</Option>
-                  <Option value="30 days">30 days</Option>
-                  <Option value="90 days">90 days</Option>
+                  <Option value="1 day">1{intl.messages['buy.day']}</Option>
+                  <Option value="3 days">3{intl.messages['buy.days']}</Option>
+                  <Option value="7 days">7{intl.messages['buy.days']}</Option>
+                  <Option value="10 days">10{intl.messages['buy.days']}</Option>
+                  <Option value="15 days">15{intl.messages['buy.days']}</Option>
+                  <Option value="30 days">30{intl.messages['buy.days']}</Option>
+                  <Option value="90 days">90{intl.messages['buy.days']}</Option>
                 </DaySelect>
               </Row>
               <Row>
-                <p>Options Type</p>
+                <p>{intl.messages['buy.optionsType']}</p>
                 <RadioGroup value={this.state.optType} onChange={(e) => { this.setState({ optType: e.target.value }); }} buttonStyle="solid">
-                  <RadioButton value="0">Call</RadioButton>
-                  <RadioButton value="1">Put</RadioButton>
+                  <RadioButton value="0">{intl.messages['buy.call']}</RadioButton>
+                  <RadioButton value="1">{intl.messages['buy.put']}</RadioButton>
                 </RadioGroup>
               </Row>
               <Row>
-                <p>Currency to Pay</p>
+                <p>{intl.messages['buy.currencyToPay']}</p>
                 <RadioGroup value={this.state.currencyToPay} onChange={(e) => { this.setState({ currencyToPay: e.target.value }); }} buttonStyle="solid">
                   <RadioButtonSmall value="0"><InALine>FNX<DarkText>(WRC20)</DarkText></InALine></RadioButtonSmall>
                   <RadioButtonSmall value="1"><InALine>FNX<DarkText>(ERC20)</DarkText></InALine></RadioButtonSmall>
@@ -262,7 +266,7 @@ class BuyOptions extends Component {
               </Row>
               <Row>
                 <SmallSpace />
-                <p>Amount to Pay</p>
+                <p>{intl.messages['buy.amountToPay']}</p>
                 <Spin spinning={this.state.loading}>
                   <InALineLeft>
                     <Amount>{this.state.amountToPay}</Amount>
@@ -280,7 +284,7 @@ class BuyOptions extends Component {
                 <BuyButton onClick={() => {
                   this.getBalance();
                   this.setState({ buyModalVisible: true });
-                }}>Buy Now</BuyButton>
+                }}>{intl.messages['buy.buyNow']}</BuyButton>
               </Row>
             </BuyBlock>
           </Col>
@@ -293,9 +297,9 @@ class BuyOptions extends Component {
             </Row>
             <Row>
               <SubLine>
-                <T1>Current {this.props.baseToken} Price:</T1>
-                <T1Number>{beautyNumber(getCoinPrices()[this.props.baseToken],2) + '$'}</T1Number>
-                <T2>Expected {this.props.baseToken} Price:</T2>
+                <T1>{intl.formatMessage({ id: 'buy.currentPrice' }, { name: this.props.baseToken })}</T1>
+                <T1Number>{beautyNumber(getCoinPrices()[this.props.baseToken], 2) + '$'}</T1Number>
+                <T2>{intl.formatMessage({ id: 'buy.expectedPrice' }, { name: this.props.baseToken })}</T2>
                 <T2Number>{Number(getCoinPrices()[this.props.baseToken] * (100 + this.state.slider) / 100).toFixed(2)}$</T2Number>
                 <PriceSlider
                   defaultValue={0}
@@ -450,4 +454,4 @@ export default withRouter(connect(state => {
     networkId: state.WalletReducer.getIn(['accounts', selectedAccountID, 'networkId']),
     selectedAccountID,
   }
-})(BuyOptions));
+})(injectIntl(BuyOptions)));

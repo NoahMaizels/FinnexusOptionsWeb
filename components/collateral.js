@@ -13,7 +13,7 @@ import {
   deposit, withdraw, getFee, updateCollateralInfo,
   getCoinPrices, redeemMinerCoin
 } from "../utils/scHelper.js";
-import withRouter from 'umi/withRouter';
+import { withRouter } from 'umi';
 import { Wallet, getSelectedAccount, WalletButton, WalletButtonLong, getSelectedAccountWallet, getTransactionReceipt } from "wan-dex-sdk-wallet";
 import { connect } from 'react-redux';
 import { fnxTokenAddress } from '../conf/config.js';

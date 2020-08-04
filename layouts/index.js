@@ -1,5 +1,5 @@
 import { Component } from 'react';
-import withRouter from 'umi/withRouter';
+import { withRouter } from 'umi';
 import { Link } from 'umi';
 import { connect } from 'react-redux';
 import { message, Modal, Button } from 'antd';
@@ -9,16 +9,17 @@ import "eth-sdk-wallet/index.css";
 
 import "wan-dex-sdk-wallet/index.css";
 import style from './style.less';
-// import logo from '../img/wandoraLogo.png';
 import { networkId, nodeUrl } from '../conf/config.js';
 import { getNodeUrl, isSwitchFinish } from '../utils/web3switch.js';
 import sleep from 'ko-sleep';
 import { TabButton, WalletBt, InALine, WalletTitle, ConnectWallet, renderSelectWalletModal, InALineLeft, InALineBetween, HeaderLine } from '../components';
-import { updateCoinPrices, updateCollateralInfo, updateUserOptions} from '../utils/scHelper.js';
+import { updateCoinPrices, updateCollateralInfo, updateUserOptions } from '../utils/scHelper.js';
 import styled from 'styled-components';
-import {insertOrderHistory, updateOrderStatus, getOrderHistory} from '../components/db';
-
-const networkLogo = networkId == 1 ? require('../img/mainnet.svg') : require('../img/testnet.svg');
+import { injectIntl } from 'umi';
+import { getAllLocales } from 'umi';
+console.log('getAllLocales', getAllLocales()); // [en-US,zh-CN,...]
+import { getLocale, setLocale } from 'umi';
+console.log('getLocale', getLocale()); // en-US | zh-CN
 
 class Layout extends Component {
   constructor(props) {
@@ -52,7 +53,7 @@ class Layout extends Component {
       await sleep(100);
     }
 
-    
+
     updateCoinPrices();
     this.priceTimer = setInterval(updateCoinPrices, 20000);
 
@@ -71,7 +72,7 @@ class Layout extends Component {
       await sleep(500);
       timer++;
     }
-    
+
     let wanAddress;
     if (this.props.selectedAccount) {
       wanAddress = this.props.selectedAccount.get('address');
@@ -132,11 +133,16 @@ class Layout extends Component {
     });
   };
 
+  languageSwitch = () => {
+    getLocale() === 'zh-CN' ? setLocale('en-US', true) : setLocale('zh-CN', true);
+  }
+
   render() {
     let nodeUrl = getNodeUrl();
     if (!isSwitchFinish()) {
       return (<div>Loading...</div>);
     }
+    const intl = this.props.intl;
 
     return (
       <div className={style.app}>
@@ -144,18 +150,19 @@ class Layout extends Component {
           <div className={style.header}>
             <Wallet title="Wan Game" nodeUrl={nodeUrl} />
             <EthWallet nodeUrl={"https://ropsten.infura.io/v3/f977681c79004fad87aa00da8f003597"} />
-            <InALineBetween style={{width:"1440px"}}>
+            <InALineBetween style={{ width: "1440px" }}>
               <InALineLeft>
                 <img className={style.logo} width="139px" height="40px" src={require('../img/FNXlogo@2x.png')} alt="Logo" />
-                <Link to="/" ><TabButton select={this.state.tabSelect1} onClick={() => { this.onTabSelect(1) }}>Options Exchange<HeaderLine visible={this.state.tabSelect1} style={{top: "24px", left: "34px"}}/></TabButton></Link>
-                <Link to="/collateral" ><TabButton select={this.state.tabSelect2} onClick={() => { this.onTabSelect(2) }}>Collateral<HeaderLine visible={this.state.tabSelect2} style={{top: "24px", left: "8px"}}/></TabButton></Link>
-                <Link to="/assets" ><TabButton select={this.state.tabSelect3} onClick={() => { this.onTabSelect(3) }}>Assets<HeaderLine visible={this.state.tabSelect3} style={{top: "24px", left: "8px"}}/></TabButton></Link>
+                <Link to="/" ><TabButton style={{width: "202px"}} select={this.state.tabSelect1} onClick={() => { this.onTabSelect(1) }}>{intl.messages['header.optionsExchange']}<HeaderLine visible={this.state.tabSelect1} style={{ top: "24px", left: "44px" }} /></TabButton></Link>
+                <Link to="/collateral" ><TabButton style={{width: "202px"}} select={this.state.tabSelect2} onClick={() => { this.onTabSelect(2) }}>{intl.messages['header.collateral']}<HeaderLine visible={this.state.tabSelect2} style={{ top: "24px", left: "44px" }} /></TabButton></Link>
+                <Link to="/assets" ><TabButton style={{width: "202px"}} select={this.state.tabSelect3} onClick={() => { this.onTabSelect(3) }}>{intl.messages['header.assets']}<HeaderLine visible={this.state.tabSelect3} style={{ top: "24px", left: "44px" }} /></TabButton></Link>
               </InALineLeft>
 
               <InALine>
-                <DebugButton onClick={debug}>Clear History</DebugButton>
-                <div className={style.gameRule} onClick={this.showGameRule}><img height="25px" src={require('../img/help.png')}/></div>
-                <ConnectWallet onClick={() => { this.setState({ visible: true }) }}>Connect Wallet</ConnectWallet>
+                <DebugButton onClick={debug}>{intl.messages['header.clearHistory']}</DebugButton>
+                <DebugButton onClick={this.languageSwitch}>{getLocale() === 'zh-CN' ? 'English':'中文'}</DebugButton>
+                <div className={style.gameRule} onClick={this.showGameRule}><img height="25px" src={require('../img/help.png')} /></div>
+                <ConnectWallet onClick={() => { this.setState({ visible: true }) }}>{intl.messages['header.connectWallet']}</ConnectWallet>
                 {
                   renderSelectWalletModal(this.state.visible, this.handleCancel)
                 }
@@ -165,7 +172,7 @@ class Layout extends Component {
         </InALine>
         {this.props.selectedAccountID === 'EXTENSION' && parseInt(this.props.networkId, 10) !== parseInt(networkId, 10) && (
           <div className="network-warning bg-warning text-white text-center" style={{ padding: 4, backgroundColor: "red", textAlign: "center" }}>
-            Please be noted that you are currently choosing the Testnet for WanMask and shall switch to Mainnet for Use.
+            {intl.messages['header.note']}
           </div>
         )}
         {this.props.children}
@@ -202,4 +209,4 @@ export default withRouter(connect(state => {
     networkId: state.WalletReducer.getIn(['accounts', selectedAccountID, 'networkId']),
     selectedAccountID,
   }
-})(Layout));
+})(injectIntl(Layout)));
