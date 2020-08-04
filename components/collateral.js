@@ -46,6 +46,9 @@ class CollateralInfo extends Component {
       loading: false,
       historyLine: [],
       spinning: true,
+      monthReturn: 0,
+      monthAPR: 0,
+      yearAPR: 0,
     };
   }
 
@@ -113,6 +116,13 @@ class CollateralInfo extends Component {
       }).catch(e => console.log(e));
     }
 
+    axios.get('https://wandora.finnexus.app/api/returns').then((resp) => {
+      let ret = resp.data;
+
+      this.setState({ monthReturn: beautyNumber(ret.monthReturn, 4), 
+        monthAPR: beautyNumber(ret.monthAPR * 100, 2), 
+        yearAPR: beautyNumber(ret.APR * 100, 2) });
+    }).catch(e => console.log(e));
   }
 
   updateInfo = () => {
@@ -390,7 +400,7 @@ class CollateralInfo extends Component {
       }
     }, 2000);
 
-    this.setState({ claimVisible: false});
+    this.setState({ claimVisible: false });
   }
 
   render() {
@@ -426,9 +436,9 @@ class CollateralInfo extends Component {
             <Col span={6}><Box><MyStatistic coldColor title="Net value for total FPT" value={beautyNumber(this.state.totalValue, 4)} suffix="$" /><ShortLine coldColor /></Box></Col>
             <Col span={6}><Box><MyStatistic coldColor title="Net value for each FPT" value={beautyNumber(this.state.sharePrice, 4)} suffix="$" /><ShortLine coldColor /></Box></Col>
             <Col span={6}><Box><MyStatistic title="Total amount of FPT" value={beautyNumber(this.state.totalSupply, 4)} /><ShortLine /></Box></Col>
-            <Col span={6}><Box><MyStatistic title="Each FPT return in this month" value={'0'} suffix="$" /><ShortLine /></Box></Col>
-            <Col span={6}><Box><MyStatistic title="APR in this month" value={'0'} suffix="%" /><ShortLine /></Box></Col>
-            <Col span={6}><Box><MyStatistic title="APR in this year" value={'0'} suffix="%" /><ShortLine /></Box></Col>
+            <Col span={6}><Box><MyStatistic title="Each FPT return in this month" value={this.state.monthReturn} suffix="$" /><ShortLine /></Box></Col>
+            <Col span={6}><Box><MyStatistic title="APR in this month" value={this.state.monthAPR} suffix="%" /><ShortLine /></Box></Col>
+            <Col span={6}><Box><MyStatistic title="APR in this year" value={this.state.yearAPR} suffix="%" /><ShortLine /></Box></Col>
             <Col span={6}><Box><MyStatistic coldColor title="Lowest collateral percent" value={this.state.lowestPercent} suffix="%" /><ShortLine coldColor /></Box></Col>
             <Col span={6}><Box><MyStatistic coldColor title="FPT out of collateral" value={beautyNumber(this.state.outOfWithdraw, 2)} suffix="$" /><ShortLine coldColor /></Box></Col>
             <Col span={6}><Box><MyStatistic coldColor title="Withdrawing value in queue" value={beautyNumber(this.state.lockedValue, 2)} suffix="$" /><ShortLine coldColor /></Box></Col>
@@ -488,9 +498,9 @@ class CollateralInfo extends Component {
             this.props.selectedAccount ? this.props.selectedAccount.get("isLocked") : false)
         }
         {
-          renderClaimModal(this.props.chainType, this.state.claimVisible, this.state.minedWan, this.state.minedFnx, 
+          renderClaimModal(this.props.chainType, this.state.claimVisible, this.state.minedWan, this.state.minedFnx,
             this.redeemMinedCoinToken, () => {
-              this.setState({claimVisible: false})
+              this.setState({ claimVisible: false })
             }, this.state.loading, this.props.selectedAccount ? this.props.selectedAccount.get("isLocked") : false)
         }
       </div>
