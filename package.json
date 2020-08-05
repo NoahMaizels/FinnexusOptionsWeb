@@ -30,7 +30,7 @@
   },
   "scripts": {
     "dev": "cross-env PORT=9090 umi dev",
-    "build": "umi build",
+    "build": "NODE_OPTIONS=--max-old-space-size=4096 umi build",
     "fix-memory-limit": "cross-env LIMIT=4096 increase-memory-limit",
     "dev:test": "cross-env PORT=9090 WATCH_FILES=none BROWSER=none CLEAR_CONSOLE=none COMPILE_ON_DEMAND=none COVERAGE=true umi dev",
     "test": "macaca run -d ./test --verbose",
