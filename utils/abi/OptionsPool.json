@@ -41,15 +41,98 @@
   {
     "constant": true,
     "inputs": [],
-    "name": "sharedPhase",
+    "name": "getOccupiedCalInfo",
     "outputs": [
       {
         "name": "",
-        "type": "uint32"
+        "type": "uint256"
+      },
+      {
+        "name": "",
+        "type": "int256"
       }
     ],
     "payable": false,
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "lastOption",
+        "type": "uint256"
+      },
+      {
+        "name": "beginOption",
+        "type": "uint256"
+      },
+      {
+        "name": "endOption",
+        "type": "uint256"
+      }
+    ],
+    "name": "calculatePhaseOccupiedCollateral",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "totalOccupied",
+        "type": "uint256"
+      },
+      {
+        "name": "beginOption",
+        "type": "uint256"
+      },
+      {
+        "name": "latestOccpied",
+        "type": "int256"
+      }
+    ],
+    "name": "setCollateralPhase",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "newFirstOption",
+        "type": "uint256"
+      },
+      {
+        "name": "latestNetWorth",
+        "type": "int256[]"
+      },
+      {
+        "name": "whiteList",
+        "type": "address[]"
+      }
+    ],
+    "name": "setSharedState",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -64,6 +147,45 @@
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "lastOption",
+        "type": "uint256"
+      },
+      {
+        "name": "begin",
+        "type": "uint256"
+      },
+      {
+        "name": "end",
+        "type": "uint256"
+      },
+      {
+        "name": "whiteList",
+        "type": "address[]"
+      }
+    ],
+    "name": "calRangeSharedPayment",
+    "outputs": [
+      {
+        "name": "",
+        "type": "int256[]"
+      },
+      {
+        "name": "",
+        "type": "uint256[]"
+      },
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -135,50 +257,43 @@
   },
   {
     "constant": true,
-    "inputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "expirationList",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "underlyingAssets",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint32"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
     "inputs": [],
     "name": "getVolatilityAddress",
     "outputs": [
       {
         "name": "",
         "type": "address"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "lastOption",
+        "type": "uint256"
+      },
+      {
+        "name": "begin",
+        "type": "uint256"
+      },
+      {
+        "name": "end",
+        "type": "uint256"
+      },
+      {
+        "name": "whiteList",
+        "type": "address[]"
+      }
+    ],
+    "name": "calculatePhaseOptionsFall",
+    "outputs": [
+      {
+        "name": "",
+        "type": "int256[]"
       }
     ],
     "payable": false,
@@ -284,16 +399,20 @@
     "constant": true,
     "inputs": [
       {
-        "name": "",
-        "type": "address"
+        "name": "optionID",
+        "type": "uint256"
       },
       {
-        "name": "",
+        "name": "amount",
         "type": "uint256"
       }
     ],
-    "name": "optionsBalances",
+    "name": "getBurnedFullPay",
     "outputs": [
+      {
+        "name": "",
+        "type": "address"
+      },
       {
         "name": "",
         "type": "uint256"
@@ -358,6 +477,29 @@
     "constant": true,
     "inputs": [
       {
+        "name": "whiteList",
+        "type": "address[]"
+      }
+    ],
+    "name": "getNetWrothCalInfo",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "name": "",
+        "type": "int256[]"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
         "name": "optionsId",
         "type": "uint256"
       }
@@ -399,7 +541,7 @@
   {
     "constant": true,
     "inputs": [],
-    "name": "burnTimeLimit",
+    "name": "getTotalOccupiedCollateral",
     "outputs": [
       {
         "name": "",
@@ -422,6 +564,25 @@
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "settlement",
+        "type": "address"
+      }
+    ],
+    "name": "getNetWrothLatestWorth",
+    "outputs": [
+      {
+        "name": "",
+        "type": "int256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -451,49 +612,6 @@
       {
         "name": "",
         "type": "address"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "allOptions",
-    "outputs": [
-      {
-        "name": "optionID",
-        "type": "uint64"
-      },
-      {
-        "name": "owner",
-        "type": "address"
-      },
-      {
-        "name": "optType",
-        "type": "uint8"
-      },
-      {
-        "name": "underlying",
-        "type": "uint32"
-      },
-      {
-        "name": "expiration",
-        "type": "uint256"
-      },
-      {
-        "name": "strikePrice",
-        "type": "uint256"
-      },
-      {
-        "name": "amount",
-        "type": "uint256"
       }
     ],
     "payable": false,
@@ -532,40 +650,6 @@
     "constant": false,
     "inputs": [
       {
-        "name": "from",
-        "type": "address"
-      },
-      {
-        "name": "settlement",
-        "type": "address"
-      },
-      {
-        "name": "type_ly_exp",
-        "type": "uint256"
-      },
-      {
-        "name": "strikePrice",
-        "type": "uint256"
-      },
-      {
-        "name": "optionPrice",
-        "type": "uint256"
-      },
-      {
-        "name": "amount",
-        "type": "uint256"
-      }
-    ],
-    "name": "createOptions",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
         "name": "addAddress",
         "type": "address"
       }
@@ -574,25 +658,6 @@
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "_operatorList",
-    "outputs": [
-      {
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -683,20 +748,6 @@
       {
         "name": "",
         "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "optionPhase",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint32"
       }
     ],
     "payable": false,
@@ -863,6 +914,15 @@
     "type": "function"
   },
   {
+    "constant": false,
+    "inputs": [],
+    "name": "setOccupiedCollateral",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "constant": true,
     "inputs": [
       {
@@ -1013,7 +1073,12 @@
   },
   {
     "constant": true,
-    "inputs": [],
+    "inputs": [
+      {
+        "name": "whiteList",
+        "type": "address[]"
+      }
+    ],
     "name": "getOptionCalRangeAll",
     "outputs": [
       {
@@ -1022,291 +1087,20 @@
       },
       {
         "name": "",
-        "type": "uint256"
+        "type": "int256"
       },
       {
         "name": "",
         "type": "uint256"
       },
-      {
-        "name": "",
-        "type": "uint256"
-      },
-      {
-        "name": "",
-        "type": "uint256"
-      },
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "getOptionPhaseCalRange",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      },
-      {
-        "name": "",
-        "type": "uint256"
-      },
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "getsharedPhaseCalRange",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      },
-      {
-        "name": "",
-        "type": "uint256"
-      },
-      {
-        "name": "",
-        "type": "uint256"
-      },
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "name": "index",
-        "type": "uint256"
-      }
-    ],
-    "name": "getsharedPhaseCalInfo",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      },
-      {
-        "name": "",
-        "type": "uint256[]"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "calInfo",
-        "type": "uint256"
-      }
-    ],
-    "name": "setPhaseOccupiedCollateral",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "calInfo",
-        "type": "uint256"
-      },
-      {
-        "name": "totalOccupied",
-        "type": "uint256"
-      },
-      {
-        "name": "beginOption",
-        "type": "uint256"
-      }
-    ],
-    "name": "setCollateralPhase",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "name": "calInfo",
-        "type": "uint256"
-      }
-    ],
-    "name": "calculatePhaseOccupiedCollateral",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      },
-      {
-        "name": "",
-        "type": "uint256"
-      },
-      {
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "calInfo",
-        "type": "uint256"
-      },
-      {
-        "name": "firstOption",
-        "type": "uint256"
-      },
-      {
-        "name": "prices",
-        "type": "uint256[]"
-      },
-      {
-        "name": "calTime",
-        "type": "uint256"
-      }
-    ],
-    "name": "setSharedState",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "name": "calInfo",
-        "type": "uint256"
-      },
-      {
-        "name": "whiteList",
-        "type": "address[]"
-      }
-    ],
-    "name": "calculatePhaseSharedPayment",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256[]"
-      },
-      {
-        "name": "",
-        "type": "uint256"
-      },
-      {
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "name": "calInfo",
-        "type": "uint256"
-      },
-      {
-        "name": "begin",
-        "type": "uint256"
-      },
-      {
-        "name": "end",
-        "type": "uint256"
-      },
-      {
-        "name": "whiteList",
-        "type": "address[]"
-      }
-    ],
-    "name": "calRangeSharedPayment",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256[]"
-      },
-      {
-        "name": "",
-        "type": "uint256"
-      },
-      {
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "name": "calInfo",
-        "type": "uint256"
-      },
-      {
-        "name": "whiteList",
-        "type": "address[]"
-      }
-    ],
-    "name": "calculatePhaseOptionsFall",
-    "outputs": [
       {
         "name": "",
         "type": "int256[]"
       },
       {
         "name": "",
-        "type": "uint256[]"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "getTotalOccupiedCollateral",
-    "outputs": [
+        "type": "uint256"
+      },
       {
         "name": "",
         "type": "uint256"
@@ -1324,11 +1118,49 @@
         "type": "address"
       },
       {
+        "name": "settlement",
+        "type": "address"
+      },
+      {
+        "name": "type_ly_exp",
+        "type": "uint256"
+      },
+      {
+        "name": "strikePrice",
+        "type": "uint256"
+      },
+      {
+        "name": "optionPrice",
+        "type": "uint256"
+      },
+      {
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "createOptions",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "from",
+        "type": "address"
+      },
+      {
         "name": "id",
         "type": "uint256"
       },
       {
         "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "name": "optionPrice",
         "type": "uint256"
       }
     ],

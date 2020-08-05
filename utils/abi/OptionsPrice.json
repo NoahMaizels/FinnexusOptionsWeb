@@ -143,6 +143,24 @@
     "type": "function"
   },
   {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "_minPrice",
+        "type": "uint256"
+      },
+      {
+        "name": "_maxPrice",
+        "type": "uint256"
+      }
+    ],
+    "name": "setPriceRange",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "constant": true,
     "inputs": [
       {

@@ -1,38 +1,38 @@
 {
   "CollateralPool": {
-    "address": "0xffafa9efebe2eec9fcf02bbb332c234dbad62602",
+    "address": "0x45a94bd3c742f7b682c9b96c20c3bfcd8273adb3",
     "fileName": "../contracts/CollateralPool.json"
   },
   "FNXMinePool": {
-    "address": "0x67130fb4e4fa6a310c0272dab3715559ec4fddaf",
+    "address": "0x67b097104ecb94349a66895f1ec04eec1b79244f",
     "fileName": "../contracts/FNXMinePool.json"
   },
   "FNXOracle": {
-    "address": "0xd7a7c356029767411d6868d3807d08260f7d2740",
+    "address": "0x82d7a2d706ba9250ffd0ace629e832b736105e14",
     "fileName": "../contracts/FNXOracle.json"
   },
   "FPTCoin": {
-    "address": "0x09914564ea88e9a637fe73989d0683e6c762ac9d",
+    "address": "0x45e7b6f09e965b292a14f47822b646074d6e1b79",
     "fileName": "../contracts/FPTCoin.json"
   },
   "IERC20": {
     "address": "0x0000000000000000000000000000000000000000",
     "fileName": "../contracts/IERC20.json"
   },
+  "ImpliedVolatility": {
+    "address": "0x50c8a90c2722b1052070bea68752df24207b5432",
+    "fileName": "../contracts/ImpliedVolatility.json"
+  },
   "OptionsManagerV2": {
-    "address": "0x881af4582a0f935de19598376941e193b751ee82",
+    "address": "0x1d0c7fe7970ad304aa9ade5e06c6b1f0af14adb4",
     "fileName": "../contracts/OptionsManagerV2.json"
   },
   "OptionsPool": {
-    "address": "0xa5da71c84d50353456753a5f918a8e8169e190f4",
+    "address": "0xb37a379a6f364c5c33244218b46a3475f7c3caf9",
     "fileName": "../contracts/OptionsPool.json"
   },
   "OptionsPrice": {
-    "address": "0xd635f46e5e6fdae8f9ed1ad591677671c38aa2db",
+    "address": "0x7c71948b828b9e022c93a1da94048931d9517547",
     "fileName": "../contracts/OptionsPrice.json"
-  },
-  "imVolatility32": {
-    "address": "0x3c69ecfef8076edc30867d35473d13d2b4b99a94",
-    "fileName": "../contracts/imVolatility32.json"
   }
 }

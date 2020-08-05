@@ -1,33 +1,5 @@
 [
   {
-    "constant": true,
-    "inputs": [],
-    "name": "ValidUntil",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "inptutTime",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "constant": false,
     "inputs": [],
     "name": "renounceOwnership",
@@ -65,26 +37,64 @@
     "type": "function"
   },
   {
-    "constant": true,
+    "constant": false,
     "inputs": [
       {
-        "name": "",
-        "type": "uint256"
-      },
-      {
-        "name": "",
-        "type": "uint256"
-      },
-      {
-        "name": "",
-        "type": "uint256"
+        "name": "addAddress",
+        "type": "address"
       }
     ],
-    "name": "ivMatrixMap",
+    "name": "addOperator",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "removeAddress",
+        "type": "address"
+      }
+    ],
+    "name": "removeOperator",
     "outputs": [
       {
         "name": "",
+        "type": "bool"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "index",
         "type": "uint256"
+      },
+      {
+        "name": "addAddress",
+        "type": "address"
+      }
+    ],
+    "name": "setOperator",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "getOperator",
+    "outputs": [
+      {
+        "name": "",
+        "type": "address[]"
       }
     ],
     "payable": false,
@@ -104,6 +114,56 @@
     "payable": false,
     "stateMutability": "nonpayable",
     "type": "function"
+  },
+  {
+    "inputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "name": "value1",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "name": "value2",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "name": "value3",
+        "type": "uint256"
+      }
+    ],
+    "name": "DebugEvent",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "name": "value1",
+        "type": "int256"
+      },
+      {
+        "indexed": false,
+        "name": "value2",
+        "type": "int256"
+      },
+      {
+        "indexed": false,
+        "name": "value3",
+        "type": "int256"
+      }
+    ],
+    "name": "DebugEventInt",
+    "type": "event"
   },
   {
     "anonymous": false,
@@ -126,45 +186,15 @@
     "constant": false,
     "inputs": [
       {
-        "name": "timeLimit",
-        "type": "uint256"
-      }
-    ],
-    "name": "setValidUntil",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
         "name": "underlying",
         "type": "uint32"
       },
       {
-        "name": "optType",
-        "type": "uint8"
-      },
-      {
-        "name": "expirationAry",
-        "type": "uint32[]"
-      },
-      {
-        "name": "childlen",
-        "type": "uint32[]"
-      },
-      {
-        "name": "priceAry",
-        "type": "uint64[]"
-      },
-      {
-        "name": "ivAry",
-        "type": "uint64[]"
+        "name": "_Iv0",
+        "type": "uint256"
       }
     ],
-    "name": "setIvMatrix",
+    "name": "SetAtmIv",
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
@@ -186,7 +216,11 @@
         "type": "uint256"
       },
       {
-        "name": "price",
+        "name": "currentPrice",
+        "type": "uint256"
+      },
+      {
+        "name": "strikePrice",
         "type": "uint256"
       }
     ],

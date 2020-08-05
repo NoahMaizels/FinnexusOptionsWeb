@@ -47,6 +47,25 @@
     "type": "function"
   },
   {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "settlement",
+        "type": "address"
+      }
+    ],
+    "name": "getRealBalance",
+    "outputs": [
+      {
+        "name": "",
+        "type": "int256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "constant": false,
     "inputs": [
       {
@@ -108,15 +127,6 @@
     "type": "function"
   },
   {
-    "constant": false,
-    "inputs": [],
-    "name": "redeemAll",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
     "constant": true,
     "inputs": [
       {
@@ -137,29 +147,6 @@
       }
     ],
     "name": "calOptionsOccupied",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "name": "feeType",
-        "type": "uint256"
-      },
-      {
-        "name": "amount",
-        "type": "uint256"
-      }
-    ],
-    "name": "calculateFee",
     "outputs": [
       {
         "name": "",
@@ -224,68 +211,45 @@
   },
   {
     "constant": true,
-    "inputs": [
-      {
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "name": "feeBalances",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "collateralRate",
-    "outputs": [
-      {
-        "name": "numerator",
-        "type": "uint256"
-      },
-      {
-        "name": "denominator",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "whiteList",
-    "outputs": [
-      {
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
     "inputs": [],
     "name": "getOptionsPriceAddress",
     "outputs": [
       {
         "name": "",
         "type": "address"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "colRate",
+        "type": "uint256"
+      }
+    ],
+    "name": "setCollateralRate",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "settlement",
+        "type": "address"
+      }
+    ],
+    "name": "getNetWorthBalance",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
       }
     ],
     "payable": false,
@@ -346,10 +310,6 @@
       {
         "name": "",
         "type": "uint256"
-      },
-      {
-        "name": "",
-        "type": "uint256"
       }
     ],
     "payable": false,
@@ -406,20 +366,6 @@
     "constant": false,
     "inputs": [
       {
-        "name": "currency",
-        "type": "address"
-      }
-    ],
-    "name": "redeem",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
         "name": "addAddress",
         "type": "address"
       }
@@ -431,33 +377,18 @@
     "type": "function"
   },
   {
-    "constant": true,
-    "inputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "_operatorList",
-    "outputs": [
-      {
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "constant": false,
     "inputs": [
       {
-        "name": "calInfo",
+        "name": "_minAmount",
+        "type": "uint256"
+      },
+      {
+        "name": "_maxAmount",
         "type": "uint256"
       }
     ],
-    "name": "setPhaseSharedPayment",
+    "name": "setInputAmountRange",
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
@@ -496,6 +427,28 @@
     "type": "function"
   },
   {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "newNetworth",
+        "type": "int256[]"
+      },
+      {
+        "name": "sharedBalances",
+        "type": "int256[]"
+      },
+      {
+        "name": "firstOption",
+        "type": "uint256"
+      }
+    ],
+    "name": "setSharedPayment",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "constant": true,
     "inputs": [
       {
@@ -512,6 +465,20 @@
     ],
     "payable": false,
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "_timeLimited",
+        "type": "uint256"
+      }
+    ],
+    "name": "setCollateralTimeLimited",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -571,13 +538,26 @@
     "type": "function"
   },
   {
+    "constant": false,
+    "inputs": [],
+    "name": "calSharedPayment",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "constant": true,
     "inputs": [],
-    "name": "halted",
+    "name": "getInputAmountRange",
     "outputs": [
       {
         "name": "",
-        "type": "bool"
+        "type": "uint256"
+      },
+      {
+        "name": "",
+        "type": "uint256"
       }
     ],
     "payable": false,
@@ -601,28 +581,6 @@
     ],
     "payable": false,
     "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "feeType",
-        "type": "uint256"
-      },
-      {
-        "name": "numerator",
-        "type": "uint256"
-      },
-      {
-        "name": "denominator",
-        "type": "uint256"
-      }
-    ],
-    "name": "setTransactionFee",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -673,81 +631,9 @@
   },
   {
     "constant": true,
-    "inputs": [
-      {
-        "name": "settlement",
-        "type": "address"
-      }
-    ],
-    "name": "getFeeBalance",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "calInfo",
-        "type": "uint256"
-      },
-      {
-        "name": "sharedBalances",
-        "type": "int256[]"
-      },
-      {
-        "name": "prices",
-        "type": "uint256[]"
-      },
-      {
-        "name": "firstOption",
-        "type": "uint256"
-      },
-      {
-        "name": "calTime",
-        "type": "uint256"
-      }
-    ],
-    "name": "setSharedPayment",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": true,
     "inputs": [],
     "name": "getOccupiedCollateral",
     "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "name": "feeType",
-        "type": "uint256"
-      }
-    ],
-    "name": "getFeeRate",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      },
       {
         "name": "",
         "type": "uint256"
@@ -792,29 +678,6 @@
     "outputs": [
       {
         "name": "",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "FeeRates",
-    "outputs": [
-      {
-        "name": "numerator",
-        "type": "uint256"
-      },
-      {
-        "name": "denominator",
         "type": "uint256"
       }
     ],
@@ -890,42 +753,6 @@
       {
         "name": "",
         "type": "address[]"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "numerator",
-        "type": "uint256"
-      },
-      {
-        "name": "denominator",
-        "type": "uint256"
-      }
-    ],
-    "name": "setCollateralRate",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "getAllFeeBalances",
-    "outputs": [
-      {
-        "name": "",
-        "type": "address[]"
-      },
-      {
-        "name": "",
-        "type": "uint256[]"
       }
     ],
     "payable": false,
@@ -1082,33 +909,6 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
-        "name": "value0",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "name": "value1",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "name": "value2",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "name": "value3",
-        "type": "uint256"
-      }
-    ],
-    "name": "DebugEvent",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
         "indexed": true,
         "name": "from",
         "type": "address"
@@ -1159,89 +959,6 @@
     "inputs": [
       {
         "indexed": true,
-        "name": "value1",
-        "type": "uint256"
-      },
-      {
-        "indexed": true,
-        "name": "value2",
-        "type": "uint256"
-      },
-      {
-        "indexed": true,
-        "name": "value3",
-        "type": "uint256"
-      }
-    ],
-    "name": "DebugEvent",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "name": "recieptor",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "name": "settlement",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "name": "payback",
-        "type": "uint256"
-      }
-    ],
-    "name": "FeePayback",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "name": "settlement",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "name": "payback",
-        "type": "uint256"
-      }
-    ],
-    "name": "AddFee",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "name": "recieptor",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "name": "settlement",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "name": "payback",
-        "type": "uint256"
-      }
-    ],
-    "name": "TransferPayback",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
         "name": "previousOwner",
         "type": "address"
       },
@@ -1253,6 +970,42 @@
     ],
     "name": "OwnershipTransferred",
     "type": "event"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "getPriceRateRange",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "_minPriceRate",
+        "type": "uint256"
+      },
+      {
+        "name": "_maxPriceRate",
+        "type": "uint256"
+      }
+    ],
+    "name": "setPriceRateRange",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
     "constant": false,

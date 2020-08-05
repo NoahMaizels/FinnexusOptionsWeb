@@ -77,14 +77,14 @@ export const initSmartContract = async () => {
   scs.opPrice = new web3.eth.Contract(require('./abi/OptionsPrice.json'), contractInfo.OptionsPrice.address);
   scs.fctCoin = new web3.eth.Contract(require('./abi/FPTCoin.json'), contractInfo.FPTCoin.address);
   scs.minePool = new web3.eth.Contract(require('./abi/FNXMinePool.json'), contractInfo.FNXMinePool.address);
-
+  scs.colPool = new web3.eth.Contract(require('./abi/CollateralPool.json'), contractInfo.CollateralPool.address);
   updateFee();
 }
 
 const updateFee = () => {
   let web3 = getWeb3();
   let batch = new web3.BatchRequest();
-  batch.add(scs.opManager.methods.getFeeRate(buyFee).call.request({}, (err, ret) => {
+  batch.add(scs.colPool.methods.getFeeRate(buyFee).call.request({}, (err, ret) => {
     if (err || !ret) {
       console.log(err, ret);
       return;
@@ -92,7 +92,7 @@ const updateFee = () => {
     fee.buyFee = beautyNumber(ret[0] / ret[1], 6);
   }));
 
-  batch.add(scs.opManager.methods.getFeeRate(sellFee).call.request({}, (err, ret) => {
+  batch.add(scs.colPool.methods.getFeeRate(sellFee).call.request({}, (err, ret) => {
     if (err || !ret) {
       console.log(err, ret);
       return;
@@ -100,7 +100,7 @@ const updateFee = () => {
     fee.sellFee = beautyNumber(ret[0] / ret[1], 6);
   }));
 
-  batch.add(scs.opManager.methods.getFeeRate(exerciseFee).call.request({}, (err, ret) => {
+  batch.add(scs.colPool.methods.getFeeRate(exerciseFee).call.request({}, (err, ret) => {
     if (err || !ret) {
       console.log(err, ret);
       return;
@@ -108,7 +108,7 @@ const updateFee = () => {
     fee.exerciseFee = beautyNumber(ret[0] / ret[1], 6);
   }));
 
-  batch.add(scs.opManager.methods.getFeeRate(addColFee).call.request({}, (err, ret) => {
+  batch.add(scs.colPool.methods.getFeeRate(addColFee).call.request({}, (err, ret) => {
     if (err || !ret) {
       console.log(err, ret);
       return;
@@ -116,7 +116,7 @@ const updateFee = () => {
     fee.addColFee = beautyNumber(ret[0] / ret[1], 6);
   }));
 
-  batch.add(scs.opManager.methods.getFeeRate(redeemColFee).call.request({}, (err, ret) => {
+  batch.add(scs.colPool.methods.getFeeRate(redeemColFee).call.request({}, (err, ret) => {
     if (err || !ret) {
       console.log(err, ret);
       return;
@@ -290,6 +290,16 @@ export const updateCollateralInfo = async (address) => {
     collateral.outOfWithdraw = priceConvert(value);
   }));
 
+  batch.add(scs.opManager.methods.getPriceRateRange().call.request({}, (err, ret) => {
+    if (err || !ret) {
+      console.log(err, ret);
+      return;
+    }
+    // console.log('getLeftCollateral', ret);
+    collateral.minPriceRate = beautyNumber(ret[0]/1000, 3);
+    collateral.maxPriceRate = beautyNumber(ret[1]/1000, 3);
+  }));
+
   batch.add(scs.fctCoin.methods.getTotalLockedWorth().call.request({}, (err, ret) => {
     if (err || !ret) {
       console.log(err, ret);
@@ -334,7 +344,7 @@ export const updateCollateralInfo = async (address) => {
       return;
     }
     // console.log('getCollateralRate', ret);
-    collateral.lowestPercent = beautyNumber(ret[0] ** ret[1] * 100, 2);
+    collateral.lowestPercent = beautyNumber(ret / 10, 1);
 
     if (!address) {
       finish = true;

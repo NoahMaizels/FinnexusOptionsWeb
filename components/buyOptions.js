@@ -191,6 +191,28 @@ class BuyOptions extends Component {
     }
   }
 
+  limitPrice = (price) => {
+    let prices = getCoinPrices();
+    let col = getCollateralInfo();
+
+    let min = Number(prices[this.props.baseToken]) * Number(col.minPriceRate);
+    let max = Number(prices[this.props.baseToken]) * Number(col.maxPriceRate);
+
+    if (Number(price) >= min && Number(price) <= max) {
+      return price;
+    } 
+
+    if (Number(price) < min) {
+      return min;
+    }
+
+    if (Number(price) > max) {
+      return max;
+    }
+
+    return price;
+  }
+
   render() {
     if (this.needUpdate) {
       // console.log('render', (new Date()).toLocaleTimeString());
@@ -230,9 +252,14 @@ class BuyOptions extends Component {
                       this.setState({ strikePrice: e.target.value });
                     }
                   }}
+                  onBlur={e => {
+                    if (checkNumber(e)) {
+                      this.setState({ strikePrice: this.limitPrice(e.target.value) });
+                    }
+                  }}
                 />
-                <ModifyButton onClick={() => { this.setState({ strikePrice: beautyNumber(this.state.strikePrice + 100) }); }}><img src={require('../img/add.png')} /></ModifyButton>
-                <ModifyButton onClick={() => { this.setState({ strikePrice: beautyNumber(this.state.strikePrice - 100) }); }}><img src={require('../img/sub.png')} /></ModifyButton>
+                <ModifyButton onClick={() => { this.setState({ strikePrice: beautyNumber(this.limitPrice(this.state.strikePrice + 100)) }); }}><img src={require('../img/add.png')} /></ModifyButton>
+                <ModifyButton onClick={() => { this.setState({ strikePrice: beautyNumber(this.limitPrice(this.state.strikePrice - 100)) }); }}><img src={require('../img/sub.png')} /></ModifyButton>
               </Row>
               <Row>
                 <p>{intl.messages['buy.expiration']}</p>
