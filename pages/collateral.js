@@ -6,8 +6,8 @@ import CollateralInfo from '../components/collateral.js';
 import {getCollateralHistory} from '../components/db';
 import { getSelectedAccount, getSelectedAccountWallet } from "wan-dex-sdk-wallet";
 import { connect } from "react-redux";
-import { collateralHistoryColumn } from '../components/historyColums';
-
+import { getCollateralHistoryColumn } from '../components/historyColums';
+import { injectIntl } from 'umi';
 
 class Collateral extends Component {
   constructor(props) {
@@ -41,14 +41,15 @@ class Collateral extends Component {
 
 
   render() {
+    const intl = this.props.intl;
     return (
       <Center>
         <Body>
           <Carousel><img src={require('../img/banner2.png')} /></Carousel>
           <Header2>
             <InALineLeft>
-              <TabButtonSub select={this.state.tabSelect1} onClick={() => { this.onTabSelect(1) }}><img src={require('../img/wanchain.png')} /><SubTitle>Wanchain<MiddleLine visible={this.state.tabSelect1} /></SubTitle></TabButtonSub>
-              <TabButtonSub select={this.state.tabSelect2} onClick={() => { this.onTabSelect(2) }}><img src={require('../img/ETH.png')} /><SubTitle>Ethereum<MiddleLine visible={this.state.tabSelect2} /></SubTitle></TabButtonSub>
+              <TabButtonSub select={this.state.tabSelect1} onClick={() => { this.onTabSelect(1) }}><img src={require('../img/wanchain.png')} /><SubTitle>{intl.messages['col.wanchain']}<MiddleLine visible={this.state.tabSelect1} /></SubTitle></TabButtonSub>
+              <TabButtonSub select={this.state.tabSelect2} onClick={() => { this.onTabSelect(2) }}><img src={require('../img/ETH.png')} /><SubTitle>{intl.messages['col.ethereum']}<MiddleLine visible={this.state.tabSelect2} /></SubTitle></TabButtonSub>
             </InALineLeft>
           </Header2>
           <SingleLine/>
@@ -64,12 +65,12 @@ class Collateral extends Component {
           }
           <Header2>
             <InALineLeft>
-              <TabButtonSub select>FPT History<MiddleLine visible style={{ top: "30px", left: "-82px" }} /></TabButtonSub>
+              <TabButtonSub select>{intl.messages['col.FPTHistory']}<MiddleLine visible style={{ top: "30px", left: "-82px" }} /></TabButtonSub>
             </InALineLeft>
           </Header2>
           <SingleLine />
           <DarkContainer>
-            <HistoryTable columns={collateralHistoryColumn} dataSource={getCollateralHistory(this.props.selectedAccount?this.props.selectedAccount.get('address'):'')}/>
+            <HistoryTable columns={getCollateralHistoryColumn(intl)} dataSource={getCollateralHistory(this.props.selectedAccount?this.props.selectedAccount.get('address'):'')}/>
           </DarkContainer>
         </Body>
       </Center>
@@ -86,4 +87,4 @@ export default connect(state => {
     networkId: state.WalletReducer.getIn(['accounts', selectedAccountID, 'networkId']),
     selectedAccountID,
   }
-})(Collateral);
+})(injectIntl(Collateral));

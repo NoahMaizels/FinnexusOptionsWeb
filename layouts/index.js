@@ -21,6 +21,8 @@ console.log('getAllLocales', getAllLocales()); // [en-US,zh-CN,...]
 import { getLocale, setLocale } from 'umi';
 console.log('getLocale', getLocale()); // en-US | zh-CN
 
+import cnWalletTranslation from '../locales/wallet/wallet-zh-CN';
+
 class Layout extends Component {
   constructor(props) {
     super(props);
@@ -144,11 +146,16 @@ class Layout extends Component {
     }
     const intl = this.props.intl;
 
+    let cnWallet = false;
+    if (intl.messages['header.connectWallet'] === '连接钱包') {
+      cnWallet = true;
+    }
+
     return (
       <div className={style.app}>
         <InALine>
           <div className={style.header}>
-            <Wallet title="Wan Game" nodeUrl={nodeUrl} />
+            <Wallet title="Wan Game" nodeUrl={nodeUrl} translations={cnWallet ? cnWalletTranslation : undefined}/>
             <EthWallet nodeUrl={"https://ropsten.infura.io/v3/f977681c79004fad87aa00da8f003597"} />
             <InALineBetween style={{ width: "1440px" }}>
               <InALineLeft>
@@ -164,7 +171,7 @@ class Layout extends Component {
                 <div className={style.gameRule} onClick={this.showGameRule}><img height="25px" src={require('../img/help.png')} /></div>
                 <ConnectWallet onClick={() => { this.setState({ visible: true }) }}>{intl.messages['header.connectWallet']}</ConnectWallet>
                 {
-                  renderSelectWalletModal(this.state.visible, this.handleCancel)
+                  renderSelectWalletModal(this.state.visible, this.handleCancel, intl)
                 }
               </InALine>
             </InALineBetween>

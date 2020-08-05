@@ -16,11 +16,13 @@ import { withRouter } from 'umi';
 import { getSelectedAccount, getSelectedAccountWallet, getTransactionReceipt } from "wan-dex-sdk-wallet";
 import { connect } from 'react-redux';
 import { fnxTokenAddress, contractInfo } from '../conf/config';
-import { insertOrderHistory, updateOrderStatus, 
-  insertTransferHistory, updateTransferStatus, 
-  getTransferHistory, getOrderHistory, getCollateralHistory } from '../components/db';
-import { transferHistoryColumn, collateralHistoryColumn, orderHistoryColumn } from '../components/historyColums';
-
+import {
+  insertOrderHistory, updateOrderStatus,
+  insertTransferHistory, updateTransferStatus,
+  getTransferHistory, getOrderHistory, getCollateralHistory
+} from '../components/db';
+import { getTransferHistoryColumn, getCollateralHistoryColumn, getOrderHistoryColumn } from '../components/historyColums';
+import { injectIntl } from 'umi';
 
 class Assets extends Component {
   constructor(props) {
@@ -103,70 +105,78 @@ class Assets extends Component {
     };
   }
 
-  column = [
-    {
-      title: 'ID',
-      dataIndex: "id",
-      key: 'id',
-      visible: false,
-    },
-    {
-      title: 'Assets',
-      dataIndex: "assets",
-      key: 'assets',
-    },
-    {
-      title: 'Balance',
-      dataIndex: "balance",
-      key: 'balance',
-    },
-    {
-      title: '$ USD',
-      dataIndex: "usd",
-      key: 'usd',
-    },
-    {
-      title: 'Current return',
-      dataIndex: "currentReturn",
-      key: 'currentReturn',
-    },
-    {
-      title: 'Expiration',
-      dataIndex: "expiration",
-      key: 'expiration',
-    },
-    {
-      title: 'Operation',
-      dataIndex: "operation",
-      key: 'operation',
-      render: (value, row) => {
-        if (value === 0) {
-          return (
-            <InALineLeft>
-              <SmallButton><img src={require('../img/buy.png')} style={{ marginRight: "10px" }} />Buy</SmallButton>
-              <SmallButton><img src={require('../img/sell.png')} style={{ marginRight: "10px" }} />Sell</SmallButton>
-              <SmallButton onClick={() => { this.onTransfer(row.assets) }}><img src={require('../img/transfer.png')} style={{ marginRight: "10px" }} />Transfer</SmallButton>
-            </InALineLeft>
-          );
-        } else if (value === 1) {
-          return (
-            <InALineLeft>
-              <SmallButton onClick={() => { this.onSellOptions(row) }}><img src={require('../img/sell.png')} style={{ marginRight: "10px" }} />Sell</SmallButton>
-              <SmallButton onClick={() => { this.onExerciseOptions(row) }}><img src={require('../img/transfer.png')} style={{ marginRight: "10px" }} />Exercise</SmallButton>
-            </InALineLeft>
-          );
-        } else {
-          return (
-            <InALineLeft>
-              <SmallButton><img src={require('../img/buy.png')} style={{ marginRight: "10px" }} />Deposit</SmallButton>
-              <SmallButton><img src={require('../img/sell.png')} style={{ marginRight: "10px" }} />Withdraw</SmallButton>
-              <SmallButton onClick={() => { this.onTransfer(row.assets) }}><img src={require('../img/transfer.png')} style={{ marginRight: "10px" }} />Transfer</SmallButton>
-            </InALineLeft>
-          );
+  getColumn = () => {
+    const intl = this.props.intl;
+
+    const column = [
+      {
+        title: 'ID',
+        dataIndex: "id",
+        key: 'id',
+        visible: false,
+      },
+      {
+        title: intl.messages['table.assets'],
+        dataIndex: "assets",
+        key: 'assets',
+      },
+      {
+        title: intl.messages['table.balance'],
+        dataIndex: "balance",
+        key: 'balance',
+      },
+      {
+        title: '$ USD',
+        dataIndex: "usd",
+        key: 'usd',
+      },
+      {
+        title: intl.messages['table.currentReturn'],
+        dataIndex: "currentReturn",
+        key: 'currentReturn',
+      },
+      {
+        title: intl.messages['table.expiration'],
+        dataIndex: "expiration",
+        key: 'expiration',
+      },
+      {
+        title: intl.messages['table.operation'],
+        dataIndex: "operation",
+        key: 'operation',
+        render: (value, row) => {
+          if (value === 0) {
+            return (
+              <InALineLeft>
+                <SmallButton><img src={require('../img/buy.png')} style={{ marginRight: "10px" }} />{intl.messages['assets.buy']}</SmallButton>
+                <SmallButton><img src={require('../img/sell.png')} style={{ marginRight: "10px" }} />{intl.messages['assets.sell']}</SmallButton>
+                <SmallButton onClick={() => { this.onTransfer(row.assets) }}><img src={require('../img/transfer.png')} style={{ marginRight: "10px" }} />{intl.messages['assets.transfer']}</SmallButton>
+              </InALineLeft>
+            );
+          } else if (value === 1) {
+            return (
+              <InALineLeft>
+                <SmallButton onClick={() => { this.onSellOptions(row) }}><img src={require('../img/sell.png')} style={{ marginRight: "10px" }} />Sell</SmallButton>
+                <SmallButton onClick={() => { this.onExerciseOptions(row) }}><img src={require('../img/transfer.png')} style={{ marginRight: "10px" }} />Exercise</SmallButton>
+              </InALineLeft>
+            );
+          } else {
+            return (
+              <InALineLeft>
+                <SmallButton><img src={require('../img/buy.png')} style={{ marginRight: "10px" }} />Deposit</SmallButton>
+                <SmallButton><img src={require('../img/sell.png')} style={{ marginRight: "10px" }} />Withdraw</SmallButton>
+                <SmallButton onClick={() => { this.onTransfer(row.assets) }}><img src={require('../img/transfer.png')} style={{ marginRight: "10px" }} />Transfer</SmallButton>
+              </InALineLeft>
+            );
+          }
         }
-      }
-    },
-  ]
+      },
+    ]
+
+    return column;
+  }
+
+
 
   componentDidMount() {
     this.updateInfo(true);
@@ -181,14 +191,15 @@ class Assets extends Component {
 
   onSellOptions = (info) => {
     // console.log('onSellOptions', info);
+    const intl = this.props.intl;
     let id = info.id;
     if (id === -1) {
-      message.error("Sorry, can't find options id by name");
+      message.error(intl.messages['msg.cannotSell']);
     }
     getOptionsLimitTimeById(id).then((ret) => {
       // console.log('getOptionsLimitTimeById', ret);
       if (Number(ret) > Date.now() / 1000) {
-        message.warn("Can not sell options in 1 hour after buy.");
+        message.warn();
         return;
       }
 
@@ -201,18 +212,19 @@ class Assets extends Component {
   }
 
   onSellOptionsOk = () => {
+    const intl = this.props.intl;
     if (Number(this.state.optionsBalance) < Number(this.state.optionsAmount)) {
-      message.warn("Sorry, balance is not enough");
+      message.warn(intl.messages['msg.balanceNotEnough']);
       return;
     }
 
     if (!this.props.selectedAccount) {
-      message.warn("Please connect wallet first");
+      message.warn(intl.messages['msg.selectAddress']);
       return;
     }
 
     if (this.props.selectedAccount.get("isLocked")) {
-      message.info("Please unlock your wallet first");
+      message.info(intl.messages['msg.unlock']);
       return;
     }
 
@@ -230,14 +242,14 @@ class Assets extends Component {
 
     sellOptions(this.state.chainType, this.state.optionsID, this.state.optionsAmount, this.props.selectedWallet, address).then((ret) => {
       if (ret) {
-        message.info("Sell options success");
+        message.info(intl.messages['msg.sellSuccess']);
         // this.setState({ optionsID: -1, sellOptionsModalVisible: false, optionsAmount: '', optionsName: '', optionsOperateLoading: false });
         updateOrderStatus(time, "Success");
         if (this.props.update) {
           this.props.update();
         }
       } else {
-        message.error("Sell options failed");
+        message.error(intl.messages['msg.sellFailed']);
         // this.setState({ optionsOperateLoading: false });
         updateOrderStatus(time, "Failed");
         if (this.props.update) {
@@ -264,6 +276,7 @@ class Assets extends Component {
 
   onExerciseOptions = (info) => {
     // console.log('onExerciseOptions', info);
+    const intl = this.props.intl;
     let id = info.id;
     if (id === -1) {
       message.error("Sorry, can't find options id by name");
@@ -272,7 +285,7 @@ class Assets extends Component {
     getOptionsLimitTimeById(id).then((ret) => {
       // console.log('getOptionsLimitTimeById', ret);
       if (Number(ret) > Date.now() / 1000) {
-        message.warn("Can not exercise options in 1 hour after buy.");
+        message.warn(intl.messages['msg.cannotExercise']);
         return;
       }
 
@@ -283,18 +296,19 @@ class Assets extends Component {
   }
 
   onExerciseOk = () => {
+    const intl = this.props.intl;
     if (Number(this.state.optionsBalance) < Number(this.state.optionsAmount)) {
-      message.warn("Sorry, balance is not enough");
+      message.warn(intl.messages['msg.balanceNotEnough']);
       return;
     }
 
     if (!this.props.selectedAccount) {
-      message.warn("Please connect wallet first");
+      message.warn(intl.messages['msg.selectAddress']);
       return;
     }
 
     if (this.props.selectedAccount.get("isLocked")) {
-      message.info("Please unlock your wallet first");
+      message.info(intl.messages['msg.unlock']);
       return;
     }
 
@@ -306,14 +320,14 @@ class Assets extends Component {
 
     exerciseOptions(this.state.chainType, this.state.optionsID, this.state.optionsAmount, this.props.selectedWallet, address).then((ret) => {
       if (ret) {
-        message.info("Exercise options success");
+        message.info(intl.messages['msg.exerciseSuccess']);
         updateOrderStatus(time, "Success");
         if (this.props.update) {
           this.props.update();
         }
         // this.setState({ optionsID: -1, exerciseOptionsModalVisible: false, optionsAmount: '', optionsName: '', optionsOperateLoading: false });
       } else {
-        message.error("Exercise options failed");
+        message.error(intl.messages['msg.exerciseFailed']);
         updateOrderStatus(time, "Failed");
         if (this.props.update) {
           this.props.update();
@@ -358,18 +372,19 @@ class Assets extends Component {
   }
 
   onTransferOk = () => {
+    const intl = this.props.intl;
     if (Number(this.state.transferBalance) < Number(this.state.transferAmount)) {
-      message.warn("Sorry, balance is not enough");
+      message.warn(intl.messages['msg.balanceNotEnough']);
       return;
     }
 
     if (!this.props.selectedAccount) {
-      message.warn("Please connect wallet first");
+      message.warn(intl.messages['msg.selectAddress']);
       return;
     }
 
     if (this.props.selectedAccount.get("isLocked")) {
-      message.info("Please unlock your wallet first");
+      message.info(intl.messages['msg.unlock']);
       return;
     }
 
@@ -391,10 +406,10 @@ class Assets extends Component {
 
     transferToken(this.state.chainType, this.state.transferToken, this.state.transferTo, this.state.transferAmount, this.props.selectedWallet, address).then((ret) => {
       if (ret) {
-        message.info("Transfer success");
+        message.info(intl.messages['msg.transferSuccess']);
         updateTransferStatus(time, 'Success');
       } else {
-        message.error("Transfer failed");
+        message.error(intl.messages['msg.transferFailed']);
         updateTransferStatus(time, 'Failed');
         // this.setState({ optionsOperateLoading: false });
       }
@@ -408,7 +423,7 @@ class Assets extends Component {
       if (this.props.update) {
         this.props.update();
       }
-        // this.setState({ optionsOperateLoading: false });
+      // this.setState({ optionsOperateLoading: false });
     });
 
     insertTransferHistory(address, time, token, this.state.transferTo, this.state.transferAmount, 'Pending');
@@ -613,6 +628,7 @@ class Assets extends Component {
   }
 
   render() {
+    const intl = this.props.intl;
     return (
       <Center>
         <Spin spinning={this.state.loading} size="large">
@@ -635,20 +651,20 @@ class Assets extends Component {
                         <Row>
                           <InALineAround style={{ width: "100%" }}>
                             <div>
-                              <MyStatistic style={{ position: "relative", left: "34px" }} coldColor value={this.getPanelData()[0].usd} suffix="$" title={"Value"} />
+                              <MyStatistic style={{ position: "relative", left: "34px" }} coldColor value={this.getPanelData()[0].usd} suffix="$" title={intl.messages['assets.value']} />
                             </div>
                             <VLine />
                             <div>
-                              <MyStatistic style={{ position: "relative", left: "-38px" }} value={this.getPanelData()[0].balance} title={"Balance"} />
+                              <MyStatistic style={{ position: "relative", left: "-38px" }} value={this.getPanelData()[0].balance} title={intl.messages['assets.balance']} />
                             </div>
                           </InALineAround>
                         </Row>
                         <Row><HLine /></Row>
                         <Row>
                           <InALineAround style={{ width: "100%" }}>
-                            <MyButton><img src={require('../img/buy.png')} style={{ marginRight: "10px" }} />Buy</MyButton>
-                            <MyButton><img src={require('../img/sell.png')} style={{ marginRight: "10px" }} />Sell</MyButton>
-                            <MyButton><img src={require('../img/transfer.png')} style={{ marginRight: "10px" }} />Transfer</MyButton>
+                            <MyButton><img src={require('../img/buy.png')} style={{ marginRight: "10px" }} />{intl.messages['assets.buy']}</MyButton>
+                            <MyButton><img src={require('../img/sell.png')} style={{ marginRight: "10px" }} />{intl.messages['assets.sell']}</MyButton>
+                            <MyButton><img src={require('../img/transfer.png')} style={{ marginRight: "10px" }} />{intl.messages['assets.transfer']}</MyButton>
                           </InALineAround>
                         </Row>
                       </Box2>
@@ -665,20 +681,20 @@ class Assets extends Component {
                         <Row>
                           <InALineAround style={{ width: "100%" }}>
                             <div>
-                              <MyStatistic style={{ position: "relative", left: "34px" }} coldColor value={this.getPanelData()[1].usd.replace('$', '')} suffix="$" title={"Value"} />
+                              <MyStatistic style={{ position: "relative", left: "34px" }} coldColor value={this.getPanelData()[1].usd.replace('$', '')} suffix="$" title={intl.messages['assets.value']} />
                             </div>
                             <VLine />
                             <div>
-                              <MyStatistic style={{ position: "relative", left: "-38px" }} value={this.getPanelData()[1].balance} title={"Balance"} />
+                              <MyStatistic style={{ position: "relative", left: "-38px" }} value={this.getPanelData()[1].balance} title={intl.messages['assets.balance']} />
                             </div>
                           </InALineAround>
                         </Row>
                         <Row><HLine /></Row>
                         <Row>
                           <InALineAround style={{ width: "100%" }}>
-                            <MyButton><img src={require('../img/buy.png')} style={{ marginRight: "10px" }} />Buy</MyButton>
-                            <MyButton><img src={require('../img/sell.png')} style={{ marginRight: "10px" }} />Sell</MyButton>
-                            <MyButton onClick={() => { this.onTransfer('FNX(WRC20)') }}><img src={require('../img/transfer.png')} style={{ marginRight: "10px" }} />Transfer</MyButton>
+                            <MyButton><img src={require('../img/buy.png')} style={{ marginRight: "10px" }} />{intl.messages['assets.buy']}</MyButton>
+                            <MyButton><img src={require('../img/sell.png')} style={{ marginRight: "10px" }} />{intl.messages['assets.sell']}</MyButton>
+                            <MyButton onClick={() => { this.onTransfer('FNX(WRC20)') }}><img src={require('../img/transfer.png')} style={{ marginRight: "10px" }} />{intl.messages['assets.transfer']}</MyButton>
                           </InALineAround>
                         </Row>
                       </Box2>
@@ -689,34 +705,34 @@ class Assets extends Component {
                 )
             }
 
-            <AssetsTable columns={this.column} dataSource={this.getTableData()} />
+            <AssetsTable columns={this.getColumn()} dataSource={this.getTableData()} />
             {
               this.props.mini
                 ? null
                 : (<div>
                   <Header2>
                     <InALineLeft>
-                      <TabButtonSub onClick={()=>{this.setState({historySelect: 0})}} select={this.state.historySelect === 0}>Order History<MiddleLine visible={this.state.historySelect === 0} style={{ top: "30px", left: "-82px" }} /></TabButtonSub>
-                      <TabButtonSub onClick={()=>{this.setState({historySelect: 1})}} select={this.state.historySelect === 1}>FPT History<MiddleLine visible={this.state.historySelect === 1} style={{ top: "30px", left: "-82px" }} /></TabButtonSub>
-                      <TabButtonSub onClick={()=>{this.setState({historySelect: 2})}} select={this.state.historySelect === 2}>Transfer History<MiddleLine visible={this.state.historySelect === 2} style={{ top: "30px", left: "-82px" }} /></TabButtonSub>
+                      <TabButtonSub onClick={() => { this.setState({ historySelect: 0 }) }} select={this.state.historySelect === 0}>{intl.messages['assets.orderHistory']}<MiddleLine visible={this.state.historySelect === 0} style={{ top: "30px", left: "-82px" }} /></TabButtonSub>
+                      <TabButtonSub onClick={() => { this.setState({ historySelect: 1 }) }} select={this.state.historySelect === 1}>{intl.messages['assets.FPTHistory']}<MiddleLine visible={this.state.historySelect === 1} style={{ top: "30px", left: "-82px" }} /></TabButtonSub>
+                      <TabButtonSub onClick={() => { this.setState({ historySelect: 2 }) }} select={this.state.historySelect === 2}>{intl.messages['assets.transferHistory']}<MiddleLine visible={this.state.historySelect === 2} style={{ top: "30px", left: "-82px" }} /></TabButtonSub>
                     </InALineLeft>
                   </Header2>
                   <SingleLine />
                   <DarkContainer>
                     {
                       this.state.historySelect === 0
-                      ?<HistoryTable columns={orderHistoryColumn} dataSource={getOrderHistory(this.props.selectedAccount ? this.props.selectedAccount.get('address') : '')} />
-                      : null
+                        ? <HistoryTable columns={getOrderHistoryColumn(intl)} dataSource={getOrderHistory(this.props.selectedAccount ? this.props.selectedAccount.get('address') : '')} />
+                        : null
                     }
                     {
                       this.state.historySelect === 1
-                      ?<HistoryTable columns={collateralHistoryColumn} dataSource={getCollateralHistory(this.props.selectedAccount ? this.props.selectedAccount.get('address') : '')} />
-                      : null
+                        ? <HistoryTable columns={getCollateralHistoryColumn(intl)} dataSource={getCollateralHistory(this.props.selectedAccount ? this.props.selectedAccount.get('address') : '')} />
+                        : null
                     }
                     {
                       this.state.historySelect === 2
-                      ?<HistoryTable columns={transferHistoryColumn} dataSource={getTransferHistory(this.props.selectedAccount ? this.props.selectedAccount.get('address') : '')} />
-                      : null
+                        ? <HistoryTable columns={getTransferHistoryColumn(intl)} dataSource={getTransferHistory(this.props.selectedAccount ? this.props.selectedAccount.get('address') : '')} />
+                        : null
                     }
                   </DarkContainer>
                 </div>)
@@ -824,4 +840,4 @@ export default withRouter(connect(state => {
     networkId: state.WalletReducer.getIn(['accounts', selectedAccountID, 'networkId']),
     selectedAccountID,
   }
-})(Assets));
+})(injectIntl(Assets)));

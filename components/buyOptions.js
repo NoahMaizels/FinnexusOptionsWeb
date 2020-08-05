@@ -110,6 +110,7 @@ class BuyOptions extends Component {
     expiration = expiration * (3600 * 24);
     let prices = getCoinPrices();
     this.setState({ buyLoading: true });
+    const intl = this.props.intl;
     getOptionsPrice(prices["raw" + this.props.baseToken], this.state.strikePrice, expiration, this.props.baseToken === "BTC" ? 1 : 2, this.state.optType).then((ret) => {
       // console.log(ret);
       let currencyToPay = this.state.currencyToPay === "2" ? "WAN" : "FNX";
@@ -118,20 +119,20 @@ class BuyOptions extends Component {
       let payAmount = value / prices[currencyToPay];
       let chainType = this.state.currencyToPay === "1" ? "eth" : "wan";
       if (!this.props.selectedAccount) {
-        message.warn("Please select address");
+        message.warn(intl.messages['msg.selectAddress']);
         this.setState({ buyLoading: false });
         return;
       }
 
       if (this.props.selectedAccount.get("isLocked")) {
-        message.info("Please unlock your wallet first");
+        message.info(intl.messages['msg.unlock']);
         this.setState({ buyLoading: false });
         return;
       }
 
       let col = getCollateralInfo();
       if (value > col.availableCollateral / col.lowestPercent * 100) {
-        message.warn("Sorry, Collateral not enough.");
+        message.warn(intl.messages['msg.colNotEnough']);
         this.setState({ buyLoading: false });
         return;
       }
@@ -148,18 +149,18 @@ class BuyOptions extends Component {
         this.props.baseToken === "BTC" ? 1 : 2,
         expiration, this.state.amount, this.state.optType, this.props.selectedWallet, address).then((ret) => {
           if (ret) {
-            message.info("Buy success");
+            message.info(intl.messages['msg.buySuccess']);
             // this.setState({ buyLoading: false, buyModalVisible: false });
             updateOrderStatus(time, 'Success');
           } else {
-            message.info("Sorry, buy failed");
+            message.info(intl.messages['msg.buyFailed']);
             // this.setState({ buyLoading: false });
             updateOrderStatus(time, 'Failed');
           }
           this.props.update();
         }).catch((e) => {
           console.log(e);
-          message.error("Sorry, buy failed. " + e.message);
+          message.error(intl.messages['msg.buyFailed'] + e.message);
           // this.setState({ buyLoading: false });
           updateOrderStatus(time, 'Failed');
           this.props.update();
@@ -171,7 +172,7 @@ class BuyOptions extends Component {
 
     }).catch((e) => {
       console.log(e);
-      message.error("Sorry, get price failed. " + e.message);
+      message.error(intl.messages['msg.getPriceFailed'] + e.message);
       this.setState({ buyLoading: false });
     });
 

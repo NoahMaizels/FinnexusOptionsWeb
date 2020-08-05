@@ -24,6 +24,8 @@ import {
   ExclamationCircleOutlined
 } from '@ant-design/icons';
 
+import { injectIntl } from 'umi';
+
 const { confirm } = Modal;
 
 class CollateralInfo extends Component {
@@ -119,9 +121,11 @@ class CollateralInfo extends Component {
     axios.get('https://wandora.finnexus.app/api/returns').then((resp) => {
       let ret = resp.data;
 
-      this.setState({ monthReturn: beautyNumber(ret.monthReturn, 4), 
-        monthAPR: beautyNumber(ret.monthAPR * 100, 2), 
-        yearAPR: beautyNumber(ret.APR * 100, 2) });
+      this.setState({
+        monthReturn: beautyNumber(ret.monthReturn, 4),
+        monthAPR: beautyNumber(ret.monthAPR * 100, 2),
+        yearAPR: beautyNumber(ret.APR * 100, 2)
+      });
     }).catch(e => console.log(e));
   }
 
@@ -174,23 +178,24 @@ class CollateralInfo extends Component {
   }
 
   depositOk = () => {
+    const intl = this.props.intl;
     if (Number(this.state.amountToPay) >= Number(this.state.currencyBalance)) {
-      message.warn("Balance not enough");
+      message.warn(intl.messages['msg.balanceNotEnough']);
       return;
     }
 
     if (!this.props.selectedAccount) {
-      message.warn("Please select account first.");
+      message.warn(intl.messages['msg.selectAddress']);
       return;
     }
 
     if (this.props.selectedAccount ? this.props.selectedAccount.get("isLocked") : false) {
-      message.info("Please unlock your wallet first");
+      message.info(intl.messages['msg.unlock']);
       return;
     }
 
     if (this.state.amountToPay === 0) {
-      message.warn("Please fill amount");
+      message.warn(intl.messages['msg.fillAmount']);
       return;
     }
 
@@ -201,7 +206,7 @@ class CollateralInfo extends Component {
     deposit(this.props.chainType, this.state.amountToPay, this.state.currencyToPay, this.props.selectedWallet, this.props.selectedAccount.get('address')).then((ret) => {
       if (ret) {
         // this.setState({ depositVisible: false, loading: false, amountToPay: '' });
-        message.info("Deposit success");
+        message.info(intl.messages['msg.depositSuccess']);
         this.updateNewInfo();
         updateCollateralStatus(time, 'Success');
       } else {
@@ -213,7 +218,7 @@ class CollateralInfo extends Component {
       }
     }).catch((e) => {
       console.log(e);
-      message.warn("Sorry, deposit failed:" + e.message);
+      message.warn(intl.messages['msg.depositFailed'] + e.message);
       // this.setState({ loading: false });
       updateCollateralStatus(time, 'Failed');
       if (this.props.update) {
@@ -238,19 +243,20 @@ class CollateralInfo extends Component {
   }
 
   withdrawOk = () => {
+    const intl = this.props.intl;
     if (Number(this.state.amountToPay) > Number(this.state.balance)) {
-      message.warn("Balance not enough");
+      message.warn(intl.messages['msg.balanceNotEnough']);
       // console.log(this.state.amountToPay, this.state.balance);
       return;
     }
 
     if (this.state.amountToPay === 0) {
-      message.warn("Please fill amount");
+      message.warn(intl.messages['msg.fillAmount']);
       return;
     }
 
     if (this.props.selectedAccount ? this.props.selectedAccount.get("isLocked") : false) {
-      message.info("Please unlock your wallet first");
+      message.info(intl.messages['msg.unlock']);
       return;
     }
 
@@ -261,10 +267,10 @@ class CollateralInfo extends Component {
       if (ret) {
         // this.setState({ withdrawVisible: false, loading: false, amountToPay: '' });
         if (this.state.amountToPay < this.state.outOfWithdraw) {
-          message.info("Withdraw success");
+          message.info(intl.messages['msg.withdrawSuccess']);
           updateCollateralStatus(time, "Success");
         } else {
-          message.info("Withdraw in queue");
+          message.info(intl.messages['msg.withdrawInQueue']);
           updateCollateralStatus(time, "In queue");
         }
         this.updateNewInfo();
@@ -280,7 +286,7 @@ class CollateralInfo extends Component {
       }
     }).catch((e) => {
       console.log(e);
-      message.warn("Sorry, withdraw failed:" + e.message);
+      message.warn(intl.messages['msg.withdrawFailed'] + e.message);
       // this.setState({ loading: false });
       updateCollateralStatus(time, "Failed");
       if (this.props.update) {
@@ -318,18 +324,19 @@ class CollateralInfo extends Component {
   }
 
   redeemMinedCoinToken = () => {
+    const intl = this.props.intl;
     if (!this.props.selectedAccount) {
-      message.warn("Please select address first");
+      message.warn(intl.messages['msg.selectAddress']);
       return;
     }
 
     if (Number(this.state.minedWan) === 0 && Number(this.state.minedFnx) === 0) {
-      message.warn("Sorry, no mined coin");
+      message.warn(intl.messages['msg.noMined']);
       return;
     }
 
     if (this.props.selectedAccount ? this.props.selectedAccount.get("isLocked") : false) {
-      message.info("Please unlock your wallet first");
+      message.info(intl.messages['msg.unlock']);
       return;
     }
 
@@ -338,10 +345,10 @@ class CollateralInfo extends Component {
     redeemMinerCoin(this.props.chainType, '0x0000000000000000000000000000000000000000',
       this.state.minedWan, this.props.selectedWallet, this.props.selectedAccount.get('address')).then((ret) => {
         if (ret) {
-          message.info('Redeem mined WAN success');
+          message.info(intl.messages['msg.redeemMinedWANSuccess']);
           updateCollateralStatus(time, 'Success');
         } else {
-          message.info('Redeem mined WAN failed');
+          message.info(intl.messages['msg.redeemMinedWANFailed']);
           updateCollateralStatus(time, 'Failed');
         }
 
@@ -373,10 +380,10 @@ class CollateralInfo extends Component {
       redeemMinerCoin(this.props.chainType, fnxTokenAddress,
         this.state.minedFnx, this.props.selectedWallet, this.props.selectedAccount.get('address')).then((ret) => {
           if (ret) {
-            message.info('Redeem mined FNX success');
+            message.info(intl.messages['msg.redeemMinedFNXSuccess']);
             updateCollateralStatus(time, 'Success');
           } else {
-            message.info('Redeem mined FNX failed');
+            message.info(intl.messages['msg.redeemMinedFNXFailed']);
             updateCollateralStatus(time, 'Failed');
           }
           if (this.props.update) {
@@ -404,11 +411,12 @@ class CollateralInfo extends Component {
   }
 
   render() {
+    const intl = this.props.intl;
     return (
       <div style={{ background: "#1A1C2B", padding: "20px" }}>
         <InALineLeft>
           <VerticalLine style={{ marginLeft: "20px" }} />
-          <BigTitle>Pool Value</BigTitle>
+          <BigTitle>{intl.messages['col.poolValue']}</BigTitle>
         </InALineLeft>
         <AreaChart
           padding={[30, 60, 50, 60]}
@@ -431,43 +439,43 @@ class CollateralInfo extends Component {
         <Space />
         <Spin spinning={this.state.spinning} size="large">
           <Row gutter={[24, 24]}>
-            <Col span={6}><Box><MyStatistic coldColor title="Collateral occupied percent" value={this.state.totalSupply > 0 ? beautyNumber(this.state.usedValue * this.state.lowestPercent / 100 / this.state.totalValue * 100, 2) : 0} suffix="%" /><ShortLine coldColor /></Box></Col>
-            <Col span={6}><Box><TwoStatics coldColor title="Farming amount per day" value={this.state.fnxMine + ' FNX / ' + this.state.wanMine + ' WAN'} suffix="" /><ShortLine coldColor /></Box></Col>
-            <Col span={6}><Box><MyStatistic coldColor title="Net value for total FPT" value={beautyNumber(this.state.totalValue, 4)} suffix="$" /><ShortLine coldColor /></Box></Col>
-            <Col span={6}><Box><MyStatistic coldColor title="Net value for each FPT" value={beautyNumber(this.state.sharePrice, 4)} suffix="$" /><ShortLine coldColor /></Box></Col>
-            <Col span={6}><Box><MyStatistic title="Total amount of FPT" value={beautyNumber(this.state.totalSupply, 4)} /><ShortLine /></Box></Col>
-            <Col span={6}><Box><MyStatistic title="Each FPT return in this month" value={this.state.monthReturn} suffix="$" /><ShortLine /></Box></Col>
-            <Col span={6}><Box><MyStatistic title="APR in this month" value={this.state.monthAPR} suffix="%" /><ShortLine /></Box></Col>
-            <Col span={6}><Box><MyStatistic title="APR in this year" value={this.state.yearAPR} suffix="%" /><ShortLine /></Box></Col>
-            <Col span={6}><Box><MyStatistic coldColor title="Lowest collateral percent" value={this.state.lowestPercent} suffix="%" /><ShortLine coldColor /></Box></Col>
-            <Col span={6}><Box><MyStatistic coldColor title="FPT out of collateral" value={beautyNumber(this.state.outOfWithdraw, 2)} suffix="$" /><ShortLine coldColor /></Box></Col>
-            <Col span={6}><Box><MyStatistic coldColor title="Withdrawing value in queue" value={beautyNumber(this.state.lockedValue, 2)} suffix="$" /><ShortLine coldColor /></Box></Col>
+            <Col span={6}><Box><MyStatistic coldColor title={intl.messages['col.collateralOccupiedPercent']} value={this.state.totalSupply > 0 ? beautyNumber(this.state.usedValue * this.state.lowestPercent / 100 / this.state.totalValue * 100, 2) : 0} suffix="%" /><ShortLine coldColor /></Box></Col>
+            <Col span={6}><Box><TwoStatics coldColor title={intl.messages['col.farmingAmountPerDay']} value={this.state.fnxMine + ' FNX / ' + this.state.wanMine + ' WAN'} suffix="" /><ShortLine coldColor /></Box></Col>
+            <Col span={6}><Box><MyStatistic coldColor title={intl.messages['col.netValueForTotalFPT']} value={beautyNumber(this.state.totalValue, 4)} suffix="$" /><ShortLine coldColor /></Box></Col>
+            <Col span={6}><Box><MyStatistic coldColor title={intl.messages['col.netValueForEachFPT']} value={beautyNumber(this.state.sharePrice, 4)} suffix="$" /><ShortLine coldColor /></Box></Col>
+            <Col span={6}><Box><MyStatistic title={intl.messages['col.totalAmountOfFPT']} value={beautyNumber(this.state.totalSupply, 4)} /><ShortLine /></Box></Col>
+            <Col span={6}><Box><MyStatistic title={intl.messages['col.eachFPTReturnInThisMonth']} value={this.state.monthReturn} suffix="$" /><ShortLine /></Box></Col>
+            <Col span={6}><Box><MyStatistic title={intl.messages['col.APRInThisMonth']} value={this.state.monthAPR} suffix="%" /><ShortLine /></Box></Col>
+            <Col span={6}><Box><MyStatistic title={intl.messages['col.APRInThisYear']} value={this.state.yearAPR} suffix="%" /><ShortLine /></Box></Col>
+            <Col span={6}><Box><MyStatistic coldColor title={intl.messages['col.LowestCollateralPercent']} value={this.state.lowestPercent} suffix="%" /><ShortLine coldColor /></Box></Col>
+            <Col span={6}><Box><MyStatistic coldColor title={intl.messages['col.FPTOutOfCollateral']} value={beautyNumber(this.state.outOfWithdraw, 2)} suffix="$" /><ShortLine coldColor /></Box></Col>
+            <Col span={6}><Box><MyStatistic coldColor title={intl.messages['col.WithdrawingValueInQueue']} value={beautyNumber(this.state.lockedValue, 2)} suffix="$" /><ShortLine coldColor /></Box></Col>
           </Row>
           <SingleLine />
           <Header2>
             <InALineLeft>
-              <Title>My Pool</Title>
+              <Title>{intl.messages['col.myPool']}</Title>
               <MyButton onClick={() => {
                 this.getBalance();
                 this.setState({ depositVisible: true });
-              }}>Deposit</MyButton>
+              }}>{intl.messages['col.deposit']}</MyButton>
               <MyButton onClick={() => {
                 this.setState({ withdrawVisible: true });
-              }}>Withdraw</MyButton>
+              }}>{intl.messages['col.withdraw']}</MyButton>
               <MyButton onClick={() => {
                 this.setState({ claimVisible: true });
-              }}>Claim return</MyButton>
+              }}>{intl.messages['col.claimReturn']}</MyButton>
             </InALineLeft>
           </Header2>
           <SingleLine />
           <SmallSpace />
           <Row gutter={[24, 40]}>
-            <Col span={6}><Box><MyStatistic title="My FPT" value={beautyNumber(this.state.balance, 4)} /><ShortLine /></Box></Col>
-            <Col span={6}><Box><MyStatistic title="Percentage of the pool" value={this.state.totalSupply > 0 ? beautyNumber(this.state.balance / this.state.totalSupply * 100, 4) : 0} suffix="%" /><ShortLine /></Box></Col>
-            <Col span={6}><Box><MyStatistic title="Current value" value={beautyNumber(this.state.balance * this.state.sharePrice, 4)} suffix="$" /><ShortLine /></Box></Col>
+            <Col span={6}><Box><MyStatistic title={intl.messages['col.myFPT']} value={beautyNumber(this.state.balance, 4)} /><ShortLine /></Box></Col>
+            <Col span={6}><Box><MyStatistic title={intl.messages['col.percentageOfThePool']} value={this.state.totalSupply > 0 ? beautyNumber(this.state.balance / this.state.totalSupply * 100, 4) : 0} suffix="%" /><ShortLine /></Box></Col>
+            <Col span={6}><Box><MyStatistic title={intl.messages['col.currentValue']} value={beautyNumber(this.state.balance * this.state.sharePrice, 4)} suffix="$" /><ShortLine /></Box></Col>
             <Col span={6}>
               <Tooltip title={this.state.minedFnx + ' (FNX) ' + this.state.minedWan + ' (WAN)'}>
-                <Box><TwoStatics title="Farming return" value={beautyNumber(this.state.minedFnx, 2) + " FNX / " + beautyNumber(this.state.minedWan, 2) + " WAN"} suffix="" /><ShortLine /></Box>
+                <Box><TwoStatics title={intl.messages['col.farmingReturn']} value={beautyNumber(this.state.minedFnx, 2) + " FNX / " + beautyNumber(this.state.minedWan, 2) + " WAN"} suffix="" /><ShortLine /></Box>
                 <MyToolTip />
               </Tooltip>
             </Col>
@@ -546,4 +554,4 @@ export default withRouter(connect(state => {
     networkId: state.WalletReducer.getIn(['accounts', selectedAccountID, 'networkId']),
     selectedAccountID,
   }
-})(CollateralInfo));
+})(injectIntl(CollateralInfo)));

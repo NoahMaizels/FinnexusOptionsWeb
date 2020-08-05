@@ -82,21 +82,21 @@ export const TabButton = styled.div`
   }
 `;
 
-export const renderSelectWalletModal = (visible, handleCancel) => {
+export const renderSelectWalletModal = (visible, handleCancel, intl) => {
   return (
     <Modal
-      title="CONNECT WALLET"
+      title={intl.messages['header.connectWallet']}
       visible={visible}
       onOk={handleCancel}
       onCancel={handleCancel}
       footer={null}
     >
       <InALine>
-        <WalletTitle>Wanchain Wallet:</WalletTitle>
+        <WalletTitle>{intl.messages['wallet.wanWallet']}</WalletTitle>
         <WalletBt><WalletButton /></WalletBt>
       </InALine>
       <InALine>
-        <WalletTitle>Ethereum Wallet:</WalletTitle>
+        <WalletTitle>{intl.messages['wallet.ethWallet']}</WalletTitle>
         <WalletBt><EthWalletButton /></WalletBt>
       </InALine>
     </Modal>
@@ -445,7 +445,7 @@ export const SmallButton = styled(MyButton)`
 
 //----------
 
-export const renderDepositModal = (chainType, visible, handleCancel, handleOk, 
+export const renderDepositModal = (chainType, visible, handleCancel, handleOk,
   amountToDeposit, amountChange, currencyToPay, currencyChange, balance, loading, fee, locked) => {
   // console.log('fee:', fee);
   let payToken = currencyToPay === "0" ? "WAN" : "FNX";
@@ -463,21 +463,21 @@ export const renderDepositModal = (chainType, visible, handleCancel, handleOk,
           <WalletDiv>
             {
               chainType === 'wan'
-              ? <WalletButtonLong />
-              : <EthWalletButton />
+                ? <WalletButtonLong />
+                : <EthWalletButton />
             }
             {
               locked
-              ? <Locked />
-              : null
+                ? <Locked />
+                : null
             }
           </WalletDiv>
         </Row>
         <Row>
           <p>Currency to pay</p>
-          <RadioGroup 
-          value={currencyToPay} 
-          onChange={currencyChange} buttonStyle="solid">
+          <RadioGroup
+            value={currencyToPay}
+            onChange={currencyChange} buttonStyle="solid">
             <RadioButton value="0">WAN</RadioButton>
             {
               chainType === 'wan'
@@ -495,15 +495,15 @@ export const renderDepositModal = (chainType, visible, handleCancel, handleOk,
             value={amountToDeposit}
             onChange={amountChange}
           />
-          <p style={{opacity: "0.6"}}>* Your balance is: {balance + " " + payToken} </p>
-          <p style={{opacity: "0.6"}}>* Contains {fee.addColFee*100 + "%"} fee. </p>
+          <p style={{ opacity: "0.6" }}>* Your balance is: {balance + " " + payToken} </p>
+          <p style={{ opacity: "0.6" }}>* Contains {fee.addColFee * 100 + "%"} fee. </p>
         </Row>
       </CenterAlign>
     </MyModal>
   );
 };
 
-export const renderWithdrawModal = (chainType, visible, handleCancel, handleOk, 
+export const renderWithdrawModal = (chainType, visible, handleCancel, handleOk,
   amountToDeposit, amountChange, currencyToPay, currencyChange, balance, loading, fee, locked) => {
   let payToken = "FPT";
   return (
@@ -520,21 +520,21 @@ export const renderWithdrawModal = (chainType, visible, handleCancel, handleOk,
           <WalletDiv>
             {
               chainType === 'wan'
-              ? <WalletButtonLong />
-              : <EthWalletButton />
+                ? <WalletButtonLong />
+                : <EthWalletButton />
             }
             {
               locked
-              ? <Locked />
-              : null
+                ? <Locked />
+                : null
             }
           </WalletDiv>
         </Row>
         <Row>
           <p>Preference of currency</p>
-          <RadioGroup 
-          value={currencyToPay} 
-          onChange={currencyChange} buttonStyle="solid">
+          <RadioGroup
+            value={currencyToPay}
+            onChange={currencyChange} buttonStyle="solid">
             <RadioButton value="0">WAN</RadioButton>
             {
               chainType === 'wan'
@@ -547,21 +547,21 @@ export const renderWithdrawModal = (chainType, visible, handleCancel, handleOk,
           <SmallSpace />
           <p>Amount to withdraw</p>
           <AmountInput suffix={
-             <YellowText>{payToken}</YellowText>
-            } 
+            <YellowText>{payToken}</YellowText>
+          }
             placeholder={"Enter " + payToken + " amount"}
             value={amountToDeposit}
             onChange={amountChange}
           />
-          <p style={{opacity: "0.6"}}>* Your FPT balance is: {beautyNumber(balance, 8) + " "} </p>
-          <p style={{opacity: "0.6"}}>* Contains {fee.redeemColFee*100 + "%"} fee.</p>
+          <p style={{ opacity: "0.6" }}>* Your FPT balance is: {beautyNumber(balance, 8) + " "} </p>
+          <p style={{ opacity: "0.6" }}>* Contains {fee.redeemColFee * 100 + "%"} fee.</p>
         </Row>
       </CenterAlign>
     </MyModal>
   );
 };
 
-export const renderBuyOptionsModal = (visible, handleCancel, handleOk, 
+export const renderBuyOptionsModal = (visible, handleCancel, handleOk,
   amountToPay, currencyToPay, balance, loading, fee, locked) => {
   let payToken = "WAN";
   let payAmount = amountToPay.split('/ ')[1];
@@ -586,13 +586,13 @@ export const renderBuyOptionsModal = (visible, handleCancel, handleOk,
           <WalletDiv>
             {
               currencyToPay !== '1'
-              ? <WalletButtonLong />
-              : <EthWalletButton />
+                ? <WalletButtonLong />
+                : <EthWalletButton />
             }
             {
               locked
-              ? <Locked />
-              : null
+                ? <Locked />
+                : null
             }
           </WalletDiv>
         </Row>
@@ -605,8 +605,8 @@ export const renderBuyOptionsModal = (visible, handleCancel, handleOk,
             value={payAmount}
             readOnly
           />
-          <p style={{opacity: "0.6"}}>* Your balance is: {beautyNumber(balance,8) + " " + payToken} </p>
-          <p style={{opacity: "0.6"}}>* Contains {fee.buyFee*100 + "%"} fee.</p>
+          <p style={{ opacity: "0.6" }}>* Your balance is: {beautyNumber(balance, 8) + " " + payToken} </p>
+          <p style={{ opacity: "0.6" }}>* Contains {fee.buyFee * 100 + "%"} fee.</p>
         </Row>
       </CenterAlign>
     </MyModal>
@@ -628,13 +628,13 @@ export const renderSellOptionsModal = (chainType, visible, name, amountToSell, a
           <WalletDiv>
             {
               chainType === 'wan'
-              ? <WalletButtonLong />
-              : <EthWalletButton />
+                ? <WalletButtonLong />
+                : <EthWalletButton />
             }
             {
               locked
-              ? <Locked />
-              : null
+                ? <Locked />
+                : null
             }
           </WalletDiv>
         </Row>
@@ -644,7 +644,7 @@ export const renderSellOptionsModal = (chainType, visible, name, amountToSell, a
             value={name}
             readOnly
           />
-          
+
         </Row>
         <Row>
           <SmallSpace />
@@ -654,8 +654,8 @@ export const renderSellOptionsModal = (chainType, visible, name, amountToSell, a
             value={amountToSell}
             onChange={amountChange}
           />
-          <p style={{opacity: "0.6"}}>* Your options balance is: {beautyNumber(balance, 8) + " "} </p>
-          <p style={{opacity: "0.6"}}>* Sell fee is {fee.sellFee*100 + "%"}.</p>
+          <p style={{ opacity: "0.6" }}>* Your options balance is: {beautyNumber(balance, 8) + " "} </p>
+          <p style={{ opacity: "0.6" }}>* Sell fee is {fee.sellFee * 100 + "%"}.</p>
         </Row>
       </CenterAlign>
     </MyModal>
@@ -677,13 +677,13 @@ export const renderExerciseModal = (chainType, visible, name, amountToSell, amou
           <WalletDiv>
             {
               chainType === 'wan'
-              ? <WalletButtonLong />
-              : <EthWalletButton />
+                ? <WalletButtonLong />
+                : <EthWalletButton />
             }
             {
               locked
-              ? <Locked />
-              : null
+                ? <Locked />
+                : null
             }
           </WalletDiv>
         </Row>
@@ -693,7 +693,7 @@ export const renderExerciseModal = (chainType, visible, name, amountToSell, amou
             value={name}
             readOnly
           />
-          
+
         </Row>
         <Row>
           <SmallSpace />
@@ -703,8 +703,8 @@ export const renderExerciseModal = (chainType, visible, name, amountToSell, amou
             value={amountToSell}
             onChange={amountChange}
           />
-          <p style={{opacity: "0.6"}}>* Your options balance is: {beautyNumber(balance, 8) + " "} </p>
-          <p style={{opacity: "0.6"}}>* Exercise fee is {fee.exerciseFee*100 + "%"}.</p>
+          <p style={{ opacity: "0.6" }}>* Your options balance is: {beautyNumber(balance, 8) + " "} </p>
+          <p style={{ opacity: "0.6" }}>* Exercise fee is {fee.exerciseFee * 100 + "%"}.</p>
         </Row>
       </CenterAlign>
     </MyModal>
@@ -726,13 +726,13 @@ export const renderTransferModal = (chainType, visible, name, amount, amountChan
           <WalletDiv>
             {
               chainType === 'wan'
-              ? <WalletButtonLong />
-              : <EthWalletButton />
+                ? <WalletButtonLong />
+                : <EthWalletButton />
             }
             {
               locked
-              ? <Locked />
-              : null
+                ? <Locked />
+                : null
             }
           </WalletDiv>
         </Row>
@@ -753,7 +753,7 @@ export const renderTransferModal = (chainType, visible, name, amount, amountChan
             onChange={amountChange}
             suffix={<YellowText>{name}</YellowText>}
           />
-          <p style={{opacity: "0.6"}}>* Your balance is: {beautyNumber(balance, 8) + " "} </p>
+          <p style={{ opacity: "0.6" }}>* Your balance is: {beautyNumber(balance, 8) + " "} </p>
         </Row>
       </CenterAlign>
     </MyModal>
@@ -775,13 +775,13 @@ export const renderClaimModal = (chainType, visible, wanAmount, fnxAmount, handl
           <WalletDiv>
             {
               chainType === 'wan'
-              ? <WalletButtonLong />
-              : <EthWalletButton />
+                ? <WalletButtonLong />
+                : <EthWalletButton />
             }
             {
               locked
-              ? <Locked />
-              : null
+                ? <Locked />
+                : null
             }
           </WalletDiv>
         </Row>

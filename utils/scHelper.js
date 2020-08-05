@@ -974,7 +974,7 @@ export const redeemMinerCoin = async (chainType, coinToken, amount, selectedWall
       web3.utils.toWei(amount.toString())).estimateGas({ gas: 1e7, from: address, value: txParam.value });
     if (gas.toString() === "10000000") {
       message.error("Sorry, gas estimate failed, Please check input params");
-      // return false;
+      return false;
     }
     if (selectedWallet.type() === "EXTENSION") {
       txParam.gas = gas;

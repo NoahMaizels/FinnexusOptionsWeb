@@ -1,5 +1,6 @@
 import { LineChart, Line, Point, Chart, Axis, AreaChart, Guide } from 'bizcharts';
 import { Component } from 'react';
+import { injectIntl } from 'umi';
 
 
 class MyChart extends Component {
@@ -23,7 +24,10 @@ class MyChart extends Component {
     },
   ];
 
+  
+
   render() {
+    const intl = this.props.intl;
     return (
       <AreaChart
         padding={[30, 80, 50, 80]}
@@ -42,7 +46,7 @@ class MyChart extends Component {
         title={{
           visible: true,
           alignTo: 'left',
-          text: 'Profit or Loss',
+          text: intl.messages['chart.profitOrLoss'],
           style: {
             fontSize: 18,
             fill: 'white',
@@ -64,7 +68,7 @@ class MyChart extends Component {
 
               text={{
                 position: 'start', 
-                content: 'Profit or loss: ' + (Number(this.props.optType) === 0 ? (this.props.lineData[50 + this.props.slider]?this.props.lineData[50 + this.props.slider].profit:0): (this.props.lineData[50 - this.props.slider]?this.props.lineData[50 - this.props.slider].profit:0)) + '$', 
+                content: intl.messages['chart.profitOrLoss'] + ': ' + (Number(this.props.optType) === 0 ? (this.props.lineData[50 + this.props.slider]?this.props.lineData[50 + this.props.slider].profit:0): (this.props.lineData[50 - this.props.slider]?this.props.lineData[50 - this.props.slider].profit:0)) + '$', 
                 style: {
                   fill: 'white'
                 },
@@ -82,4 +86,4 @@ class MyChart extends Component {
   }
 }
 
-export default MyChart;
+export default injectIntl(MyChart);

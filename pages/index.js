@@ -19,8 +19,9 @@ import BuyOptions from "../components/buyOptions";
 import Assets from './assets';
 
 import { getOrderHistory } from '../components/db';
-import { orderHistoryColumn } from '../components/historyColums';
 import { injectIntl } from 'umi';
+
+import { getOrderHistoryColumn } from '../components/historyColums';
 
 class IndexPage extends Component {
   constructor(props) {
@@ -88,9 +89,6 @@ class IndexPage extends Component {
     }
   }
 
-  
-
-
   render() {
     const intl = this.props.intl;
     return (
@@ -108,12 +106,12 @@ class IndexPage extends Component {
           <SingleLine />
           {
             this.state.tabSelect1
-              ? <BuyOptions title="Choose and buy the options" baseToken="BTC" update={()=>{this.setState()}} />
+              ? <BuyOptions title={intl.messages['index.buyTitle']} baseToken="BTC" update={()=>{this.setState()}} />
               : null
           }
           {
             this.state.tabSelect2
-              ? <BuyOptions title="Choose and buy the options" baseToken="ETH" update={()=>{this.setState()}}/>
+              ? <BuyOptions title={intl.messages['index.buyTitle']} baseToken="ETH" update={()=>{this.setState()}}/>
               : null
           }
           <Header2>
@@ -133,7 +131,7 @@ class IndexPage extends Component {
           </Header2>
           <SingleLine />
           <DarkContainer>
-            <HistoryTable columns={orderHistoryColumn} dataSource={getOrderHistory(this.props.selectedAccount?this.props.selectedAccount.get('address'):'')} />
+            <HistoryTable columns={getOrderHistoryColumn(intl)} dataSource={getOrderHistory(this.props.selectedAccount?this.props.selectedAccount.get('address'):'')} />
           </DarkContainer>
           <Space />
         </Body>
